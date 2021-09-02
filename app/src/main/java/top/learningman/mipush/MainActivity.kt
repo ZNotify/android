@@ -12,12 +12,18 @@ import androidx.preference.PreferenceManager
 import com.xiaomi.mipush.sdk.MiPushClient
 import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import okhttp3.HttpUrl
+import okhttp3.OkHttpClient
+import okhttp3.Request
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import java.lang.Exception
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
-
 
         go_setting.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
@@ -30,11 +36,70 @@ class MainActivity : AppCompatActivity() {
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
             reg_status_text.text = getString(R.string.not_set_userid_err)
             reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
+            return
         }
-
 
         if (shouldInit()) {
             MiPushClient.registerPush(this, "2882303761520035342", "5272003587342")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val app = (application as GlobalApplication)
+        if (app.getUserIDReliable()) {
+            return
+        }
+
+        val pref = PreferenceManager.getDefaultSharedPreferences(this)
+        val userid = pref.getString("user_id", "none")!!
+        if (userid != "none") {
+            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
+            reg_status_text.text = getString(R.string.loading)
+            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)
+            thread {
+                try {
+                    val client = OkHttpClient()
+                    val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
+                        .newBuilder()
+                        .addQueryParameter("user_id", userid)
+                        .addPathSegment("check")
+                        .build()
+                    val request = Request.Builder()
+                        .url(url)
+                        .build()
+                    try {
+                        val response = client.newCall(request).execute()
+                        val responseData = response.body?.string() ?: throw Exception("No response")
+                        if (responseData == "true") {
+                            app.setUserIDReliable(true)
+                            runOnUiThread {
+                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
+                                reg_status_text.text = getString(R.string.userid_success)
+                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
+                            }
+
+                            MiPushClient.setUserAccount(this, userid, null)
+                        } else {
+                            runOnUiThread {
+                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+                                reg_status_text.text = getString(R.string.userid_not_exist_err)
+                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT)
+                            }
+                        }
+
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        runOnUiThread {
+                            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+                            reg_status_text.text = getString(R.string.connect_err)
+                            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC_ALERT)
+                        }
+                    }
+                } catch (e: Exception) {
+                    e.printStackTrace()
+                }
+            }
         }
     }
 

@@ -9,4 +9,7 @@
     <string name="setting_header">服务器设置</string>
     <string name="loading">加载中</string>
     <string name="not_set_userid_err">User ID 未设置</string>
+    <string name="userid_not_exist_err">User ID 无效</string>
+    <string name="userid_success">工作正常</string>
+    <string name="connect_err">无法连接服务器</string>
 </resources>
