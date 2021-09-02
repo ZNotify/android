@@ -9,7 +9,7 @@
     <androidx.cardview.widget.CardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
-        android:layout_height="200dp"
+        android:layout_height="100dp"
         android:layout_gravity="top"
         android:layout_margin="20dp"
         card_view:cardCornerRadius="4dp">
@@ -23,16 +23,41 @@
             card_view:cardBackgroundColor="@color/reg_pending"
             card_view:cardCornerRadius="4dp">
 
-            <net.steamcrafted.materialiconlib.MaterialIconView
-                android:id="@+id/reg_status_icon"
+            <androidx.constraintlayout.widget.ConstraintLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:background="@color/reg_pending"
-                android:scaleType="center"
-                card_view:materialIcon="sync"
-                card_view:materialIconColor="#fff"
-                card_view:materialIconSize="50dp"
-                tools:ignore="ImageContrastCheck" />
+                android:gravity="center">
+
+                <net.steamcrafted.materialiconlib.MaterialIconView
+                    android:id="@+id/reg_status_icon"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_weight="1"
+                    android:scaleType="center"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintEnd_toStartOf="@+id/reg_status_text"
+                    card_view:layout_constraintTop_toTopOf="parent"
+                    card_view:materialIcon="sync"
+                    card_view:materialIconColor="#fff"
+                    card_view:materialIconSize="24dp"
+                    tools:ignore="ImageContrastCheck" />
+
+                <TextView
+                    android:id="@+id/reg_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:fontFamily="sans-serif"
+                    android:gravity="center_vertical"
+                    android:paddingLeft="20dp"
+                    android:text="@string/loading"
+                    android:textColor="@color/white"
+                    android:textSize="18sp"
+                    card_view:layout_constraintBottom_toBottomOf="parent"
+                    card_view:layout_constraintEnd_toEndOf="parent"
+                    card_view:layout_constraintStart_toStartOf="parent"
+                    card_view:layout_constraintTop_toTopOf="parent" />
+            </androidx.constraintlayout.widget.ConstraintLayout>
+
 
         </androidx.cardview.widget.CardView>
 
