@@ -1,0 +1,11 @@
+<resources>
+    <string name="app_name">Notify</string>
+    <string name="title_activity_settings">设置</string>
+
+    <!-- Messages Preferences -->
+    <string name="signature_title">Your signature</string>
+    <string name="reply_title">Default reply action</string>
+    <string name="logo">Logo</string>
+    <string name="setting">设置</string>
+    <string name="setting_header">服务器设置</string>
+</resources>
