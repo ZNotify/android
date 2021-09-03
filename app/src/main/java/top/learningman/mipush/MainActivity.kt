@@ -7,6 +7,7 @@ import android.content.res.ColorStateList
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.os.Process
+import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.xiaomi.mipush.sdk.MiPushClient
@@ -20,6 +21,8 @@ import java.lang.Exception
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
+    lateinit var currentUserID: String
+    var inited = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -32,6 +35,8 @@ class MainActivity : AppCompatActivity() {
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!
+        currentUserID = userid
+
         if (userid == "none") {
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
             reg_status_text.text = getString(R.string.not_set_userid_err)
@@ -46,13 +51,18 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        val app = (application as GlobalApplication)
-        if (app.getUserIDReliable()) {
-            return
-        }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!
+
+        if (userid == currentUserID && inited) {
+            return
+        }
+
+        if (!inited) {
+            inited = true
+        }
+
         if (userid != "none") {
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
             reg_status_text.text = getString(R.string.loading)
@@ -72,14 +82,20 @@ class MainActivity : AppCompatActivity() {
                         val response = client.newCall(request).execute()
                         val responseData = response.body?.string() ?: throw Exception("No response")
                         if (responseData == "true") {
-                            app.setUserIDReliable(true)
                             runOnUiThread {
                                 reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
                                 reg_status_text.text = getString(R.string.userid_success)
                                 reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
                             }
 
-                            MiPushClient.setUserAccount(this, userid, null)
+                            val accounts = MiPushClient.getAllUserAccount(this)
+                            if (!accounts.contains(userid)) {
+                                MiPushClient.setUserAccount(this, userid, null)
+                                Log.d("Accounts", accounts.toString())
+                                for (account in accounts) {
+                                    MiPushClient.unsetUserAccount(this, account, null)
+                                }
+                            }
                         } else {
                             runOnUiThread {
                                 reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
