@@ -4,6 +4,21 @@ plugins {
     id 'kotlin-android-extensions'
 }
 
+def gitCommitId = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
+
+def majorVersion = 0
+def minorVersion = 0
+def buildVersion = 1
+def currentVersionCode = (majorVersion + 1) * 200 + minorVersion * 20 + buildVersion
+def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
+def versionBase = "${baseVersionName}.${releaseTime()}.${gitCommitId}"
+
+
+
+static def releaseTime() {
+    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+}
+
 android {
     compileSdk 30
 
@@ -11,8 +26,8 @@ android {
         applicationId "top.learningman.mipush"
         minSdk 26
         targetSdk 30
-        versionCode 1
-        versionName "1.0"
+        versionCode = currentVersionCode
+        versionName = versionBase + "-SNAPSHOT"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -22,7 +37,7 @@ android {
             buildConfigField "String", "APIURL", "\"http://192.168.1.101:14444\""
         }
         release {
-            buildConfigField "String", "APIURL", "\"http://127.0.0.1:8080\""
+            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
