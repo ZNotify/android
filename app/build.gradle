@@ -20,6 +20,14 @@ static def releaseTime() {
 }
 
 android {
+    signingConfigs {
+        release {
+            storeFile file('key.jks')
+            storePassword 'password'
+            keyAlias 'notify'
+            keyPassword 'password'
+        }
+    }
     compileSdk 30
 
     defaultConfig {
@@ -30,6 +38,7 @@ android {
         versionName = versionBase + "-SNAPSHOT"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        signingConfig signingConfigs.release
     }
 
     buildTypes {
