@@ -72,7 +72,7 @@ class MainActivity : AppCompatActivity() {
                     val client = OkHttpClient()
                     val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
                         .newBuilder()
-                        .addQueryParameter("user_id", userid)
+                        .addPathSegment(userid)
                         .addPathSegment("check")
                         .build()
                     val request = Request.Builder()
