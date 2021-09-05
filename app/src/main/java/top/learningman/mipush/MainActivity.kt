@@ -1,19 +1,16 @@
 package top.learningman.mipush
 
-import android.app.ActivityManager
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.os.*
 import androidx.appcompat.app.AppCompatActivity
-import android.os.Bundle
-import android.os.Process
 import android.util.Log
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.xiaomi.mipush.sdk.MiPushClient
 import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
-import okhttp3.HttpUrl
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
@@ -22,11 +19,37 @@ import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
     lateinit var currentUserID: String
+    lateinit var context: Context
     var inited = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        context = this
         setContentView(R.layout.activity_main)
+
+        val handler = object : Handler(Looper.getMainLooper()) {
+            override fun handleMessage(msg: Message) {
+                val uiMessage = msg.obj as UIMessage
+                reg_status.setCardBackgroundColor(context.getColor(uiMessage.color))
+                reg_status_icon.setIcon(uiMessage.icon)
+                reg_status_text.text = uiMessage.reason
+
+                when (msg.what) {
+                    MiPushReceiver.Companion.ActionEnum.REG_SUCCESS.ordinal -> {
+                        val accounts = MiPushClient.getAllUserAccount(context)
+                        if (!accounts.contains(currentUserID)) {
+                            MiPushClient.setUserAccount(context, currentUserID, null)
+                            Log.d("Accounts", accounts.toString())
+                            for (account in accounts) {
+                                MiPushClient.unsetUserAccount(context, account, null)
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        MainApplication.handler = handler
 
         go_setting.setOnClickListener {
             val intent = Intent(this, SettingsActivity::class.java)
@@ -43,10 +66,6 @@ class MainActivity : AppCompatActivity() {
             reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
             return
         }
-
-        if (shouldInit()) {
-            MiPushClient.registerPush(this, "2882303761520035342", "5272003587342")
-        }
     }
 
     override fun onResume() {
@@ -55,7 +74,7 @@ class MainActivity : AppCompatActivity() {
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!
 
-        if (userid == currentUserID && inited) {
+        if (userid == currentUserID && inited || userid == "none") {
             return
         }
 
@@ -80,29 +99,29 @@ class MainActivity : AppCompatActivity() {
                         .build()
                     try {
                         val response = client.newCall(request).execute()
-                        val responseData = response.body?.string() ?: throw Exception("No response")
-                        if (responseData == "true") {
-                            runOnUiThread {
-                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
-                                reg_status_text.text = getString(R.string.userid_success)
-                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
-                            }
-
-                            val accounts = MiPushClient.getAllUserAccount(this)
-                            if (!accounts.contains(userid)) {
-                                MiPushClient.setUserAccount(this, userid, null)
-                                Log.d("Accounts", accounts.toString())
-                                for (account in accounts) {
-                                    MiPushClient.unsetUserAccount(this, account, null)
-                                }
-                            }
-                        } else {
-                            runOnUiThread {
-                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
-                                reg_status_text.text = getString(R.string.userid_not_exist_err)
-                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT)
-                            }
-                        }
+                        response.body?.string() ?: throw Exception("No response")
+//                        if (responseData == "true") {
+////                            runOnUiThread {
+////                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
+////                                reg_status_text.text = getString(R.string.userid_success)
+////                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
+////                            }
+//
+//                            val accounts = MiPushClient.getAllUserAccount(this)
+//                            if (!accounts.contains(userid)) {
+//                                MiPushClient.setUserAccount(this, userid, null)
+//                                Log.d("Accounts", accounts.toString())
+//                                for (account in accounts) {
+//                                    MiPushClient.unsetUserAccount(this, account, null)
+//                                }
+//                            }
+//                        } else {
+////                            runOnUiThread {
+////                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+////                                reg_status_text.text = getString(R.string.userid_not_exist_err)
+////                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT)
+////                            }
+//                        }
 
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -119,19 +138,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun shouldInit(): Boolean {
-        val am = getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
-        val processInfo = am.runningAppProcesses;
-        val mainProcessName = applicationInfo.processName
-        val myPid = Process.myPid()
-        for (info in processInfo) {
-            if (info.pid == myPid && mainProcessName == info.processName)
-                return true
-        }
-        return false
+
+    fun Context.colorList(id: Int): ColorStateList {
+        return ColorStateList.valueOf(ContextCompat.getColor(this, id))
     }
 }
 
-fun Context.colorList(id: Int): ColorStateList {
-    return ColorStateList.valueOf(ContextCompat.getColor(this, id))
-}
