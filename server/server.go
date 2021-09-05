@@ -87,7 +87,7 @@ func main() {
 		body, _ := ioutil.ReadAll(resp.Body)
 		bodyStr := string(body)
 
-		if err == nil {
+		if err != nil {
 			context.String(http.StatusInternalServerError, "Failed Request.\n%s", bodyStr)
 			return
 		}
