@@ -19,7 +19,7 @@ var enforcer, _ = casbin.NewEnforcer("model.conf", "policy.csv")
 var notifyID = 371102
 
 func main() {
-	gin.SetMode(gin.DebugMode)
+	gin.SetMode(gin.ReleaseMode)
 
 	if len(os.Args) <= 1 {
 		fmt.Println("MiPush Secret not available")
@@ -72,7 +72,7 @@ func main() {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 		if err == nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s",)
+			context.String(http.StatusInternalServerError, "Failed Request.\n%s")
 			return
 		}
 		defer func(Body io.ReadCloser) {
