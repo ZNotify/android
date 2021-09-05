@@ -19,7 +19,11 @@ var enforcer, _ = casbin.NewEnforcer("model.conf", "policy.csv")
 var notifyID = 371102
 
 func main() {
-	gin.SetMode(gin.ReleaseMode)
+	if os.Getenv("CI") == "" {
+		gin.SetMode(gin.DebugMode)
+	} else {
+		gin.SetMode(gin.ReleaseMode)
+	}
 
 	if len(os.Args) <= 1 {
 		fmt.Println("MiPush Secret not available")
@@ -54,25 +58,32 @@ func main() {
 			return
 		}
 
+		postData := url.Values{
+			"user_account":            {userID},
+			"payload":                 {long},
+			"restricted_package_name": {"top.learningman.mipush"},
+			"pass_through":            {"0"},
+			"title":                   {title},
+			"description":             {content},
+			"notify_id":               {strconv.Itoa(notifyID)},
+		}.Encode()
+
 		req, err := http.NewRequest(
 			http.MethodPost,
 			APIURL,
-			strings.NewReader(url.Values{
-				"payload":                 {long},
-				"restricted_package_name": {"top.learningman.mipush"},
-				"pass_through":            {"0"},
-				"title":                   {title},
-				"description":             {content},
-				"notify_id":               {strconv.Itoa(notifyID)},
-				"user_account":            {userID},
-			}.Encode()))
+			strings.NewReader(postData))
 
 		req.Header.Set("Authorization", authHeader)
+		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
 
 		client := &http.Client{}
 		resp, err := client.Do(req)
+
+		body, _ := ioutil.ReadAll(resp.Body)
+		bodyStr := string(body)
+
 		if err == nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s")
+			context.String(http.StatusInternalServerError, "Failed Request.\n%s", bodyStr)
 			return
 		}
 		defer func(Body io.ReadCloser) {
@@ -83,8 +94,6 @@ func main() {
 		}(resp.Body)
 
 		statusCode := resp.StatusCode
-		body, _ := ioutil.ReadAll(resp.Body)
-		bodyStr := string(body)
 
 		context.String(statusCode, bodyStr)
 	})
