@@ -16,6 +16,7 @@ jobs:
         utcOffset: "+08:00"
     
     - uses: actions/checkout@v2
+
     - name: set up JDK 11
       uses: actions/setup-java@v2
       with:
@@ -23,11 +24,24 @@ jobs:
         distribution: 'adopt'
         cache: gradle
 
+    - name: Set up Go
+      uses: actions/setup-go@v2
+      with:
+        go-version: 1.17
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
     - name: Build with Gradle
       run: ./gradlew build
+
+    - name: Build Server
+      working-directory: server
+      run: go build -v server.go
+
+    - name: Bundle server
+      working-directory: server
+      run: zip server.zip server model.conf policy.csv
       
     - name: Release Package
       uses: "marvinpinto/action-automatic-releases@latest"
@@ -38,3 +52,4 @@ jobs:
         files: |
           app/build/outputs/apk/release/app-release.apk
           app/build/outputs/apk/release/output-metadata.json
+          server/server.zip
