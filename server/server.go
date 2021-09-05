@@ -1,11 +1,13 @@
 package main
 
 import (
+	"crypto/rand"
 	"fmt"
 	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
+	"math/big"
 	"net/http"
 	"net/url"
 	"os"
@@ -16,7 +18,10 @@ import (
 const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
 
 var enforcer, _ = casbin.NewEnforcer("model.conf", "policy.csv")
-var notifyID = 371102
+
+var n, _ = rand.Int(rand.Reader, big.NewInt(100))
+
+var notifyID = n.Int64()
 
 func main() {
 	if os.Getenv("CI") == "" {
@@ -65,7 +70,7 @@ func main() {
 			"pass_through":            {"0"},
 			"title":                   {title},
 			"description":             {content},
-			"notify_id":               {strconv.Itoa(notifyID)},
+			"notify_id":               {strconv.Itoa(int(notifyID))},
 		}.Encode()
 
 		req, err := http.NewRequest(
