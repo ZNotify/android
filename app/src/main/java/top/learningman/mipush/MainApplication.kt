@@ -1,17 +1,19 @@
 package top.learningman.mipush
 
-import android.annotation.SuppressLint
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
 import android.os.Handler
-import android.os.Looper
 import android.os.Process
 import com.xiaomi.mipush.sdk.MiPushClient
 
 class MainApplication : Application() {
     companion object {
         lateinit var handler: Handler
+
+        fun isHandlerInit():Boolean {
+            return this::handler.isInitialized
+        }
     }
 
     fun setHandler(h: Handler) {

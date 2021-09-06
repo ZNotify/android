@@ -6,7 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.VIBRATE" />
-
     <uses-permission
         android:name="android.permission.WRITE_EXTERNAL_STORAGE"
         tools:ignore="ScopedStorage" />
@@ -29,6 +28,7 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Notify"
         tools:replace="android:allowBackup">
+
         <receiver
             android:name=".MiPushReceiver"
             android:enabled="true"
@@ -45,6 +45,10 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".MessagesActivity"
+            android:exported="true"
+            android:label="@string/title_activity_messages"/>
         <activity
             android:name=".SettingsActivity"
             android:exported="true"

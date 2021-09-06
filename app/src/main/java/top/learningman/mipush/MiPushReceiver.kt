@@ -2,15 +2,16 @@ package top.learningman.mipush
 
 import android.content.Context
 import android.os.Message
-import com.xiaomi.mipush.sdk.ErrorCode
-import com.xiaomi.mipush.sdk.MiPushClient
-import com.xiaomi.mipush.sdk.MiPushCommandMessage
-import com.xiaomi.mipush.sdk.PushMessageReceiver
+import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import top.learningman.mipush.entity.DatabaseMessage
+import top.learningman.mipush.entity.UIMessage
+import top.learningman.mipush.instance.MessageDatabase
+import kotlin.concurrent.thread
 
 class MiPushReceiver : PushMessageReceiver() {
-    companion object{
-        enum class ActionEnum{
+    companion object {
+        enum class ActionEnum {
             REG_SUCCESS,
             REG_FAILED
         }
@@ -24,31 +25,45 @@ class MiPushReceiver : PushMessageReceiver() {
 
         if (command == MiPushClient.COMMAND_REGISTER) {
             if (msg.resultCode == ErrorCode.SUCCESS.toLong()) {
-                uiMsgObj = object : UIMessage {
-                    override val reason: String
-                        get() = "注册成功"
-                    override val color: Int
-                        get() = R.color.reg_success
-                    override val icon: MaterialDrawableBuilder.IconValue
-                        get() = MaterialDrawableBuilder.IconValue.CHECK
-                }
+                uiMsgObj = UIMessage(
+                    MaterialDrawableBuilder.IconValue.CHECK,
+                    R.color.reg_success,
+                    context.getString(R.string.reg_success)
+                )
                 uiMsgWhat = ActionEnum.REG_SUCCESS
             } else {
-                uiMsgObj = object : UIMessage {
-                    override val reason: String
-                        get() = "注册失败"
-                    override val color: Int
-                        get() = R.color.reg_failed
-                    override val icon: MaterialDrawableBuilder.IconValue
-                        get() = MaterialDrawableBuilder.IconValue.ALERT
-                }
+                uiMsgObj =
+                    UIMessage(
+                        MaterialDrawableBuilder.IconValue.ALERT,
+                        R.color.reg_failed,
+                        context.getString(R.string.reg_failed)
+                    )
                 uiMsgWhat = ActionEnum.REG_FAILED
             }
 
             val uiMsg = Message.obtain()
             uiMsg.obj = uiMsgObj
             uiMsg.what = uiMsgWhat.ordinal
-            MainApplication.handler.sendMessage(uiMsg)
+            thread {
+                while (!MainApplication.isHandlerInit()) {
+                    Thread.sleep(200) // This is a ugly trick. Finding a better solution.
+                }
+                MainApplication.handler.sendMessage(uiMsg)
+            }
+        }
+    }
+
+    override fun onNotificationMessageArrived(context: Context, msg: MiPushMessage) {
+        val userDao = MessageDatabase.getDatabase(context).messageDao()
+
+        val payload = msg.content
+        val content = msg.description
+        val title = msg.title
+        val id = msg.messageId
+
+        val dbMsg = DatabaseMessage(content, payload, id, title)
+        thread {
+            dbMsg.id = userDao.insertMessage(dbMsg)
         }
     }
 }
