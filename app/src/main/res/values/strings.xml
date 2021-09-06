@@ -1,6 +1,7 @@
 <resources>
     <string name="app_name">Notify</string>
     <string name="title_activity_settings">设置</string>
+    <string name="title_activity_messages">推送消息</string>
 
     <!-- Preferences -->
     <string name="user_id">用户 ID</string>
@@ -12,4 +13,6 @@
     <string name="userid_not_exist_err">User ID 无效</string>
     <string name="userid_success">工作正常</string>
     <string name="connect_err">无法连接服务器</string>
+    <string name="reg_success">注册成功</string>
+    <string name="reg_failed">注册失败</string>
 </resources>
