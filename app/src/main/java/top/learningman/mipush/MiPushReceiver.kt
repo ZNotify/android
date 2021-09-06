@@ -4,7 +4,6 @@ import android.content.Context
 import android.os.Message
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
-import top.learningman.mipush.entity.DatabaseMessage
 import top.learningman.mipush.entity.UIMessage
 import top.learningman.mipush.instance.MessageDatabase
 import kotlin.concurrent.thread
@@ -61,9 +60,9 @@ class MiPushReceiver : PushMessageReceiver() {
         val title = msg.title
         val id = msg.messageId
 
-        val dbMsg = DatabaseMessage(content, payload, id, title)
+        val dbMsg = top.learningman.mipush.entity.Message(content, payload, id, title, System.currentTimeMillis())
         thread {
-            dbMsg.id = userDao.insertMessage(dbMsg)
+            userDao.insertMessage(dbMsg)
         }
     }
 }
