@@ -22,4 +22,18 @@
     <style name="Theme.Notify.AppBarOverlay" parent="ThemeOverlay.AppCompat.Dark.ActionBar" />
 
     <style name="Theme.Notify.PopupOverlay" parent="ThemeOverlay.AppCompat.Light" />
+
+    <style name="msg_title">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
+
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Title</item>
+    </style>
+
+    <style name="msg_content">
+        <item name="android:layout_marginBottom">8dp</item>
+        <item name="android:paddingLeft">8dp</item>
+
+        <item name="android:textAppearance">@android:style/TextAppearance.Material.Menu</item>
+    </style>
 </resources>

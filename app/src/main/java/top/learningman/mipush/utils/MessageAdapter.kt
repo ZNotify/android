@@ -18,14 +18,17 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
 
     override fun onBindViewHolder(holder: MessageHolder, position: Int) {
         val current = getItem(position)
-        holder.bind(current.title)
+        holder.bind(current)
+        holder.bind(current)
     }
 
     class MessageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-        private val messageItemView: TextView = itemView.findViewById(R.id.textView)
+        private val messageItemTitleView: TextView = itemView.findViewById(R.id.row_item_title)
+        private val messageItemContentView: TextView = itemView.findViewById(R.id.row_item_content)
 
-        fun bind(text: String?) {
-            messageItemView.text = text
+        fun bind(msg: Message?) {
+            messageItemTitleView.text = msg?.title
+            messageItemContentView.text = msg?.content
         }
 
         companion object {
