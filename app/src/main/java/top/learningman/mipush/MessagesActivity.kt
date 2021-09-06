@@ -8,6 +8,8 @@ import kotlinx.android.synthetic.main.activity_messages.*
 import top.learningman.mipush.entity.MessageViewModel
 import top.learningman.mipush.entity.MessageViewModelFactory
 import top.learningman.mipush.utils.MessageAdapter
+import androidx.recyclerview.widget.DividerItemDecoration
+
 
 class MessagesActivity : AppCompatActivity() {
     lateinit var mLayoutManager: LinearLayoutManager
@@ -24,8 +26,11 @@ class MessagesActivity : AppCompatActivity() {
         mLayoutManager = LinearLayoutManager(this)
         mAdapter = MessageAdapter()
 
+        val dividerItemDecoration = DividerItemDecoration(this, mLayoutManager.orientation)
+
         messages_list.layoutManager = mLayoutManager
         messages_list.adapter = mAdapter
+        messages_list.addItemDecoration(dividerItemDecoration)
 
         messageViewModel.messages.observe(this) {
             it.let {
