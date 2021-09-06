@@ -5,13 +5,14 @@ import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
 import top.learningman.mipush.dao.MessageDao
-import top.learningman.mipush.entity.DatabaseMessage
+import top.learningman.mipush.entity.Message
 
-@Database(version = 1, entities = [DatabaseMessage::class], exportSchema = false)
+@Database(version = 2, entities = [Message::class], exportSchema = false)
 abstract class MessageDatabase : RoomDatabase() {
     abstract fun messageDao(): MessageDao
 
     companion object {
+        @Volatile
         private var instance: MessageDatabase? = null
 
         fun getDatabase(context: Context): MessageDatabase {
