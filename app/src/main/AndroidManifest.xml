@@ -28,6 +28,14 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Notify"
         tools:replace="android:allowBackup">
+        <activity
+            android:name=".NotificationViewActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent">
+            <intent-filter>
+                <action android:name="top.learningman.mipush" />
+            </intent-filter>
+        </activity>
 
         <receiver
             android:name=".MiPushReceiver"
@@ -48,7 +56,7 @@
         <activity
             android:name=".MessagesActivity"
             android:exported="true"
-            android:label="@string/title_activity_messages"/>
+            android:label="@string/title_activity_messages" />
         <activity
             android:name=".SettingsActivity"
             android:exported="true"

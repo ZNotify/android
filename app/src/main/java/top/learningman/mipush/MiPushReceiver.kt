@@ -1,7 +1,14 @@
 package top.learningman.mipush
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Message
+import android.app.AlertDialog
+import android.text.method.ScrollingMovementMethod
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.widget.TextView
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import top.learningman.mipush.entity.UIMessage
@@ -60,9 +67,47 @@ class MiPushReceiver : PushMessageReceiver() {
         val title = msg.title
         val id = msg.messageId
 
-        val dbMsg = top.learningman.mipush.entity.Message(content, payload, id, title, System.currentTimeMillis())
+        val dbMsg = top.learningman.mipush.entity.Message(
+            content,
+            payload,
+            id,
+            title,
+            System.currentTimeMillis()
+        )
         thread {
             userDao.insertMessage(dbMsg)
         }
+    }
+
+    @SuppressLint("InflateParams")
+    override fun onNotificationMessageClicked(context: Context, msg: MiPushMessage) {
+        val payload = msg.content
+        val content = msg.description
+        val title = msg.title
+
+        val dialogView = LayoutInflater.from(context)
+            .inflate(R.layout.message_dialog, null, false)
+
+        val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
+        val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
+
+        dialogContent.text = content
+
+        if (payload != "") {
+            dialogLong.text = payload
+            dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
+            dialogLong.visibility = View.VISIBLE
+        }
+
+        val alertDialog = AlertDialog.Builder((context))
+            .setTitle(title)
+            .setView(dialogView)
+            .setPositiveButton("确定") { dialog, _ ->
+                dialog.dismiss()
+            }
+            .create()
+        alertDialog.show()
+
+        Log.d("OnClicked", "Truly execute trigger.")
     }
 }
