@@ -3,7 +3,8 @@
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingLeft="24dp">
+    android:paddingLeft="24dp"
+    android:paddingRight="24dp">
 
     <TextView
         android:id="@+id/dialog_content"
@@ -16,8 +17,17 @@
         android:id="@+id/dialog_long"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="8dp"
+        android:layout_marginTop="16dp"
+        android:scrollbarStyle="outsideOverlay"
+        android:maxLines="10"
         android:theme="@style/Widget.MaterialComponents.TextView"
-        android:maxLines="8"
+        android:scrollbars="vertical"
         android:visibility="gone" />
+
+    <TextView
+        android:id="@+id/dialog_time"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="16dp"
+        android:theme="@style/Widget.MaterialComponents.TextView" />
 </LinearLayout>

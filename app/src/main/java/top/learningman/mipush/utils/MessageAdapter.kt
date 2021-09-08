@@ -3,7 +3,9 @@ package top.learningman.mipush.utils
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Color
+import android.icu.text.SimpleDateFormat
 import android.text.format.DateUtils
+import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -15,6 +17,7 @@ import androidx.recyclerview.widget.RecyclerView
 import top.learningman.mipush.entity.Message
 import top.learningman.mipush.R
 import top.learningman.mipush.instance.MessageDatabase
+import java.util.*
 import kotlin.concurrent.thread
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
@@ -30,11 +33,10 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
     }
 
     class MessageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+        private val messageItem: ConstraintLayout = itemView.findViewById(R.id.row_item)
         private val messageItemTitleView: TextView = itemView.findViewById(R.id.row_item_title)
         private val messageItemContentView: TextView = itemView.findViewById(R.id.row_item_content)
         private val messageItemTimeView: TextView = itemView.findViewById(R.id.row_item_time)
-        private val messageItem: ConstraintLayout = itemView.findViewById(R.id.row_item)
-
 
         fun bind(msg: Message?) {
             messageItemTitleView.text = msg?.title
@@ -48,11 +50,19 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
 
             val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
             val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
+            val dialogTime = dialogView.findViewById<TextView>(R.id.dialog_time)
 
             dialogContent.text = msg?.content
+
             if (msg?.longMessage != "") {
                 dialogLong.text = msg?.longMessage
+                dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
                 dialogLong.visibility = View.VISIBLE
+            }
+
+            msg?.time.let {
+                dialogTime.text =
+                    SimpleDateFormat("y年M月d日 hh:mm:ss", Locale.getDefault()).format(it)
             }
 
             val alertDialog = AlertDialog.Builder((itemView.context))
@@ -61,7 +71,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
                 .setPositiveButton("确定") { dialog, _ ->
                     dialog.dismiss()
                 }
-                .setNegativeButton("删除") { dialog, _ ->
+                .setNeutralButton("删除") { dialog, _ ->
                     thread {
                         msg?.let {
                             MessageDatabase
@@ -74,12 +84,13 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
                 }
                 .create()
 
-            alertDialog.setCanceledOnTouchOutside(false)
+//            alertDialog.setCanceledOnTouchOutside(false)
 
             messageItem.setOnClickListener {
                 alertDialog.show()
-                val negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
-                negButton.setTextColor(Color.RED)
+                val neuButton = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL)
+                neuButton.setTextColor(Color.RED)
+
             }
         }
 
@@ -98,7 +109,7 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
         }
 
         override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem.title == newItem.title
+            return oldItem == newItem
         }
     }
 }

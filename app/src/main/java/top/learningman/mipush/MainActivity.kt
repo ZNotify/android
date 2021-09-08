@@ -58,8 +58,11 @@ class MainActivity : AppCompatActivity() {
         MainApplication.handler = handler
 
         go_setting.setOnClickListener {
-            val intent = Intent(this, SettingsActivity::class.java)
-            startActivity(intent)
+            startActivity(Intent(this, SettingsActivity::class.java))
+        }
+
+        go_history.setOnClickListener {
+            startActivity(Intent(this, MessagesActivity::class.java))
         }
 
         if (BuildConfig.DEBUG) {

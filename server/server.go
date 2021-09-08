@@ -56,12 +56,19 @@ func main() {
 
 		title := context.DefaultQuery("title", "Notification")
 		content := context.Query("content")
-		long := context.DefaultQuery("long", "")
+		long := context.Query("long")
 
 		if content == "" {
 			context.String(http.StatusBadRequest, "Content can not be empty.")
 			return
 		}
+		intentData := url.Values{
+			"title":   {title},
+			"content": {content},
+			"payload": {long},
+		}.Encode()
+
+		fmt.Println("mipush://view?" + intentData) // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
 
 		postData := url.Values{
 			"user_account":            {userID},
@@ -71,6 +78,8 @@ func main() {
 			"title":                   {title},
 			"description":             {content},
 			"notify_id":               {strconv.Itoa(int(notifyID))},
+			"extra.notify_effect":     {"2"},
+			"extra.intent_uri":        {"mipush://view?" + intentData},
 		}.Encode()
 
 		req, err := http.NewRequest(
@@ -88,7 +97,7 @@ func main() {
 		bodyStr := string(body)
 
 		if err != nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s", bodyStr)
+			context.String(http.StatusInternalServerError, "Failed Request.\n%s\n%s", bodyStr, err)
 			return
 		}
 		defer func(Body io.ReadCloser) {
