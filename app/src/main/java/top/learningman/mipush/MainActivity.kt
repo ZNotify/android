@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
 //                val userDao = MessageDatabase.getDatabase(context).messageDao()
 //                val messages = userDao.getAllMessages()
 //                Toast.makeText(this, messages.toString(), Toast.LENGTH_LONG).show()
-                startActivity(Intent(this, MessageViewActivity::class.java))
+//                startActivity(Intent(this, MessageViewActivity::class.java))
             }
         }
 
