@@ -78,8 +78,8 @@ func main() {
 			"title":                   {title},
 			"description":             {content},
 			"notify_id":               {strconv.Itoa(int(notifyID))},
-			"extra.notify_effect":     {"2"},
-			"extra.intent_uri":        {"mipush://view?" + intentData},
+			//"extra.notify_effect":     {"2"},
+			//"extra.intent_uri":        {"mipush://view?" + intentData},
 		}.Encode()
 
 		req, err := http.NewRequest(
