@@ -94,9 +94,11 @@ class MiPushReceiver : PushMessageReceiver() {
 //            dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
 //            dialogLong.visibility = View.VISIBLE
 //        }
-        val intent = Intent(context, MessageViewActivity::class.java)
-        intent
-
+        val intent = Intent(context, MessageViewActivity::class.java).let {
+            it.putExtra("message", msg)
+            it.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        }
+        context.startActivity(intent)
 
         Log.d("OnClicked", "Truly execute trigger.")
     }

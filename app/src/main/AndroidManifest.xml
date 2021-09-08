@@ -28,11 +28,6 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Notify"
         tools:replace="android:allowBackup">
-        <activity
-            android:name=".MessageViewActivity"
-            android:exported="true"
-            android:theme="@style/Theme.AppCompat.Dialog.Alert"
-            />
 
         <receiver
             android:name=".MiPushReceiver"
@@ -50,6 +45,10 @@
             </intent-filter>
         </receiver>
 
+        <activity
+            android:name=".MessageViewActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
         <activity
             android:name=".MessagesActivity"
             android:exported="true"
