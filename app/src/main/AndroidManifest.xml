@@ -29,13 +29,10 @@
         android:theme="@style/Theme.Notify"
         tools:replace="android:allowBackup">
         <activity
-            android:name=".NotificationViewActivity"
+            android:name=".MessageViewActivity"
             android:exported="true"
-            android:theme="@android:style/Theme.Translucent">
-            <intent-filter>
-                <action android:name="top.learningman.mipush" />
-            </intent-filter>
-        </activity>
+            android:theme="@style/Theme.AppCompat.Dialog.Alert"
+            />
 
         <receiver
             android:name=".MiPushReceiver"
