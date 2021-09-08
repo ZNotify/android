@@ -9,7 +9,7 @@ interface MessageDao {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
     fun insertMessage(msg: Message)
 
-    @Query("select * from Message")
+    @Query("select * from Message order by time DESC")
     fun getAllMessages(): Flow<List<Message>>
 
     @Query("select count(*) from Message")

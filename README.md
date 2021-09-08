@@ -10,6 +10,5 @@ POST https://push.learningman.top/{user_id}/send
 
 @param title 推送标题
 @param content 推送内容
-#param long 传送到客户端的长内容，当前未支持查看
+@param long 传送到客户端的长内容, 需要在应用内查看
 ```
-
