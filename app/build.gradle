@@ -21,6 +21,12 @@ static def releaseTime() {
 
 android {
     signingConfigs {
+        debug {
+            storeFile file('key.jks')
+            storePassword 'password'
+            keyAlias 'notify'
+            keyPassword 'password'
+        }
         release {
             storeFile file('key.jks')
             storePassword 'password'
