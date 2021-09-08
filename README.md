@@ -10,5 +10,6 @@ POST https://push.learningman.top/{user_id}/send
 
 @param title 推送标题
 @param content 推送内容
-@param long 传送到客户端的长内容, 需要在应用内查看
+@param long 传送到客户端的长内容, 需要在应用内查看，不支持从通知启动
+https://developer.android.com/guide/components/activities/background-starts
 ```
