@@ -1,19 +1,21 @@
 package top.learningman.mipush.utils
 
 import android.app.AlertDialog
+import android.content.DialogInterface
+import android.graphics.Color
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import android.widget.TextView
-import android.widget.Toast
 import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import top.learningman.mipush.entity.Message
 import top.learningman.mipush.R
+import top.learningman.mipush.instance.MessageDatabase
+import kotlin.concurrent.thread
 
 class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
 
@@ -25,7 +27,6 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
     override fun onBindViewHolder(holder: MessageHolder, position: Int) {
         val current = getItem(position)
         holder.bind(current)
-
     }
 
     class MessageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -42,17 +43,43 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
             val relativeTime = msg?.time?.let { DateUtils.getRelativeTimeSpanString(it) }
             messageItemTimeView.text = relativeTime
 
-//            val dialogView = LayoutInflater.from(itemView.context).inflate(R.layout.message_dialog,null,false)
+            val dialogView = LayoutInflater.from(itemView.context)
+                .inflate(R.layout.message_dialog, messageItem, false)
+
+            val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
+            val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
+
+            dialogContent.text = msg?.content
+            if (msg?.longMessage != "") {
+                dialogLong.text = msg?.longMessage
+                dialogLong.visibility = View.VISIBLE
+            }
+
+            val alertDialog = AlertDialog.Builder((itemView.context))
+                .setTitle(msg?.title)
+                .setView(dialogView)
+                .setPositiveButton("确定") { dialog, _ ->
+                    dialog.dismiss()
+                }
+                .setNegativeButton("删除") { dialog, _ ->
+                    thread {
+                        msg?.let {
+                            MessageDatabase
+                                .getDatabase(itemView.context)
+                                .messageDao()
+                                .deleteMessage(it)
+                        }
+                    }
+                    dialog.cancel()
+                }
+                .create()
+
+            alertDialog.setCanceledOnTouchOutside(false)
 
             messageItem.setOnClickListener {
-                Toast.makeText(
-                    it.context,
-                    "Clicked Item at ${this.adapterPosition}",
-                    Toast.LENGTH_SHORT
-                ).show()
-                AlertDialog.Builder((itemView.context))
-                    .setTitle(msg?.title)
-                    .create()
+                alertDialog.show()
+                val negButton = alertDialog.getButton(DialogInterface.BUTTON_NEGATIVE)
+                negButton.setTextColor(Color.RED)
             }
         }
 

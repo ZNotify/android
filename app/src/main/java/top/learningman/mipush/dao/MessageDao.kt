@@ -1,9 +1,6 @@
 package top.learningman.mipush.dao
 
-import androidx.room.Dao
-import androidx.room.Insert
-import androidx.room.OnConflictStrategy
-import androidx.room.Query
+import androidx.room.*
 import kotlinx.coroutines.flow.Flow
 import top.learningman.mipush.entity.Message
 
@@ -17,4 +14,7 @@ interface MessageDao {
 
     @Query("select count(*) from Message")
     fun countAllMessages(): Flow<Int>
+
+    @Delete
+    fun deleteMessage(msg: Message)
 }

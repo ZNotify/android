@@ -6,7 +6,7 @@ import androidx.room.PrimaryKey
 @Entity
 data class Message(
     var content: String,
-    var longMSg: String,
+    var longMessage: String,
     var msgId: String,
     var title: String,
     var time: Long

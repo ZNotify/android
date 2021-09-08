@@ -7,6 +7,7 @@ import android.os.*
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
+import android.widget.Toast
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.xiaomi.mipush.sdk.MiPushClient
@@ -31,13 +32,16 @@ class MainActivity : AppCompatActivity() {
 
         val handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
-                val uiMessage = msg.obj as UIMessage
-                reg_status.setCardBackgroundColor(context.getColor(uiMessage.color))
-                reg_status_icon.setIcon(uiMessage.icon)
-                reg_status_text.text = uiMessage.reason
+                fun renderStatusView() {
+                    val uiMessage = msg.obj as UIMessage
+                    reg_status.setCardBackgroundColor(context.getColor(uiMessage.color))
+                    reg_status_icon.setIcon(uiMessage.icon)
+                    reg_status_text.text = uiMessage.reason
+                }
 
                 when (msg.what) {
                     MiPushReceiver.Companion.ActionEnum.REG_SUCCESS.ordinal -> {
+                        Toast.makeText(context, "MiPush 注册成功", Toast.LENGTH_LONG).show()
                         val accounts = MiPushClient.getAllUserAccount(context)
                         if (!accounts.contains(currentUserID)) {
                             MiPushClient.setUserAccount(context, currentUserID, null)
@@ -111,7 +115,14 @@ class MainActivity : AppCompatActivity() {
                         .build()
                     try {
                         val response = client.newCall(request).execute()
-                        response.body?.string() ?: throw Exception("No response")
+                        val responseText = response.body?.string() ?: throw Exception("No response")
+                        if (responseText == "true") {
+                            runOnUiThread {
+                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
+                                reg_status_text.text = getString(R.string.userid_success)
+                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
+                            }
+                        }
 
                     } catch (e: Exception) {
                         e.printStackTrace()
