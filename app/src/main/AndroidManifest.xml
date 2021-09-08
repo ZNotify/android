@@ -46,10 +46,6 @@
         </receiver>
 
         <activity
-            android:name=".MessageViewActivity"
-            android:exported="true"
-            android:theme="@android:style/Theme.Translucent.NoTitleBar.Fullscreen" />
-        <activity
             android:name=".MessagesActivity"
             android:exported="true"
             android:label="@string/title_activity_messages" />
