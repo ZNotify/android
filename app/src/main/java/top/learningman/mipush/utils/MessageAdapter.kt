@@ -84,13 +84,10 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
                 }
                 .create()
 
-//            alertDialog.setCanceledOnTouchOutside(false)
-
             messageItem.setOnClickListener {
                 alertDialog.show()
                 val neuButton = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL)
                 neuButton.setTextColor(Color.RED)
-
             }
         }
 
@@ -105,11 +102,11 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
 
     class WordsComparator : DiffUtil.ItemCallback<Message>() {
         override fun areItemsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem === newItem
+            return oldItem.id == newItem.id
         }
 
         override fun areContentsTheSame(oldItem: Message, newItem: Message): Boolean {
-            return oldItem == newItem
+            return this.areItemsTheSame(oldItem, newItem)
         }
     }
 }
