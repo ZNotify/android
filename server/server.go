@@ -1,9 +1,9 @@
 package main
 
 import (
+	"bufio"
 	"crypto/rand"
 	"fmt"
-	"github.com/casbin/casbin/v2"
 	"github.com/gin-gonic/gin"
 	"io"
 	"io/ioutil"
@@ -17,11 +17,46 @@ import (
 
 const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
 
-var enforcer, _ = casbin.NewEnforcer("model.conf", "policy.csv")
+// read file users.txt to get user list
+func readUsers() []string {
+	file, err := os.Open("users.txt")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	defer func(file *os.File) {
+		err := file.Close()
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+	}(file)
 
-var n, _ = rand.Int(rand.Reader, big.NewInt(100))
+	var users []string
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		users = append(users, scanner.Text())
+	}
 
-var notifyID = n.Int64()
+	if err := scanner.Err(); err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
+	return users
+}
+
+//judge user if in the user list
+func isUser(user string, users []string) bool {
+	for _, u := range users {
+		if u == user {
+			return true
+		}
+	}
+	return false
+}
+
+var users = readUsers()
 
 func main() {
 	if os.Getenv("CI") == "" {
@@ -41,14 +76,17 @@ func main() {
 
 	router.GET("/:user_id/check", func(context *gin.Context) {
 		userID := context.Param("user_id")
-		result, _ := enforcer.Enforce(userID)
+		result := isUser(userID, users)
 		context.String(http.StatusOK, strconv.FormatBool(result))
 		return
 	})
 
 	router.GET("/:user_id/send", func(context *gin.Context) {
+		var n, _ = rand.Int(rand.Reader, big.NewInt(1000000))
+		var notifyID = n.Int64()
+
 		userID := context.Param("user_id")
-		result, _ := enforcer.Enforce(userID)
+		result := isUser(userID, users)
 		if !result {
 			context.String(http.StatusForbidden, "Unauthorized")
 			return
@@ -62,13 +100,13 @@ func main() {
 			context.String(http.StatusBadRequest, "Content can not be empty.")
 			return
 		}
-		intentData := url.Values{
-			"title":   {title},
-			"content": {content},
-			"payload": {long},
-		}.Encode()
+		//intentData := url.Values{
+		//	"title":   {title},
+		//	"content": {content},
+		//	"payload": {long},
+		//}.Encode()
 
-		fmt.Println("mipush://view?" + intentData) // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
+		//fmt.Println("mipush://view?" + intentData) // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
 
 		postData := url.Values{
 			"user_account":            {userID},

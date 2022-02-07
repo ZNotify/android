@@ -105,5 +105,4 @@ fabric.properties
 *.iml
 out
 gen
-user.json
-sec.py
+vendor/
