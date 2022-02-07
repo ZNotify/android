@@ -7,6 +7,7 @@ import android.os.Message
 import android.util.Log
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import top.learningman.mipush.entity.Message as MessageEntity
 import top.learningman.mipush.entity.UIMessage
 import top.learningman.mipush.instance.MessageDatabase
 import kotlin.concurrent.thread
@@ -63,7 +64,7 @@ class MiPushReceiver : PushMessageReceiver() {
         val title = msg.title
         val id = msg.messageId
 
-        val dbMsg = top.learningman.mipush.entity.Message(
+        val dbMsg = MessageEntity(
             content,
             payload,
             id,
@@ -72,27 +73,6 @@ class MiPushReceiver : PushMessageReceiver() {
         )
         thread {
             userDao.insertMessage(dbMsg)
-        }
-    }
-
-    @SuppressLint("InflateParams")
-    override fun onNotificationMessageClicked(context: Context, msg: MiPushMessage) {
-//        val payload = msg.content
-//        val content = msg.description
-//        val title = msg.title
-//
-//        val dialogView = LayoutInflater.from(context)
-//            .inflate(R.layout.message_dialog, null, false)
-//
-//        val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
-//        val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
-//
-//        dialogContent.text = content
-//
-//        if (payload != "") {
-//            dialogLong.text = payload
-//            dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
-//            dialogLong.visibility = View.VISIBLE
-//        }
+        }.join()
     }
 }
