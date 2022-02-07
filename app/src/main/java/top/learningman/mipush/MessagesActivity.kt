@@ -35,7 +35,7 @@ class MessagesActivity : AppCompatActivity() {
 
         messageViewModel.messages.observe(this) {
             it.let {
-                mAdapter.submitList(it)
+                mAdapter.submitList(it.toMutableList())
             }
         }
     }

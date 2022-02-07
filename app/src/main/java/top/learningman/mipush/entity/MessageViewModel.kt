@@ -5,9 +5,9 @@ import kotlinx.coroutines.launch
 
 class MessageViewModel(private val repository: MessageRepo) : ViewModel() {
 
-    val size: LiveData<Int> = repository.size.asLiveData()
+    val size = repository.size.asLiveData()
 
-    val messages: LiveData<List<Message>> = repository.messages.asLiveData()
+    val messages = repository.messages.asLiveData()
 
     fun insertMessage(msg: Message) = viewModelScope.launch {
         repository.insertMessage(msg)
