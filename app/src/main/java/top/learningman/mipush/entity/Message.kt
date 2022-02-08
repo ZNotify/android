@@ -1,16 +1,9 @@
 package top.learningman.mipush.entity
 
-import androidx.room.Entity
-import androidx.room.PrimaryKey
-
-@Entity
 data class Message(
-    var content: String,
-    var longMessage: String,
-    var msgId: String,
-    var title: String,
-    var time: Long
-) {
-    @PrimaryKey(autoGenerate = true)
-    var id: Long = 0
-}
+    val id: String,
+    val title: String,
+    val content: String,
+    val createdAt: String,
+    val long: String,
+)

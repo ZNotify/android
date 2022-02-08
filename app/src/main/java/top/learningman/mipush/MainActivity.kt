@@ -55,7 +55,7 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        MainApplication.handler = handler
+        MainApplication.handler = handler // FIXME: use viewModel instead
 
         go_setting.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
@@ -68,10 +68,6 @@ class MainActivity : AppCompatActivity() {
         if (BuildConfig.DEBUG) {
             debug.visibility = View.VISIBLE
             debug.setOnClickListener {
-//                val userDao = MessageDatabase.getDatabase(context).messageDao()
-//                val messages = userDao.getAllMessages()
-//                Toast.makeText(this, messages.toString(), Toast.LENGTH_LONG).show()
-//                startActivity(Intent(this, MessageViewActivity::class.java))
             }
         }
 

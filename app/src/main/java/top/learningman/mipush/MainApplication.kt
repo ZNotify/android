@@ -6,8 +6,6 @@ import android.content.Context
 import android.os.Handler
 import android.os.Process
 import com.xiaomi.mipush.sdk.MiPushClient
-import top.learningman.mipush.entity.MessageRepo
-import top.learningman.mipush.instance.MessageDatabase
 
 class MainApplication : Application() {
     companion object {
@@ -17,9 +15,6 @@ class MainApplication : Application() {
             return this::handler.isInitialized
         }
     }
-
-    val database by lazy { MessageDatabase.getDatabase(this) }
-    val repository by lazy { MessageRepo(database.messageDao()) }
 
     fun setHandler(h: Handler) {
         handler = h

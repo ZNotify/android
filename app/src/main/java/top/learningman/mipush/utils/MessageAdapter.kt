@@ -11,20 +11,22 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import androidx.constraintlayout.widget.ConstraintLayout
+import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import top.learningman.mipush.entity.Message
+import top.learningman.mipush.MessageViewModel
 import top.learningman.mipush.R
-import top.learningman.mipush.instance.MessageDatabase
+import top.learningman.mipush.entity.Message
+import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
 
-class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
+class MessageAdapter(val viewModel: MessageViewModel) :
+    ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageHolder {
-
-        return MessageHolder.create(parent)
+        return MessageHolder.create(parent, viewModel)
     }
 
     override fun onBindViewHolder(holder: MessageHolder, position: Int) {
@@ -32,17 +34,19 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
         holder.bind(current)
     }
 
-    class MessageHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
+    class MessageHolder(itemView: View, private val viewModel: MessageViewModel) :
+        RecyclerView.ViewHolder(itemView) {
         private val messageItem: ConstraintLayout = itemView.findViewById(R.id.row_item)
         private val messageItemTitleView: TextView = itemView.findViewById(R.id.row_item_title)
         private val messageItemContentView: TextView = itemView.findViewById(R.id.row_item_content)
         private val messageItemTimeView: TextView = itemView.findViewById(R.id.row_item_time)
 
-        fun bind(msg: Message?) {
-            messageItemTitleView.text = msg?.title
-            messageItemContentView.text = msg?.content
+        fun bind(msg: Message) {
+            messageItemTitleView.text = msg.title
+            messageItemContentView.text = msg.content
 
-            val relativeTime = msg?.time?.let { DateUtils.getRelativeTimeSpanString(it) }
+            val relativeTime =
+                msg.createdAt.let { DateUtils.getRelativeTimeSpanString(it.fromRFC3339().time) }
             messageItemTimeView.text = relativeTime
 
             val dialogView = LayoutInflater.from(itemView.context)
@@ -52,32 +56,34 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
             val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
             val dialogTime = dialogView.findViewById<TextView>(R.id.dialog_time)
 
-            dialogContent.text = msg?.content
+            dialogContent.text = msg.content
 
-            if (msg?.longMessage != "") {
-                dialogLong.text = msg?.longMessage
+            if (msg.long != "") {
+                dialogLong.text = msg.long
                 dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
                 dialogLong.visibility = View.VISIBLE
             }
 
-            msg?.time.let {
+            msg.createdAt.let {
                 dialogTime.text =
-                    SimpleDateFormat("y年M月d日 hh:mm:ss", Locale.getDefault()).format(it)
+                    SimpleDateFormat(
+                        "y年M月d日 hh:mm:ss",
+                        Locale.getDefault()
+                    ).format(it.fromRFC3339().time)
             }
 
             val alertDialog = AlertDialog.Builder((itemView.context))
-                .setTitle(msg?.title)
+                .setTitle(msg.title)
                 .setView(dialogView)
                 .setPositiveButton("确定") { dialog, _ ->
                     dialog.dismiss()
                 }
                 .setNeutralButton("删除") { dialog, _ ->
+                    val pref = PreferenceManager.getDefaultSharedPreferences(itemView.context)
+                    val userid = pref.getString("user_id", "none")!!
                     thread {
-                        msg?.let {
-                            MessageDatabase
-                                .getDatabase(itemView.context)
-                                .messageDao()
-                                .deleteMessage(it)
+                        msg.let {
+                            viewModel.deleteMessage(it, userid)
                         }
                     }
                     dialog.cancel()
@@ -92,10 +98,16 @@ class MessageAdapter : ListAdapter<Message, MessageAdapter.MessageHolder>(WordsC
         }
 
         companion object {
-            fun create(parent: ViewGroup): MessageHolder {
+            fun create(parent: ViewGroup, viewModel: MessageViewModel): MessageHolder {
                 val view: View = LayoutInflater.from(parent.context)
                     .inflate(R.layout.text_row_item, parent, false)
-                return MessageHolder(view)
+                return MessageHolder(view, viewModel)
+            }
+
+            fun String.fromRFC3339(): Date {
+                // 2022-02-08T18:00:54+08:00
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
+                return sdf.parse(this)
             }
         }
     }
