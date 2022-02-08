@@ -106,3 +106,4 @@ fabric.properties
 out
 gen
 vendor/
+notify.db

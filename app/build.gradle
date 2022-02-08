@@ -39,21 +39,20 @@ android {
     defaultConfig {
         applicationId "top.learningman.mipush"
         minSdk 26
-        targetSdk 30
+        targetSdk 31
         versionCode = currentVersionCode
         versionName = versionBase + "-SNAPSHOT"
 
-        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         signingConfig signingConfigs.release
     }
 
     buildTypes {
         debug {
-            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
+            buildConfigField "String", "APIURL", "\"http://210.35.133.198:14444\""
         }
         release {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

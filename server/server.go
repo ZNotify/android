@@ -3,8 +3,12 @@ package main
 import (
 	"bufio"
 	"crypto/rand"
+	"errors"
 	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/google/uuid"
+	"gorm.io/driver/sqlite"
+	"gorm.io/gorm"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -13,6 +17,7 @@ import (
 	"os"
 	"strconv"
 	"strings"
+	"time"
 )
 
 const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
@@ -56,9 +61,9 @@ func isUser(user string, users []string) bool {
 	return false
 }
 
-var users = readUsers()
-
 func main() {
+	var err error
+
 	if os.Getenv("CI") == "" {
 		gin.SetMode(gin.DebugMode)
 	} else {
@@ -72,6 +77,19 @@ func main() {
 	key := os.Args[1]
 	authHeader := fmt.Sprintf("key=%s", key)
 
+	users := readUsers()
+
+	db, err := gorm.Open(sqlite.Open("notify.db"), &gorm.Config{})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	err = db.AutoMigrate(&Message{})
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	router := gin.Default()
 
 	router.GET("/:user_id/check", func(context *gin.Context) {
@@ -81,9 +99,65 @@ func main() {
 		return
 	})
 
-	router.GET("/:user_id/send", func(context *gin.Context) {
-		var n, _ = rand.Int(rand.Reader, big.NewInt(1000000))
-		var notifyID = n.Int64()
+	// return message in 30 days
+	router.GET("/:user_id/record", func(context *gin.Context) {
+		userID := context.Param("user_id")
+		auth := isUser(userID, users)
+		if !auth {
+			context.String(http.StatusForbidden, "Unauthorized")
+			return
+		}
+		var messages []Message
+		result := db.Where("user_id = ?", userID).
+			Where("created_at > ?", time.Now().AddDate(0, 0, -30)).
+			Order("created_at desc").
+			Find(&messages)
+		breakOnError(context, result.Error)
+
+		var ret []interface{}
+		for i := range messages {
+			ret = append(ret, gin.H{
+				"id":        messages[i].ID,
+				"title":     messages[i].Title,
+				"content":   messages[i].Content,
+				"long":      messages[i].Long,
+				"createdAt": messages[i].CreatedAt.Format(time.RFC3339),
+			})
+		}
+		context.JSON(http.StatusOK, ret)
+	})
+
+	// delete message
+	router.DELETE("/:user_id/:id", func(context *gin.Context) {
+		userID := context.Param("user_id")
+		id := context.Param("id")
+
+		auth := isUser(userID, users)
+		if !auth {
+			context.String(http.StatusForbidden, "Unauthorized")
+			return
+		}
+
+		var message Message
+		result := db.Where("user_id = ?", userID).
+			Where("id = ?", id).
+			First(&message)
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			context.String(http.StatusNotFound, "Not Found")
+			return
+		} else {
+			breakOnError(context, err)
+		}
+		result = db.Delete(&message)
+		breakOnError(context, err)
+
+		context.String(http.StatusOK, "OK")
+		return
+	})
+
+	router.POST("/:user_id/send", func(context *gin.Context) {
+		n, _ := rand.Int(rand.Reader, big.NewInt(1000000))
+		notifyID := n.Int64()
 
 		userID := context.Param("user_id")
 		result := isUser(userID, users)
@@ -92,9 +166,10 @@ func main() {
 			return
 		}
 
-		title := context.DefaultQuery("title", "Notification")
-		content := context.Query("content")
-		long := context.Query("long")
+		// Build MIPush request
+		title := context.DefaultPostForm("title", "Notification")
+		content := context.PostForm("content")
+		long := context.PostForm("long")
 
 		if content == "" {
 			context.String(http.StatusBadRequest, "Content can not be empty.")
@@ -145,12 +220,19 @@ func main() {
 			}
 		}(resp.Body)
 
-		statusCode := resp.StatusCode
+		// Insert message record
+		db.Create(&Message{
+			ID:      uuid.New().String(),
+			UserID:  userID,
+			Title:   title,
+			Content: content,
+			Long:    long,
+		})
 
-		context.String(statusCode, bodyStr)
+		context.String(resp.StatusCode, bodyStr)
 	})
 
-	err := router.Run("0.0.0.0:14444")
+	err = router.Run("0.0.0.0:14444")
 	if err != nil {
 		panic("ServerFailed")
 	}
