@@ -204,7 +204,18 @@ func main() {
 		client := &http.Client{}
 		resp, err := client.Do(req)
 
-		body, _ := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			context.String(http.StatusInternalServerError, "Failed Request.\n%s", err)
+			return
+		}
+
+		body, err := ioutil.ReadAll(resp.Body)
+
+		if err != nil {
+			context.String(http.StatusInternalServerError, "Failed Request.\n%s", err)
+			return
+		}
+
 		bodyStr := string(body)
 
 		if err != nil {
