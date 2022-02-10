@@ -51,7 +51,7 @@ android {
         }
         release {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
-            minifyEnabled true
+            minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }

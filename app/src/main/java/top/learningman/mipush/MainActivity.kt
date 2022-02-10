@@ -36,13 +36,6 @@ class MainActivity : AppCompatActivity() {
 
         val handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
-                fun renderStatusView() {
-                    val uiMessage = msg.obj as UIMessage
-                    reg_status.setCardBackgroundColor(context.getColor(uiMessage.color))
-                    reg_status_icon.setIcon(uiMessage.icon)
-                    reg_status_text.text = uiMessage.reason
-                }
-
                 when (msg.what) {
                     MiPushReceiver.Companion.ActionEnum.REG_SUCCESS.ordinal -> {
                         Log.i("MiPush", "reg success")
@@ -108,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        val userid = pref.getString("user_id", "none")!!
+        val userid = pref.getString("user_id", null)
 
         if (userid == currentUserID && inited) {
             return
@@ -118,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             inited = true
         }
 
-        if (userid != "none") {
+        if (userid != null) {
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
             reg_status_text.text = getString(R.string.loading)
             reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)
