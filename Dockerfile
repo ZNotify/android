@@ -1,4 +1,4 @@
-FROM golang:1.17 as builder
+FROM golang:1.17-alpine as builder
 
 # 启用go module
 ENV GO111MODULE=on \
@@ -12,7 +12,7 @@ COPY ./server .
 
 RUN go build -v .
 
-FROM alpine:latest
+FROM alpine:3.14
 
 WORKDIR /app
 
