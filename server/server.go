@@ -64,12 +64,6 @@ func isUser(user string, users []string) bool {
 func main() {
 	var err error
 
-	if os.Getenv("CI") == "" {
-		gin.SetMode(gin.DebugMode)
-	} else {
-		gin.SetMode(gin.ReleaseMode)
-	}
-
 	if len(os.Args) <= 1 {
 		fmt.Println("MiPush Secret not available")
 		os.Exit(-1)

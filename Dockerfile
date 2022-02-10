@@ -15,6 +15,8 @@ FROM scratch
 
 WORKDIR /app
 
+ENV GIN_MODE release
+
 EXPOSE 14444
 
 COPY --from=builder /app/server ./server
