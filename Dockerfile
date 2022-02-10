@@ -11,14 +11,13 @@ COPY ./server .
 
 RUN go build -v .
 
-FROM alpine:3.14
+FROM scratch
 
 WORKDIR /app
 
 EXPOSE 14444
 
 COPY --from=builder /app/server ./server
-
-RUN apk --no-cache add ca-certificates
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert
 
 ENTRYPOINT ["./server"]
