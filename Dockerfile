@@ -3,7 +3,6 @@ FROM golang:1.17 as builder
 # 启用go module
 ENV GO111MODULE=on \
     CGO_ENABLED=0 \
-    GOFLAGS="-mod=vendor" \
     GOOS=linux \
     GOARCH=amd64
 
@@ -11,7 +10,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN go build .
+RUN go build -v server
 
 FROM scratch
 
