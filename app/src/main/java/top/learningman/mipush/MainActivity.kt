@@ -3,11 +3,14 @@ package top.learningman.mipush
 import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
+import android.net.Uri
 import android.os.*
+import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.view.View
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.xiaomi.mipush.sdk.MiPushClient
@@ -27,6 +30,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         context = this
         setContentView(R.layout.activity_main)
 
@@ -41,7 +45,7 @@ class MainActivity : AppCompatActivity() {
 
                 when (msg.what) {
                     MiPushReceiver.Companion.ActionEnum.REG_SUCCESS.ordinal -> {
-                        Toast.makeText(context, "MiPush 注册成功", Toast.LENGTH_LONG).show()
+                        Log.i("MiPush", "reg success")
                         val accounts = MiPushClient.getAllUserAccount(context)
                         if (!accounts.contains(currentUserID)) {
                             MiPushClient.setUserAccount(context, currentUserID, null)
@@ -65,11 +69,11 @@ class MainActivity : AppCompatActivity() {
             startActivity(Intent(this, MessagesActivity::class.java))
         }
 
-        if (BuildConfig.DEBUG) {
-            debug.visibility = View.VISIBLE
-            debug.setOnClickListener {
-            }
-        }
+//        if (BuildConfig.DEBUG) {
+//            debug.visibility = View.VISIBLE
+//            debug.setOnClickListener {
+//            }
+//        }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!
@@ -85,6 +89,23 @@ class MainActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        if (!Settings.canDrawOverlays(this)) {
+            AlertDialog.Builder(this)
+                .setTitle("权限需求")
+                .setMessage("应用需要悬浮窗权限以正常工作，请在设置中开启")
+                .setPositiveButton("去授权") { _, _ ->
+                    val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
+                    intent.data = Uri.parse("package:$packageName")
+                    startActivity(intent)
+                }
+                .setNegativeButton("拒绝") { _, _ ->
+                    finish()
+                }
+                .show()
+                .apply { setCanceledOnTouchOutside(false) }
+
+        }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!

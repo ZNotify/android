@@ -67,7 +67,7 @@ class MessageAdapter(val viewModel: MessageViewModel) :
             msg.createdAt.let {
                 dialogTime.text =
                     SimpleDateFormat(
-                        "y年M月d日 hh:mm:ss",
+                        "y年M月d日 HH:mm:ss",
                         Locale.getDefault()
                     ).format(it.fromRFC3339().time)
             }

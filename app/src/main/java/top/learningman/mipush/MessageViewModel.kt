@@ -9,6 +9,7 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import top.learningman.mipush.entity.Message
+import top.learningman.mipush.utils.Network
 import kotlin.concurrent.thread
 
 
@@ -39,25 +40,9 @@ class MessageViewModel : ViewModel() {
         }
     }
 
-    fun deleteMessage(msg: Message,user_id: String) {
+    fun deleteMessage(msg: Message, user_id: String) {
         thread {
-            val client = OkHttpClient()
-            val url = BuildConfig.APIURL.toHttpUrlOrNull()!!.newBuilder()
-                .addPathSegment(user_id)
-                .addPathSegment(msg.id)
-                .build()
-            val request = Request.Builder()
-                .url(url)
-                .delete()
-                .build()
-            try {
-                val response = client.newCall(request).execute()
-                if (response.code != 200) {
-                    throw Exception("delete failed")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
+            Network.requestDelete(user_id, msg.id)
             loadMessages(user_id)
         }
     }

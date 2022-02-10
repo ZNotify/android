@@ -1,6 +1,7 @@
 package top.learningman.mipush
 
 import android.content.Context
+import android.content.Intent
 import android.os.Message
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
@@ -44,14 +45,10 @@ class MiPushReceiver : PushMessageReceiver() {
             uiMsg.what = uiMsgWhat.ordinal
             thread {
                 while (!MainApplication.isHandlerInit()) {
-                    Thread.sleep(200) // This is a ugly trick. Finding a better solution.
+                    Thread.sleep(100) // This is a ugly trick. Finding a better solution.
                 }
                 MainApplication.handler.sendMessage(uiMsg)
             }
         }
-    }
-
-    override fun onNotificationMessageArrived(context: Context, msg: MiPushMessage) {
-        //TODO: show dialog
     }
 }
