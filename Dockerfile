@@ -1,9 +1,25 @@
+FROM golang:1.17 as builder
+
+# 启用go module
+ENV GO111MODULE=on \
+    CGO_ENABLED=0 \
+    GOFLAGS="-mod=vendor" \
+    GOOS=linux \
+    GOARCH=amd64
+
+WORKDIR /app
+
+COPY . .
+
+RUN go build .
+
 FROM scratch
 
 WORKDIR /app
 
 EXPOSE 14444
 
-COPY server/server /app/server
+COPY --from=builder /app/server ./server
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert
 
-ENTRYPOINT ["/app/server"]
+ENTRYPOINT ["./server"]
