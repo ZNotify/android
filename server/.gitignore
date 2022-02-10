@@ -107,3 +107,4 @@ out
 gen
 vendor/
 notify.db
+server.exe
