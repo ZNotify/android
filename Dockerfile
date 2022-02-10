@@ -10,7 +10,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN go build -v server
+RUN go build -v .
 
 FROM scratch
 
