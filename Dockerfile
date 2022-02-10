@@ -8,7 +8,7 @@ ENV GO111MODULE=on \
 
 WORKDIR /app
 
-COPY . .
+COPY ./server .
 
 RUN go build -v .
 
