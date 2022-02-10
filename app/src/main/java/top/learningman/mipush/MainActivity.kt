@@ -101,7 +101,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        val userid = pref.getString("user_id", null)
+        val userid = pref.getString("user_id", "none")!!
 
         if (userid == currentUserID && inited) {
             return
@@ -111,7 +111,7 @@ class MainActivity : AppCompatActivity() {
             inited = true
         }
 
-        if (userid != null) {
+        if (userid != "none") {
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
             reg_status_text.text = getString(R.string.loading)
             reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)
@@ -136,7 +136,6 @@ class MainActivity : AppCompatActivity() {
                                 reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
                             }
                         }
-
                     } catch (e: Exception) {
                         e.printStackTrace()
                         runOnUiThread {
