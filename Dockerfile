@@ -1,4 +1,4 @@
-FROM golang:1.17-alpine as builder
+FROM golang:1.17 as builder
 
 # 启用go module
 ENV GO111MODULE=on \
@@ -19,6 +19,7 @@ WORKDIR /app
 EXPOSE 14444
 
 COPY --from=builder /app/server ./server
-COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/cert
+
+RUN apk --no-cache add ca-certificates gcompat
 
 ENTRYPOINT ["./server"]
