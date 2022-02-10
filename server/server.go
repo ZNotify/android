@@ -175,13 +175,16 @@ func main() {
 			context.String(http.StatusBadRequest, "Content can not be empty.")
 			return
 		}
-		//intentData := url.Values{
-		//	"title":   {title},
-		//	"content": {content},
-		//	"payload": {long},
-		//}.Encode()
+		msgID := uuid.New().String()
 
-		//fmt.Println("mipush://view?" + intentData) // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
+		intentUriFormat := "intent:#Intent;launchFlags=0x14000000;component=top.learningman.mipush/.TranslucentActivity;S.userID=%s;S.long=%s;S.msgID=%s;S.title=%s;S.createdAt=%s;S.content=%s;end"
+		intentUri := fmt.Sprintf(intentUriFormat,
+			url.QueryEscape(userID),
+			url.QueryEscape(long),
+			url.QueryEscape(msgID),
+			url.QueryEscape(title),
+			url.QueryEscape(time.Now().Format(time.RFC3339)),
+			url.QueryEscape(content))
 
 		postData := url.Values{
 			"user_account":            {userID},
@@ -191,8 +194,9 @@ func main() {
 			"title":                   {title},
 			"description":             {content},
 			"notify_id":               {strconv.Itoa(int(notifyID))},
-			//"extra.notify_effect":     {"2"},
-			//"extra.intent_uri":        {"mipush://view?" + intentData},
+			"extra.id":                {msgID},
+			"extra.notify_effect":     {"2"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
+			"extra.intent_uri":        {intentUri},
 		}.Encode()
 
 		req, err := http.NewRequest(
@@ -222,7 +226,7 @@ func main() {
 
 		// Insert message record
 		db.Create(&Message{
-			ID:      uuid.New().String(),
+			ID:      msgID,
 			UserID:  userID,
 			Title:   title,
 			Content: content,
