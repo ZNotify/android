@@ -1,8 +1,7 @@
-FROM golang:1.17 as builder
+FROM golang:1.17-alpine as builder
 
-# 启用go module
 ENV GO111MODULE=on \
-    CGO_ENABLED=1 \
+    CGO_ENABLED=0 \
     GOOS=linux \
     GOARCH=amd64
 
@@ -20,6 +19,6 @@ EXPOSE 14444
 
 COPY --from=builder /app/server ./server
 
-RUN apk --no-cache add ca-certificates gcompat
+RUN apk --no-cache add ca-certificates
 
 ENTRYPOINT ["./server"]
