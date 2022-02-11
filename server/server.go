@@ -73,6 +73,17 @@ func main() {
 
 	users := readUsers()
 
+	// Determining whether notify.db is directory
+	va, err := os.Stat("notify.db")
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+	if va.IsDir() {
+		fmt.Println("notify.db is directory.")
+		os.Exit(1)
+	}
+
 	db, err := gorm.Open(sqlite.Open("notify.db"), &gorm.Config{})
 	if err != nil {
 		fmt.Println(err)
