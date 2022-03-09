@@ -212,7 +212,7 @@ func main() {
 			"description":             {content},
 			"notify_id":               {strconv.Itoa(int(notifyID))},
 			"extra.id":                {msgID},
-			"extra.notify_effect":     {"1"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
+			"extra.notify_effect":     {"2"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
 			"extra.intent_uri":        {intentUri},
 		}.Encode()
 
