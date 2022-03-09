@@ -18,7 +18,7 @@ jobs:
         format: YYYYMMDDTHHmmss
         utcOffset: "+08:00"
     
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
       with:
         lfs: true
 
@@ -34,11 +34,32 @@ jobs:
       with:
         go-version: 1.17
 
+    - name: Set up Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '16'
+        cache: 'yarn'
+        cache-dependency-path: server/frontend/yarn.lock
+
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
       
     - name: Build with Gradle
       run: ./gradlew assembleRelease
+
+    - name: Install dependencies
+      working-directory: server/frontend
+      run: |
+        yarn install
+
+    - name: Build frontend
+      working-directory: server/frontend
+      run: |
+        yarn build
+
+    - name: Clear yarn cache
+      working-directory: server/frontend
+      run: rm -rf node_modules
 
     - name: Build Server
       working-directory: server

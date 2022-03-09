@@ -3,13 +3,16 @@ package main
 import (
 	"bufio"
 	"crypto/rand"
+	"embed"
 	"errors"
 	"fmt"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
 	"io"
+	"io/fs"
 	"io/ioutil"
 	"math/big"
 	"net/http"
@@ -19,6 +22,9 @@ import (
 	"strings"
 	"time"
 )
+
+//go:embed static/*
+var f embed.FS
 
 const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
 
@@ -51,7 +57,7 @@ func readUsers() []string {
 	return users
 }
 
-//judge user if in the user list
+// judge user if in the user list
 func isUser(user string, users []string) bool {
 	for _, u := range users {
 		if u == user {
@@ -70,6 +76,11 @@ func main() {
 	}
 	key := os.Args[1]
 	authHeader := fmt.Sprintf("key=%s", key)
+
+	pureFs, err := fs.Sub(f, "static")
+	if err != nil {
+		panic(err)
+	}
 
 	users := readUsers()
 
@@ -96,6 +107,7 @@ func main() {
 	}
 
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	router.GET("/:user_id/check", func(context *gin.Context) {
 		userID := context.Param("user_id")
@@ -200,7 +212,7 @@ func main() {
 			"description":             {content},
 			"notify_id":               {strconv.Itoa(int(notifyID))},
 			"extra.id":                {msgID},
-			"extra.notify_effect":     {"2"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
+			"extra.notify_effect":     {"1"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
 			"extra.intent_uri":        {intentUri},
 		}.Encode()
 
@@ -250,6 +262,22 @@ func main() {
 		})
 
 		context.String(resp.StatusCode, bodyStr)
+	})
+
+	//func getFileSystem() http.FileSystem {
+	//	fsys, err := fs.Sub(dist, "gui/dist")
+	//	if err != nil {
+	//	log.Fatal(err)
+	//}
+	//	return http.FS(fsys)
+	//}
+
+	router.StaticFS("/fs", http.FS(pureFs))
+
+	router.GET("/", func(context *gin.Context) {
+		context.FileFromFS("/", http.FS(pureFs))
+		// hardcode index.html, use this as a trick to get html file
+		// https://github.com/golang/go/blob/a7e16abb22f1b249d2691b32a5d20206282898f2/src/net/http/fs.go#L587
 	})
 
 	err = router.Run("0.0.0.0:14444")

@@ -1,0 +1,10 @@
+@import '~antd/dist/antd.css';
+
+Input {
+    margin-top: 8px !important;
+    margin-bottom: 8px !important;
+}
+
+main {
+    justify-content: center;
+}
