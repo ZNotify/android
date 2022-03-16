@@ -10,8 +10,7 @@
         android:id="@+id/dialog_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="4dp"
-        android:theme="@style/Widget.MaterialComponents.TextView" />
+        android:layout_marginTop="4dp" />
 
     <TextView
         android:id="@+id/dialog_long"
@@ -20,7 +19,6 @@
         android:layout_marginTop="16dp"
         android:scrollbarStyle="outsideOverlay"
         android:maxLines="10"
-        android:theme="@style/Widget.MaterialComponents.TextView"
         android:scrollbars="vertical"
         android:visibility="gone" />
 
@@ -28,6 +26,5 @@
         android:id="@+id/dialog_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="16dp"
-        android:theme="@style/Widget.MaterialComponents.TextView" />
+        android:layout_marginTop="16dp" />
 </LinearLayout>

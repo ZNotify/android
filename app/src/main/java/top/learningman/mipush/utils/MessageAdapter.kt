@@ -6,6 +6,7 @@ import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.text.format.DateUtils
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -18,7 +19,6 @@ import androidx.recyclerview.widget.RecyclerView
 import top.learningman.mipush.MessageViewModel
 import top.learningman.mipush.R
 import top.learningman.mipush.entity.Message
-import java.time.Instant
 import java.util.*
 import kotlin.concurrent.thread
 
@@ -58,8 +58,11 @@ class MessageAdapter(val viewModel: MessageViewModel) :
 
             dialogContent.text = msg.content
 
-            if (msg.long != "") {
-                dialogLong.text = msg.long
+            if (msg.long.isNotBlank()) {
+                Log.d("MessageAdapter", "long: ${msg.long}")
+
+                val markwon = Markwon.getInstance(itemView.context)
+                markwon.setMarkdown(dialogLong, msg.long)
                 dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
                 dialogLong.visibility = View.VISIBLE
             }

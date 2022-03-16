@@ -1,6 +1,5 @@
 package top.learningman.mipush
 
-import android.annotation.SuppressLint
 import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Color
@@ -12,6 +11,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
 import androidx.appcompat.app.AppCompatActivity
+import top.learningman.mipush.utils.Markwon
 import top.learningman.mipush.utils.MessageAdapter.MessageHolder.Companion.fromRFC3339
 import top.learningman.mipush.utils.Network
 import java.util.*
@@ -40,8 +40,9 @@ class TranslucentActivity : AppCompatActivity() {
 
         dialogContent.text = content
 
-        if (long != "") {
-            dialogLong.text = long
+        if (long.isNotBlank()) {
+            val markwon = Markwon.getInstance(this)
+            markwon.setMarkdown(dialogLong, long)
             dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
             dialogLong.visibility = View.VISIBLE
         }
