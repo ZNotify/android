@@ -1,12 +1,9 @@
 package top.learningman.mipush.utils
 
-import android.app.AlertDialog
 import android.content.DialogInterface
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.text.format.DateUtils
-import android.text.method.ScrollingMovementMethod
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -19,8 +16,8 @@ import androidx.recyclerview.widget.RecyclerView
 import top.learningman.mipush.MessageViewModel
 import top.learningman.mipush.R
 import top.learningman.mipush.entity.Message
+import top.learningman.mipush.view.MessageDialog
 import java.util.*
-import kotlin.concurrent.thread
 
 class MessageAdapter(val viewModel: MessageViewModel) :
     ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
@@ -40,6 +37,8 @@ class MessageAdapter(val viewModel: MessageViewModel) :
         private val messageItemTitleView: TextView = itemView.findViewById(R.id.row_item_title)
         private val messageItemContentView: TextView = itemView.findViewById(R.id.row_item_content)
         private val messageItemTimeView: TextView = itemView.findViewById(R.id.row_item_time)
+        val userid = PreferenceManager.getDefaultSharedPreferences(itemView.context)
+            .getString("user_id", "none")!!
 
         fun bind(msg: Message) {
             messageItemTitleView.text = msg.title
@@ -49,53 +48,20 @@ class MessageAdapter(val viewModel: MessageViewModel) :
                 msg.createdAt.let { DateUtils.getRelativeTimeSpanString(it.fromRFC3339().time) }
             messageItemTimeView.text = relativeTime
 
-            val dialogView = LayoutInflater.from(itemView.context)
-                .inflate(R.layout.message_dialog, messageItem, false)
+            val message = MessageDialog.Message(
+                msg.title,
+                msg.content,
+                msg.long,
+                msg.createdAt.fromRFC3339(),
+                msg.id,
+                userid
+            )
 
-            val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
-            val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
-            val dialogTime = dialogView.findViewById<TextView>(R.id.dialog_time)
-
-            dialogContent.text = msg.content
-
-            if (msg.long.isNotBlank()) {
-                Log.d("MessageAdapter", "long: ${msg.long}")
-
-                val markwon = Markwon.getInstance(itemView.context)
-                markwon.setMarkdown(dialogLong, msg.long)
-                dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
-                dialogLong.visibility = View.VISIBLE
-            }
-
-            msg.createdAt.let {
-                dialogTime.text =
-                    SimpleDateFormat(
-                        "y年M月d日 HH:mm:ss",
-                        Locale.getDefault()
-                    ).format(it.fromRFC3339().time)
-            }
-
-            val alertDialog = AlertDialog.Builder((itemView.context))
-                .setTitle(msg.title)
-                .setView(dialogView)
-                .setPositiveButton("确定") { dialog, _ ->
-                    dialog.dismiss()
-                }
-                .setNeutralButton("删除") { dialog, _ ->
-                    val pref = PreferenceManager.getDefaultSharedPreferences(itemView.context)
-                    val userid = pref.getString("user_id", "none")!!
-                    thread {
-                        msg.let {
-                            viewModel.deleteMessage(it, userid)
-                        }
-                    }
-                    dialog.cancel()
-                }
-                .create()
+            val dialog = MessageDialog.show(message, itemView.context, false)
 
             messageItem.setOnClickListener {
-                alertDialog.show()
-                val neuButton = alertDialog.getButton(DialogInterface.BUTTON_NEUTRAL)
+                dialog.show()
+                val neuButton = dialog.getButton(DialogInterface.BUTTON_NEUTRAL)
                 neuButton.setTextColor(Color.RED)
             }
         }
