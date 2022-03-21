@@ -4,6 +4,7 @@ import React, {useEffect} from 'react';
 import './App.css';
 import {Button, Card, Input, message} from "antd";
 import {checkUser, sendNotify} from "./Utils";
+import TextArea from "antd/es/input/TextArea";
 
 function App() {
     const [userStatus, setUserStatus] = React.useState(true);
@@ -71,12 +72,13 @@ function App() {
                         }}
                         style={{width: '100%'}}
                     />
-                    <Input
+                    <TextArea
                         value={long}
                         placeholder="Notification Long Content"
                         onChange={(e) => {
                             setLong(() => e.target.value)
                         }}
+                        rows={3}
                         style={{width: '100%'}}
                     />
                 </Input.Group>

@@ -1,6 +1,6 @@
 @import '~antd/dist/antd.css';
 
-Input {
+Input, TextArea {
     margin-top: 8px !important;
     margin-bottom: 8px !important;
 }
