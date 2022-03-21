@@ -31,7 +31,7 @@ object MessageDialog {
         msg: Message,
         context: Context,
         immediate: Boolean = true,
-        cb: (() -> Unit)? = null
+        cb: ((Boolean) -> Unit)? = null
     ): AlertDialog {
         val dialogView = LayoutInflater.from(context)
             .inflate(R.layout.message_dialog, null, false)
@@ -61,14 +61,14 @@ object MessageDialog {
             .setView(dialogView)
             .setPositiveButton("确定") { dialog, _ ->
                 dialog.dismiss()
-                cb?.invoke()
+                cb?.invoke(true)
             }
             .setNeutralButton("删除") { dialog, _ ->
                 thread {
                     Network.requestDelete(msg.userID, msg.msgID)
                 }.join()
                 dialog.cancel()
-                cb?.invoke()
+                cb?.invoke(false)
             }
             .create()
             .apply {

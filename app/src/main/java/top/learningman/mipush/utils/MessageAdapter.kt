@@ -57,8 +57,10 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
                 userid
             )
 
-            val dialog = MessageDialog.show(message, itemView.context, false) {
-                viewModel.deleteMessage(msg.id)
+            val dialog = MessageDialog.show(message, itemView.context, false) { positive ->
+                if (!positive) {
+                    viewModel.deleteMessage(msg.id)
+                }
             }
 
             messageItem.setOnClickListener {
