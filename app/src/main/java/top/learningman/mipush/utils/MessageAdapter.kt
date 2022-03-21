@@ -19,7 +19,7 @@ import top.learningman.mipush.entity.Message
 import top.learningman.mipush.view.MessageDialog
 import java.util.*
 
-class MessageAdapter(val viewModel: MessageViewModel) :
+class MessageAdapter(private val viewModel: MessageViewModel) :
     ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MessageHolder {
@@ -57,7 +57,9 @@ class MessageAdapter(val viewModel: MessageViewModel) :
                 userid
             )
 
-            val dialog = MessageDialog.show(message, itemView.context, false)
+            val dialog = MessageDialog.show(message, itemView.context, false) {
+                viewModel.deleteMessage(msg.id)
+            }
 
             messageItem.setOnClickListener {
                 dialog.show()
