@@ -1,4 +1,4 @@
-package top.learningman.mipush.utils
+package top.learningman.push.utils
 
 import android.content.Context
 import io.noties.markwon.Markwon

@@ -1,4 +1,4 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import kotlinx.android.synthetic.main.activity_messages.*
-import top.learningman.mipush.utils.MessageAdapter
+import top.learningman.push.utils.MessageAdapter
 import kotlin.concurrent.thread
 
 

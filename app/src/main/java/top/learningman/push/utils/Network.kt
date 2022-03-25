@@ -1,9 +1,9 @@
-package top.learningman.mipush.utils
+package top.learningman.push.utils
 
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import top.learningman.mipush.BuildConfig
+import top.learningman.push.BuildConfig
 
 object Network {
     fun requestDelete(userID: String, msgID: String) {

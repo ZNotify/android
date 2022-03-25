@@ -1,4 +1,4 @@
-package top.learningman.mipush.utils
+package top.learningman.push.utils
 
 import android.content.DialogInterface
 import android.graphics.Color
@@ -13,10 +13,10 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import top.learningman.mipush.MessageViewModel
-import top.learningman.mipush.R
-import top.learningman.mipush.entity.Message
-import top.learningman.mipush.view.MessageDialog
+import top.learningman.push.MessageViewModel
+import top.learningman.push.R
+import top.learningman.push.entity.Message
+import top.learningman.push.view.MessageDialog
 import java.util.*
 
 class MessageAdapter(private val viewModel: MessageViewModel) :

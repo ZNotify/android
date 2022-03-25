@@ -1,11 +1,10 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import android.content.Context
-import android.content.Intent
 import android.os.Message
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
-import top.learningman.mipush.entity.UIMessage
+import top.learningman.push.entity.UIMessage
 import kotlin.concurrent.thread
 
 class MiPushReceiver : PushMessageReceiver() {

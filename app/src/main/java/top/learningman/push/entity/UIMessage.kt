@@ -1,4 +1,4 @@
-package top.learningman.mipush.entity
+package top.learningman.push.entity
 
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 

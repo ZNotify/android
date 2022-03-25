@@ -1,4 +1,4 @@
-package top.learningman.mipush.entity
+package top.learningman.push.entity
 
 data class Message(
     val id: String,

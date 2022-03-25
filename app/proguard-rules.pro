@@ -20,7 +20,7 @@
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
 
--keep class top.learningman.mipush.MiPushReceiver {*;}
+-keep class top.learningman.push.MiPushReceiver {*;}
 
 -dontwarn com.xiaomi.push.**
 

@@ -1,4 +1,4 @@
-package top.learningman.mipush.view
+package top.learningman.push.view
 
 import android.annotation.SuppressLint
 import android.app.AlertDialog
@@ -10,9 +10,9 @@ import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
 import android.widget.TextView
-import top.learningman.mipush.R
-import top.learningman.mipush.utils.Markwon
-import top.learningman.mipush.utils.Network
+import top.learningman.push.R
+import top.learningman.push.utils.Markwon
+import top.learningman.push.utils.Network
 import java.util.*
 import kotlin.concurrent.thread
 

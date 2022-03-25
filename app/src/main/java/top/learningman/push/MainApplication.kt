@@ -1,4 +1,4 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import android.app.ActivityManager
 import android.app.Application

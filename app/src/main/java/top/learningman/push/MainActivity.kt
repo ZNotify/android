@@ -1,4 +1,4 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import android.content.Context
 import android.content.Intent
@@ -8,8 +8,6 @@ import android.os.*
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
-import android.view.View
-import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
@@ -19,7 +17,6 @@ import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import top.learningman.mipush.entity.UIMessage
 import java.lang.Exception
 import kotlin.concurrent.thread
 

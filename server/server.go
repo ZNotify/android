@@ -194,7 +194,7 @@ func main() {
 		}
 		msgID := uuid.New().String()
 
-		intentUriFormat := "intent:#Intent;launchFlags=0x14000000;component=top.learningman.mipush/.TranslucentActivity;S.userID=%s;S.long=%s;S.msgID=%s;S.title=%s;S.createdAt=%s;S.content=%s;end"
+		intentUriFormat := "intent:#Intent;launchFlags=0x14000000;component=top.learningman.push/.TranslucentActivity;S.userID=%s;S.long=%s;S.msgID=%s;S.title=%s;S.createdAt=%s;S.content=%s;end"
 		intentUri := fmt.Sprintf(intentUriFormat,
 			url.QueryEscape(userID),
 			url.QueryEscape(long),
@@ -206,7 +206,7 @@ func main() {
 		postData := url.Values{
 			"user_account":            {userID},
 			"payload":                 {long},
-			"restricted_package_name": {"top.learningman.mipush"},
+			"restricted_package_name": {"top.learningman.push"},
 			"pass_through":            {"0"},
 			"title":                   {title},
 			"description":             {content},

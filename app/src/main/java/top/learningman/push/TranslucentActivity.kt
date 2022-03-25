@@ -1,10 +1,10 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
-import top.learningman.mipush.utils.MessageAdapter.MessageHolder.Companion.fromRFC3339
-import top.learningman.mipush.view.MessageDialog
+import top.learningman.push.utils.MessageAdapter.MessageHolder.Companion.fromRFC3339
+import top.learningman.push.view.MessageDialog
 
 
 class TranslucentActivity : AppCompatActivity() {

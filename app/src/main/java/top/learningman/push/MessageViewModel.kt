@@ -1,4 +1,4 @@
-package top.learningman.mipush
+package top.learningman.push
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -8,7 +8,7 @@ import com.google.gson.reflect.TypeToken
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import top.learningman.mipush.entity.Message
+import top.learningman.push.entity.Message
 import kotlin.concurrent.thread
 
 
