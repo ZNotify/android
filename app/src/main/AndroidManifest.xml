@@ -11,7 +11,6 @@
         tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
-
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
     <permission
@@ -28,6 +27,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="false"
         android:theme="@style/Theme.Notify">
+
+        <meta-data
+            android:name="firebase_messaging_auto_init_enabled"
+            android:value="false" />
+        <meta-data
+            android:name="firebase_analytics_collection_enabled"
+            android:value="false" />
+
         <activity
             android:name=".TranslucentActivity"
             android:excludeFromRecents="true"
@@ -83,7 +90,7 @@
             android:name="com.xiaomi.mipush.sdk.PushMessageHandler"
             android:enabled="true"
             android:exported="true"
-            tools:ignore="ExportedService" /> <!-- 注：此service必须在2.2.5版本以后（包括2.2.5版本）加入 -->
+            tools:ignore="ExportedService" />
         <service
             android:name="com.xiaomi.mipush.sdk.MessageHandleService"
             android:enabled="true" />

@@ -3,15 +3,22 @@ package top.learningman.push
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
+import android.os.Build
 import android.os.Handler
 import android.os.Process
+import android.util.Log
+import com.google.android.gms.common.GoogleApiAvailability
+import com.google.android.gms.common.api.GoogleApiActivity
+import com.google.firebase.analytics.FirebaseAnalytics
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.xiaomi.mipush.sdk.MiPushClient
 
 class MainApplication : Application() {
     companion object {
         lateinit var handler: Handler
 
-        fun isHandlerInit():Boolean {
+        fun isHandlerInit(): Boolean {
             return this::handler.isInitialized
         }
     }
@@ -28,7 +35,13 @@ class MainApplication : Application() {
         super.onCreate()
 
         if (shouldInit()) {
-            MiPushClient.registerPush(this, "2882303761520035342", "5272003587342")
+            Log.d("Manufacturer", Build.MANUFACTURER)
+            if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+                MiPushClient.registerPush(this, "2882303761520035342", "5272003587342")
+            } else {
+                Firebase.messaging.isAutoInitEnabled = true
+                FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
+            }
         }
     }
 

@@ -8,9 +8,12 @@ import android.os.*
 import android.provider.Settings
 import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
+import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
+import com.google.firebase.ktx.Firebase
+import com.google.firebase.messaging.ktx.messaging
 import com.xiaomi.mipush.sdk.MiPushClient
 import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
@@ -58,12 +61,6 @@ class MainActivity : AppCompatActivity() {
         go_history.setOnClickListener {
             startActivity(Intent(this, MessagesActivity::class.java))
         }
-
-//        if (BuildConfig.DEBUG) {
-//            debug.visibility = View.VISIBLE
-//            debug.setOnClickListener {
-//            }
-//        }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
         val userid = pref.getString("user_id", "none")!!

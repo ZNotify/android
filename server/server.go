@@ -2,24 +2,19 @@ package main
 
 import (
 	"bufio"
-	"crypto/rand"
 	"embed"
 	"errors"
 	"fmt"
+	"github.com/XMLHexagram/emp"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
 	"gorm.io/gorm"
-	"io"
 	"io/fs"
-	"io/ioutil"
-	"math/big"
 	"net/http"
-	"net/url"
 	"os"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -70,12 +65,24 @@ func isUser(user string, users []string) bool {
 func main() {
 	var err error
 
-	if len(os.Args) <= 1 {
-		fmt.Println("MiPush Secret not available")
-		os.Exit(-1)
+	//if len(os.Args) <= 1 {
+	//	fmt.Println("MiPush Secret not available")
+	//	os.Exit(-1)
+	//}
+	//key := os.Args[1]
+
+	type Tokens struct {
+		MiToken  string
+		FCMToken string
 	}
-	key := os.Args[1]
-	authHeader := fmt.Sprintf("key=%s", key)
+
+	tokens := new(Tokens)
+	err = emp.Parse(tokens)
+	if err != nil {
+		panic(err)
+	}
+
+	miPushAuthHeader := fmt.Sprintf("key=%s", tokens.MiToken)
 
 	pureFs, err := fs.Sub(f, "static")
 	if err != nil {
@@ -173,9 +180,6 @@ func main() {
 	})
 
 	router.POST("/:user_id/send", func(context *gin.Context) {
-		n, _ := rand.Int(rand.Reader, big.NewInt(1000000))
-		notifyID := n.Int64()
-
 		userID := context.Param("user_id")
 		result := isUser(userID, users)
 		if !result {
@@ -194,83 +198,25 @@ func main() {
 		}
 		msgID := uuid.New().String()
 
-		intentUriFormat := "intent:#Intent;launchFlags=0x14000000;component=top.learningman.push/.TranslucentActivity;S.userID=%s;S.long=%s;S.msgID=%s;S.title=%s;S.createdAt=%s;S.content=%s;end"
-		intentUri := fmt.Sprintf(intentUriFormat,
-			url.QueryEscape(userID),
-			url.QueryEscape(long),
-			url.QueryEscape(msgID),
-			url.QueryEscape(title),
-			url.QueryEscape(time.Now().Format(time.RFC3339)),
-			url.QueryEscape(content))
-
-		postData := url.Values{
-			"user_account":            {userID},
-			"payload":                 {long},
-			"restricted_package_name": {"top.learningman.push"},
-			"pass_through":            {"0"},
-			"title":                   {title},
-			"description":             {content},
-			"notify_id":               {strconv.Itoa(int(notifyID))},
-			"extra.id":                {msgID},
-			"extra.notify_effect":     {"2"}, // https://dev.mi.com/console/doc/detail?pId=1278#_3_2
-			"extra.intent_uri":        {intentUri},
-		}.Encode()
-
-		req, err := http.NewRequest(
-			http.MethodPost,
-			APIURL,
-			strings.NewReader(postData))
-
-		req.Header.Set("Authorization", authHeader)
-		req.Header.Set("Content-Type", "application/x-www-form-urlencoded")
-
-		client := &http.Client{}
-		resp, err := client.Do(req)
-
-		if err != nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s", err)
-			return
-		}
-
-		body, err := ioutil.ReadAll(resp.Body)
-
-		if err != nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s", err)
-			return
-		}
-
-		bodyStr := string(body)
-
-		if err != nil {
-			context.String(http.StatusInternalServerError, "Failed Request.\n%s\n%s", bodyStr, err)
-			return
-		}
-		defer func(Body io.ReadCloser) {
-			err := Body.Close()
-			if err != nil {
-				panic("Failed to Close Connection")
-			}
-		}(resp.Body)
-
-		// Insert message record
-		db.Create(&Message{
+		message := &Message{
 			ID:      msgID,
 			UserID:  userID,
 			Title:   title,
 			Content: content,
 			Long:    long,
-		})
+		}
 
-		context.String(resp.StatusCode, bodyStr)
+		//TODO: send message
+		err := MiPush(miPushAuthHeader, message)
+		if err != nil {
+			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
+		}
+
+		// Insert message record
+		db.Create(message)
+
+		context.String(200, fmt.Sprintf("message %s sent to %s.", msgID, userID))
 	})
-
-	//func getFileSystem() http.FileSystem {
-	//	fsys, err := fs.Sub(dist, "gui/dist")
-	//	if err != nil {
-	//	log.Fatal(err)
-	//}
-	//	return http.FS(fsys)
-	//}
 
 	router.StaticFS("/fs", http.FS(pureFs))
 
