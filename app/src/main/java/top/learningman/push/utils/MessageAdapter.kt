@@ -4,6 +4,7 @@ import android.content.DialogInterface
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.text.format.DateUtils
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -79,6 +80,7 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
 
             fun String.fromRFC3339(): Date {
                 // 2022-02-08T18:00:54+08:00
+                Log.d("MessageAdapter", "fromRFC3339: $this")
                 val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
                 return sdf.parse(this)
             }

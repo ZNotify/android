@@ -40,10 +40,16 @@
             android:excludeFromRecents="true"
             android:exported="false"
             android:taskAffinity=""
-            android:theme="@style/TranslucentStyle" />
+            android:theme="@style/TranslucentStyle">
+            <intent-filter>
+                <action android:name="TranslucentActivity" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
 
         <receiver
-            android:name=".MiPushReceiver"
+            android:name=".hook.MiPushReceiver"
             android:enabled="true"
             android:exported="true"
             tools:ignore="ExportedReceiver">

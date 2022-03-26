@@ -33,7 +33,7 @@ func SendViaMiPush(client *http.Client, authHeader string, msg *entity.Message) 
 		url.QueryEscape(long),
 		url.QueryEscape(msgID),
 		url.QueryEscape(title),
-		url.QueryEscape(time.Now().Format(time.RFC3339)),
+		url.QueryEscape(msg.CreatedAt.Format(time.RFC3339)),
 		url.QueryEscape(content))
 
 	postData := url.Values{
@@ -63,7 +63,9 @@ func SendViaMiPush(client *http.Client, authHeader string, msg *entity.Message) 
 		return err
 	}
 
-	_, err = ioutil.ReadAll(resp.Body)
+	body, err := ioutil.ReadAll(resp.Body)
+
+	fmt.Printf("%s", body)
 
 	if err != nil {
 		return err

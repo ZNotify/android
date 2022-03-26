@@ -42,6 +42,8 @@ func main() {
 		os.Exit(1)
 	}
 
+	go checkInternetConnection()
+
 	opt := option.WithCredentialsFile("notify.json")
 	app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
@@ -101,19 +103,30 @@ func main() {
 			context.String(http.StatusBadRequest, err.Error())
 			return
 		}
+		tokenString := string(token)
 		result := isUser(userID, users)
 		if !result {
 			context.String(http.StatusForbidden, "Unauthorized")
 			return
 		}
 
-		user := entity.Tokens{
-			ID:             userID,
-			RegistrationID: string(token),
+		var cnt int64
+		db.Model(&entity.Tokens{}).
+			Where("user_id = ?", userID).
+			Where("registration_id = ?", tokenString).
+			Count(&cnt)
+		// TODO: update user with same token
+		if cnt > 0 {
+			context.String(http.StatusOK, "Token already exists")
+		} else {
+			user := entity.Tokens{
+				ID:             uuid.New().String(),
+				UserID:         userID,
+				RegistrationID: tokenString,
+			}
+			db.Create(&user)
+			context.String(http.StatusOK, "Registration ID saved.")
 		}
-		db.Save(&user)
-
-		context.String(http.StatusOK, "Registration ID saved.")
 	})
 
 	// return message in 30 days
@@ -192,16 +205,12 @@ func main() {
 		msgID := uuid.New().String()
 
 		message := &entity.Message{
-			ID:      msgID,
-			UserID:  userID,
-			Title:   title,
-			Content: content,
-			Long:    long,
-		}
-
-		err := push.SendViaMiPush(httpClient, miPushAuthHeader, message)
-		if err != nil {
-			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
+			ID:        msgID,
+			UserID:    userID,
+			Title:     title,
+			Content:   content,
+			Long:      long,
+			CreatedAt: time.Now(),
 		}
 
 		var tokens []entity.Tokens
@@ -211,6 +220,11 @@ func main() {
 		var registrationIDs []string
 		for i := range tokens {
 			registrationIDs = append(registrationIDs, tokens[i].RegistrationID)
+		}
+
+		err := push.SendViaMiPush(httpClient, miPushAuthHeader, message)
+		if err != nil {
+			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
 		}
 
 		err = push.SendViaFCM(fcmClient, registrationIDs, message)

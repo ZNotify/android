@@ -1,9 +1,11 @@
-package top.learningman.push
+package top.learningman.push.hook
 
 import android.content.Context
 import android.os.Message
 import com.xiaomi.mipush.sdk.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import top.learningman.push.MainApplication
+import top.learningman.push.R
 import top.learningman.push.entity.UIMessage
 import kotlin.concurrent.thread
 
@@ -16,7 +18,6 @@ class MiPushReceiver : PushMessageReceiver() {
     }
 
     override fun onReceiveRegisterResult(context: Context, msg: MiPushCommandMessage) {
-
         val command = msg.command
         val uiMsgObj: UIMessage
         val uiMsgWhat: ActionEnum

@@ -19,6 +19,14 @@ class TranslucentActivity : AppCompatActivity() {
         val title = intent.getStringExtra("title")!!
         val content = intent.getStringExtra("content")!!
         val time = intent.getStringExtra("createdAt")!!.fromRFC3339()
+        Log.d(
+            "TranslucentActivity",
+            "userID: $userID, long: $long, msgID: $msgID, title: $title, content: $content, time: ${
+                intent.getStringExtra(
+                    "createdAt"
+                )
+            }"
+        )
 
         val message = MessageDialog.Message(
             title,

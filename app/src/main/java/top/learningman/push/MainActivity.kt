@@ -12,14 +12,19 @@ import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
+import com.google.firebase.messaging.FirebaseMessaging
 import com.xiaomi.mipush.sdk.MiPushClient
 import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
+import okhttp3.RequestBody
+import okhttp3.RequestBody.Companion.toRequestBody
+import top.learningman.push.hook.MiPushReceiver
+import top.learningman.push.utils.Utils
 import java.lang.Exception
 import kotlin.concurrent.thread
 
@@ -38,6 +43,7 @@ class MainActivity : AppCompatActivity() {
             override fun handleMessage(msg: Message) {
                 when (msg.what) {
                     MiPushReceiver.Companion.ActionEnum.REG_SUCCESS.ordinal -> {
+                        Toast.makeText(context, "MiPush 注册成功", Toast.LENGTH_SHORT).show()
                         Log.i("MiPush", "reg success")
                         val accounts = MiPushClient.getAllUserAccount(context)
                         if (!accounts.contains(currentUserID)) {
@@ -91,7 +97,6 @@ class MainActivity : AppCompatActivity() {
                 }
                 .show()
                 .apply { setCanceledOnTouchOutside(false) }
-
         }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)
@@ -106,6 +111,37 @@ class MainActivity : AppCompatActivity() {
         }
 
         if (userid != "none") {
+            if (!Utils.isXiaoMi()) {
+                FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+                    if (task.isSuccessful) {
+                        Toast.makeText(this, "FCM 注册成功", Toast.LENGTH_LONG).show()
+                        val token = task.result
+                        Log.d("Firebase", "token: $token")
+                        thread {
+                            val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
+                                .newBuilder()
+                                .addPathSegment(userid)
+                                .addPathSegment("token")
+                                .build()
+                            val client = OkHttpClient()
+                            val request = Request.Builder()
+                                .url(url)
+                                .put(token.toRequestBody("text/plain".toMediaTypeOrNull()))
+                                .build()
+                            try {
+                                val response = client.newCall(request).execute()
+                                Log.d("Push", "response: ${response.body?.string()}")
+                            } catch (e: Exception) {
+                                Log.e("Push", "error: ${e.message}")
+                            }
+                        }
+                    } else {
+                        Log.e("Firebase", "token error: ${task.exception}")
+                    }
+                }
+            }
+
+
             reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
             reg_status_text.text = getString(R.string.loading)
             reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)

@@ -48,8 +48,8 @@ android {
 
     buildTypes {
         debug {
-            // buildConfigField "String", "APIURL", "\"http://192.168.1.101:14444\""
-            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
+             buildConfigField "String", "APIURL", "\"http://192.168.0.105:14444\""
+//            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
         }
         release {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
