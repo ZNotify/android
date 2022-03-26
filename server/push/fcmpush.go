@@ -1,17 +1,13 @@
 package push
 
 import (
-	"context"
-	firebase "firebase.google.com/go"
-	"github.com/Zxilly/Notify/server"
+	"firebase.google.com/go/v4/messaging"
+	"github.com/Zxilly/Notify/server/entity"
 )
 
-func SendViaFCM(app *firebase.App, msg *server.Message) error {
+func SendViaFCM(client *messaging.Client, registrationIDs []string, msg *entity.Message) error {
 	// https://firebase.google.com/docs/cloud-messaging/send-message#example-notification-click-action
-	ctx := context.Background()
-	client, err := app.Messaging(ctx)
-	if err != nil {
-		return err
-	}
-
+	fcmMsg := messaging.Message{}
+	_ = fcmMsg
+	return nil
 }

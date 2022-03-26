@@ -1,24 +1,25 @@
-package server
+package main
 
 import (
 	"context"
 	"embed"
 	"errors"
+	firebase "firebase.google.com/go/v4"
 	"fmt"
+	"github.com/Zxilly/Notify/server/entity"
 	"github.com/Zxilly/Notify/server/push"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
 	"github.com/google/uuid"
+	"google.golang.org/api/option"
 	"gorm.io/gorm"
 	"io/fs"
+	"io/ioutil"
 	"net/http"
 	"os"
 	"strconv"
 	"time"
-
-	firebase "firebase.google.com/go"
-	"google.golang.org/api/option"
 )
 
 //go:embed static/*
@@ -47,6 +48,12 @@ func main() {
 		fmt.Println(fmt.Errorf("error initializing app: %v", err))
 		os.Exit(1)
 	}
+	fcmClient, err := app.Messaging(context.Background())
+	if err != nil {
+		fmt.Println(fmt.Errorf("error initializing app: %v", err))
+		os.Exit(1)
+	}
+	httpClient := &http.Client{}
 
 	pureFs, err := fs.Sub(f, "static")
 	if err != nil {
@@ -71,7 +78,7 @@ func main() {
 		fmt.Println(err)
 		os.Exit(1)
 	}
-	err = db.AutoMigrate(&Message{})
+	err = db.AutoMigrate(&entity.Message{}, &entity.Tokens{})
 	if err != nil {
 		fmt.Println(err)
 		os.Exit(1)
@@ -87,6 +94,28 @@ func main() {
 		return
 	})
 
+	router.PUT("/:user_id/token", func(context *gin.Context) {
+		userID := context.Param("user_id")
+		token, err := ioutil.ReadAll(context.Request.Body)
+		if err != nil {
+			context.String(http.StatusBadRequest, err.Error())
+			return
+		}
+		result := isUser(userID, users)
+		if !result {
+			context.String(http.StatusForbidden, "Unauthorized")
+			return
+		}
+
+		user := entity.Tokens{
+			ID:             userID,
+			RegistrationID: string(token),
+		}
+		db.Save(&user)
+
+		context.String(http.StatusOK, "Registration ID saved.")
+	})
+
 	// return message in 30 days
 	router.GET("/:user_id/record", func(context *gin.Context) {
 		userID := context.Param("user_id")
@@ -95,14 +124,14 @@ func main() {
 			context.String(http.StatusForbidden, "Unauthorized")
 			return
 		}
-		var messages []Message
+		var messages []entity.Message
 		result := db.Where("user_id = ?", userID).
 			Where("created_at > ?", time.Now().AddDate(0, 0, -30)).
 			Order("created_at desc").
 			Find(&messages)
 		breakOnError(context, result.Error)
 
-		var ret []interface{}
+		var ret []gin.H
 		for i := range messages {
 			ret = append(ret, gin.H{
 				"id":        messages[i].ID,
@@ -126,7 +155,7 @@ func main() {
 			return
 		}
 
-		var message Message
+		var message entity.Message
 		result := db.Where("user_id = ?", userID).
 			Where("id = ?", id).
 			First(&message)
@@ -162,7 +191,7 @@ func main() {
 		}
 		msgID := uuid.New().String()
 
-		message := &Message{
+		message := &entity.Message{
 			ID:      msgID,
 			UserID:  userID,
 			Title:   title,
@@ -170,8 +199,21 @@ func main() {
 			Long:    long,
 		}
 
-		//TODO: send message
-		err := push.SendViaMiPush(miPushAuthHeader, message)
+		err := push.SendViaMiPush(httpClient, miPushAuthHeader, message)
+		if err != nil {
+			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
+		}
+
+		var tokens []entity.Tokens
+		dbResult := db.Where("user_id = ?", userID).Find(&tokens)
+		breakOnError(context, dbResult.Error)
+
+		var registrationIDs []string
+		for i := range tokens {
+			registrationIDs = append(registrationIDs, tokens[i].RegistrationID)
+		}
+
+		err = push.SendViaFCM(fcmClient, registrationIDs, message)
 		if err != nil {
 			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
 		}
