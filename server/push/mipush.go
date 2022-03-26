@@ -1,8 +1,9 @@
-package main
+package push
 
 import (
 	"crypto/rand"
 	"fmt"
+	"github.com/Zxilly/Notify/server"
 	"io"
 	"io/ioutil"
 	"math/big"
@@ -13,7 +14,9 @@ import (
 	"time"
 )
 
-func MiPush(authHeader string, msg *Message) error {
+const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
+
+func SendViaMiPush(authHeader string, msg *server.Message) error {
 	n, _ := rand.Int(rand.Reader, big.NewInt(1000000))
 	notifyID := n.Int64()
 

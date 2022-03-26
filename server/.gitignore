@@ -108,3 +108,4 @@ vendor/
 notify.db
 server.exe
 static/
+notify.json

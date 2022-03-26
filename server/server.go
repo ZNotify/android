@@ -1,11 +1,11 @@
-package main
+package server
 
 import (
-	"bufio"
+	"context"
 	"embed"
 	"errors"
 	"fmt"
-	"github.com/XMLHexagram/emp"
+	"github.com/Zxilly/Notify/server/push"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/glebarez/sqlite"
@@ -16,73 +16,37 @@ import (
 	"os"
 	"strconv"
 	"time"
+
+	firebase "firebase.google.com/go"
+	"google.golang.org/api/option"
 )
 
 //go:embed static/*
 var f embed.FS
 
-const APIURL = "https://api.xmpush.xiaomi.com/v2/message/user_account"
-
-// read file users.txt to get user list
-func readUsers() []string {
-	file, err := os.Open("users.txt")
-	if err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-	defer func(file *os.File) {
-		err := file.Close()
-		if err != nil {
-			fmt.Println(err)
-			os.Exit(1)
-		}
-	}(file)
-
-	var users []string
-	scanner := bufio.NewScanner(file)
-	for scanner.Scan() {
-		users = append(users, scanner.Text())
-	}
-
-	if err := scanner.Err(); err != nil {
-		fmt.Println(err)
-		os.Exit(1)
-	}
-
-	return users
-}
-
-// judge user if in the user list
-func isUser(user string, users []string) bool {
-	for _, u := range users {
-		if u == user {
-			return true
-		}
-	}
-	return false
-}
-
 func main() {
 	var err error
 
-	//if len(os.Args) <= 1 {
-	//	fmt.Println("MiPush Secret not available")
-	//	os.Exit(-1)
-	//}
-	//key := os.Args[1]
-
-	type Tokens struct {
-		MiToken  string
-		FCMToken string
+	if len(os.Args) <= 1 {
+		fmt.Println("MiPush Secret not available")
+		os.Exit(-1)
 	}
+	key := os.Args[1]
+	miPushAuthHeader := fmt.Sprintf("key=%s", key)
 
-	tokens := new(Tokens)
-	err = emp.Parse(tokens)
+	// check fcm credentials
+	_, err = os.Stat("notify.json")
 	if err != nil {
-		panic(err)
+		fmt.Println("notify.json not found")
+		os.Exit(1)
 	}
 
-	miPushAuthHeader := fmt.Sprintf("key=%s", tokens.MiToken)
+	opt := option.WithCredentialsFile("notify.json")
+	app, err := firebase.NewApp(context.Background(), nil, opt)
+	if err != nil {
+		fmt.Println(fmt.Errorf("error initializing app: %v", err))
+		os.Exit(1)
+	}
 
 	pureFs, err := fs.Sub(f, "static")
 	if err != nil {
@@ -207,7 +171,7 @@ func main() {
 		}
 
 		//TODO: send message
-		err := MiPush(miPushAuthHeader, message)
+		err := push.SendViaMiPush(miPushAuthHeader, message)
 		if err != nil {
 			context.String(http.StatusInternalServerError, fmt.Sprintf("%s", err))
 		}
