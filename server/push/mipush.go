@@ -29,12 +29,12 @@ func SendViaMiPush(client *http.Client, authHeader string, msg *entity.Message) 
 
 	intentUriFormat := "intent:#Intent;launchFlags=0x14000000;component=top.learningman.push/.TranslucentActivity;S.userID=%s;S.long=%s;S.msgID=%s;S.title=%s;S.createdAt=%s;S.content=%s;end"
 	intentUri := fmt.Sprintf(intentUriFormat,
-		url.QueryEscape(msg.UserID),
-		url.QueryEscape(long),
-		url.QueryEscape(msgID),
-		url.QueryEscape(title),
-		url.QueryEscape(msg.CreatedAt.Format(time.RFC3339)),
-		url.QueryEscape(content))
+		url.PathEscape(msg.UserID),
+		url.PathEscape(long),
+		url.PathEscape(msgID),
+		url.PathEscape(title),
+		url.PathEscape(msg.CreatedAt.Format(time.RFC3339)),
+		url.PathEscape(content))
 
 	postData := url.Values{
 		"user_account":            {msg.UserID},
