@@ -24,6 +24,8 @@ POST https://push.learningman.top/{user_id}/send
 @param long    传送到客户端的长内容, 需要点击查看
 ```
 
+`long` 支持 markdown 格式， 支持使用表格扩展。
+
 ## 构建
 构建前端后，执行
 ```shell
