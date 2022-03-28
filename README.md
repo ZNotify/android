@@ -1,14 +1,17 @@
 # Notify
 
-`ServerChan` 的 MiPush 渠道替代品
+通过各移动设备的推送服务，接收通知。
+
+当前支持的推送服务有：
+- 【MiPush】：小米推送
+- 【FCM】：Google Firebase Cloud Messaging
 
 联系 @Zxilly 获取 `https://push.learningman.top` 使用权限。
 
-## 参数
-```
-POST https://push.learningman.top/{user_id}/send
+查看 `server/README.md` 了解服务端。
 
-@param title 推送标题
-@param content 推送内容
-@param long 传送到客户端的长内容, 需要点击查看
-```
+## TODO
+
+- 支持推送到指定设备
+- 支持推送到指定渠道
+- 支持设备端选择推送渠道
