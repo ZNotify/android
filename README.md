@@ -8,7 +8,7 @@
 
 联系 @Zxilly 获取 `https://push.learningman.top` 使用权限。
 
-查看 `server/README.md` 了解服务端。
+查看 [server](https://github.com/ZNotify/server) 了解服务端。
 
 ## TODO
 
