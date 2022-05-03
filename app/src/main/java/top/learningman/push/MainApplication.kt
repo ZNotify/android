@@ -38,7 +38,7 @@ class MainApplication : Application() {
         if (shouldInit()) {
             Log.d("Manufacturer", Build.MANUFACTURER)
             if (Utils.isXiaoMi()) {
-                MiPushClient.registerPush(this, "2882303761520035342", "5272003587342")
+                MiPushClient.registerPush(this, "2882303761520145940", "5542014546940")
             } else {
                 Firebase.messaging.isAutoInitEnabled = true
                 FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)

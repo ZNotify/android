@@ -48,8 +48,7 @@ android {
 
     buildTypes {
         debug {
-             buildConfigField "String", "APIURL", "\"http://192.168.0.105:14444\""
-//            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
+            buildConfigField "String", "APIURL", "\"http://192.168.0.105:14444\""
         }
         release {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
@@ -105,6 +104,6 @@ dependencies {
     implementation "io.noties.markwon:html:${markwonVersion}"
     implementation "io.noties.markwon:image:${markwonVersion}"
 
-    implementation files('libs/MiPush_SDK_Client_4_9_1.jar')
+    implementation files('libs/MiPush_SDK_Client_5_0_5.aar')
 
 }
