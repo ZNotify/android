@@ -1,4 +1,18 @@
--keep class top.learningman.push.MiPushReceiver {*;}
-
 -dontwarn com.xiaomi.push.**
 -keep class com.xiaomi.** {*;}
+-keep class top.learningman.push.** {*;}
+
+-dontwarn com.caverock.androidsvg.SVG
+-dontwarn com.caverock.androidsvg.SVGParseException
+-dontwarn com.google.firebase.messaging.TopicOperation$TopicOperations
+-dontwarn org.bouncycastle.jsse.BCSSLParameters
+-dontwarn org.bouncycastle.jsse.BCSSLSocket
+-dontwarn org.bouncycastle.jsse.provider.BouncyCastleJsseProvider
+-dontwarn org.commonmark.ext.gfm.strikethrough.Strikethrough
+-dontwarn org.conscrypt.Conscrypt$Version
+-dontwarn org.conscrypt.Conscrypt
+-dontwarn org.conscrypt.ConscryptHostnameVerifier
+-dontwarn org.openjsse.javax.net.ssl.SSLParameters
+-dontwarn org.openjsse.javax.net.ssl.SSLSocket
+-dontwarn org.openjsse.net.ssl.OpenJSSE
+-dontwarn pl.droidsonroids.gif.GifDrawable

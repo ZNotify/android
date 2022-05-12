@@ -56,13 +56,15 @@ android {
 
     buildTypes {
         debug {
-            buildConfigField "String", "APIURL", "\"http://192.168.0.105:14444\""
+            buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
+            signingConfig signingConfigs.release
         }
         release {
+            signingConfig signingConfigs.release
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
