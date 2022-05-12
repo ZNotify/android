@@ -50,3 +50,4 @@ jobs:
           token: ${{secrets.APP_CENTER_TOKEN}}
           group: public
           file: app/build/outputs/apk/release/app-release.apk
+          gitReleaseNotes: true
