@@ -10,7 +10,8 @@ def gitCommitId = 'git rev-parse --short HEAD'.execute([], project.rootDir).text
 def majorVersion = 0
 def minorVersion = 0
 def buildVersion = 1
-def currentVersionCode = (majorVersion + 1) * 200 + minorVersion * 20 + buildVersion
+// Get timestamp in seconds
+def currentVersionCode = (new Date()).getTime() / 1000
 def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
 def versionBase = "${baseVersionName}.${releaseTime()}.${gitCommitId}"
 
@@ -52,7 +53,7 @@ android {
         }
         release {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
-            minifyEnabled false
+            minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
@@ -103,6 +104,12 @@ dependencies {
     implementation "io.noties.markwon:ext-tables:${markwonVersion}"
     implementation "io.noties.markwon:html:${markwonVersion}"
     implementation "io.noties.markwon:image:${markwonVersion}"
+
+    def appCenterSdkVersion = '4.4.3'
+    implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
+    implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
+
+    implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
 
     implementation files('libs/MiPush_SDK_Client_5_0_5.aar')
 

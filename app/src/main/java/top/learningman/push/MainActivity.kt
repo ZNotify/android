@@ -6,26 +6,27 @@ import android.content.res.ColorStateList
 import android.net.Uri
 import android.os.*
 import android.provider.Settings
-import androidx.appcompat.app.AppCompatActivity
 import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AlertDialog
+import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.preference.PreferenceManager
 import com.google.firebase.messaging.FirebaseMessaging
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
+import com.microsoft.appcenter.distribute.Distribute
 import com.xiaomi.mipush.sdk.MiPushClient
 import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
+import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
-import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
-import okhttp3.MediaType
-import okhttp3.MediaType.Companion.toMediaTypeOrNull
-import okhttp3.RequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import top.learningman.push.hook.MiPushReceiver
 import top.learningman.push.utils.Utils
-import java.lang.Exception
 import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
@@ -35,6 +36,14 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        AppCenter.start(
+            application,
+            "0c045975-212b-441d-9ee4-e6ab9c76f8a3",
+            Analytics::class.java,
+            Crashes::class.java,
+            Distribute::class.java
+        )
 
         context = this
         setContentView(R.layout.activity_main)
@@ -84,19 +93,14 @@ class MainActivity : AppCompatActivity() {
         super.onResume()
 
         if (!Settings.canDrawOverlays(this)) {
-            AlertDialog.Builder(this)
-                .setTitle("权限需求")
-                .setMessage("应用需要悬浮窗权限以正常工作，请在设置中开启")
+            AlertDialog.Builder(this).setTitle("权限需求").setMessage("应用需要悬浮窗权限以正常工作，请在设置中开启")
                 .setPositiveButton("去授权") { _, _ ->
                     val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION)
                     intent.data = Uri.parse("package:$packageName")
                     startActivity(intent)
-                }
-                .setNegativeButton("拒绝") { _, _ ->
+                }.setNegativeButton("拒绝") { _, _ ->
                     finish()
-                }
-                .show()
-                .apply { setCanceledOnTouchOutside(false) }
+                }.show().apply { setCanceledOnTouchOutside(false) }
         }
 
         val pref = PreferenceManager.getDefaultSharedPreferences(this)

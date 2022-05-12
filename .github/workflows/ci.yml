@@ -1,0 +1,53 @@
+name: CI
+
+on:
+  push:
+    branches: [ master ]
+
+env:
+  IMAGE_NAME: notify-api
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Get current time
+        uses: 1466587594/get-current-time@v2
+        id: current-time
+        with:
+          format: YYYYMMDDTHHmmss
+          utcOffset: "+08:00"
+
+      - uses: actions/checkout@v3
+        with:
+          lfs: true
+
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - name: Build with Gradle
+        run: ./gradlew assembleRelease
+
+      - name: Release Package
+        uses: marvinpinto/action-automatic-releases@latest
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
+          prerelease: true
+          files: |
+            app/build/outputs/apk/release/app-release.apk
+            
+      - name: Upload artifact to App Center
+        uses: wzieba/AppCenter-Github-Action@v1
+        with:
+          appName: "zxilly/Notify"
+          token: ${{secrets.APP_CENTER_TOKEN}}
+          group: public
+          file: app/build/outputs/apk/release/app-release.apk
