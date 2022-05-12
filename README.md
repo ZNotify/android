@@ -10,6 +10,11 @@
 
 查看 [server](https://github.com/ZNotify/server) 了解服务端。
 
+## Download
+
+[AppCenter](https://install.appcenter.ms/users/zxilly/apps/notify/distribution_groups/public)
+[Github Release](https://github.com/ZNotify/Notify/releases)
+
 ## TODO
 
 - 支持推送到指定设备
