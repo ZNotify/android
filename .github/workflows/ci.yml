@@ -31,6 +31,8 @@ jobs:
 
       - name: Build with Gradle
         run: ./gradlew assembleRelease
+        env:
+          PASSWORD: "${{ secrets.PASSWORD }}"
 
       - name: Release Package
         uses: marvinpinto/action-automatic-releases@latest
