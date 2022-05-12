@@ -4,9 +4,6 @@ on:
   push:
     branches: [ master ]
 
-env:
-  IMAGE_NAME: notify-api
-
 jobs:
   build:
     runs-on: ubuntu-latest
