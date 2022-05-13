@@ -3,6 +3,7 @@ package top.learningman.push
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
+import top.learningman.push.databinding.ActivityTranslucentBinding
 import top.learningman.push.utils.MessageAdapter.MessageHolder.Companion.fromRFC3339
 import top.learningman.push.view.MessageDialog
 
@@ -11,7 +12,8 @@ class TranslucentActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         Log.e("TranslucentActivity", "onCreate")
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_translucent)
+        val binding = ActivityTranslucentBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val userID = intent.getStringExtra("userID")!!
         val long = intent.getStringExtra("long")!!

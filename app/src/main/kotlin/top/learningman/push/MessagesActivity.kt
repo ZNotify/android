@@ -6,7 +6,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
-import kotlinx.android.synthetic.main.activity_messages.*
+import top.learningman.push.databinding.ActivityMessagesBinding
 import top.learningman.push.utils.MessageAdapter
 import kotlin.concurrent.thread
 
@@ -14,21 +14,23 @@ import kotlin.concurrent.thread
 class MessagesActivity : AppCompatActivity() {
     private lateinit var mLayoutManager: LinearLayoutManager
     private lateinit var mAdapter: MessageAdapter
+    private lateinit var binding: ActivityMessagesBinding
 
     private val mViewModel: MessageViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_messages)
+        binding = ActivityMessagesBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         mLayoutManager = LinearLayoutManager(this)
         mAdapter = MessageAdapter(mViewModel)
 
         val dividerItemDecoration = DividerItemDecoration(this, mLayoutManager.orientation)
 
-        messages_list.layoutManager = mLayoutManager
-        messages_list.adapter = mAdapter
-        messages_list.addItemDecoration(dividerItemDecoration)
+        binding.messagesList.layoutManager = mLayoutManager
+        binding.messagesList.adapter = mAdapter
+        binding.messagesList.addItemDecoration(dividerItemDecoration)
 
         mViewModel.message.observe(this) {
             mAdapter.submitList(it)

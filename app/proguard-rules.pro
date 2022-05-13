@@ -1,6 +1,6 @@
 -dontwarn com.xiaomi.push.**
 -keep class com.xiaomi.** {*;}
--keep class top.learningman.push.** {*;}
+-keep class top.learningman.push.utils.MessageAdapter {*;}
 
 -dontwarn com.caverock.androidsvg.SVG
 -dontwarn com.caverock.androidsvg.SVGParseException

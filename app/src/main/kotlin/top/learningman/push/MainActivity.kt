@@ -4,7 +4,10 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.os.*
+import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.os.Message
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
@@ -18,13 +21,13 @@ import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import com.microsoft.appcenter.distribute.Distribute
 import com.xiaomi.mipush.sdk.MiPushClient
-import kotlinx.android.synthetic.main.activity_main.*
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.RequestBody.Companion.toRequestBody
+import top.learningman.push.databinding.ActivityMainBinding
 import top.learningman.push.hook.MiPushReceiver
 import top.learningman.push.utils.Utils
 import kotlin.concurrent.thread
@@ -33,6 +36,8 @@ class MainActivity : AppCompatActivity() {
     lateinit var currentUserID: String
     lateinit var context: Context
     var inited = false
+
+    lateinit var binding: ActivityMainBinding
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +51,8 @@ class MainActivity : AppCompatActivity() {
         )
 
         context = this
-        setContentView(R.layout.activity_main)
+        binding = ActivityMainBinding.inflate(layoutInflater)
+        setContentView(binding.root)
 
         val handler = object : Handler(Looper.getMainLooper()) {
             override fun handleMessage(msg: Message) {
@@ -69,11 +75,11 @@ class MainActivity : AppCompatActivity() {
 
         MainApplication.handler = handler // FIXME: use viewModel instead
 
-        go_setting.setOnClickListener {
+        binding.goSetting.setOnClickListener {
             startActivity(Intent(this, SettingsActivity::class.java))
         }
 
-        go_history.setOnClickListener {
+        binding.goHistory.setOnClickListener {
             startActivity(Intent(this, MessagesActivity::class.java))
         }
 
@@ -82,9 +88,9 @@ class MainActivity : AppCompatActivity() {
         currentUserID = userid
 
         if (userid == "none") {
-            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
-            reg_status_text.text = getString(R.string.not_set_userid_err)
-            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
+            binding.regStatus.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+            binding.regStatusText.text = getString(R.string.not_set_userid_err)
+            binding.regStatusIcon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
             return
         }
     }
@@ -146,9 +152,9 @@ class MainActivity : AppCompatActivity() {
             }
 
 
-            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_pending))
-            reg_status_text.text = getString(R.string.loading)
-            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)
+            binding.regStatus.setCardBackgroundColor(this.colorList(R.color.reg_pending))
+            binding.regStatusText.text = getString(R.string.loading)
+            binding.regStatusIcon.setIcon(MaterialDrawableBuilder.IconValue.SYNC)
             thread {
                 try {
                     val client = OkHttpClient()
@@ -165,17 +171,17 @@ class MainActivity : AppCompatActivity() {
                         val responseText = response.body?.string() ?: throw Exception("No response")
                         if (responseText == "true") {
                             runOnUiThread {
-                                reg_status.setCardBackgroundColor(this.colorList(R.color.reg_success))
-                                reg_status_text.text = getString(R.string.userid_success)
-                                reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
+                                binding.regStatus.setCardBackgroundColor(this.colorList(R.color.reg_success))
+                                binding.regStatusText.text = getString(R.string.userid_success)
+                                binding.regStatusIcon.setIcon(MaterialDrawableBuilder.IconValue.CHECK)
                             }
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
                         runOnUiThread {
-                            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
-                            reg_status_text.text = getString(R.string.connect_err)
-                            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.SYNC_ALERT)
+                            binding.regStatus.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+                            binding.regStatusText.text = getString(R.string.connect_err)
+                            binding.regStatusIcon.setIcon(MaterialDrawableBuilder.IconValue.SYNC_ALERT)
                         }
                     }
                 } catch (e: Exception) {
@@ -183,9 +189,9 @@ class MainActivity : AppCompatActivity() {
                 }
             }
         } else {
-            reg_status.setCardBackgroundColor(this.colorList(R.color.reg_failed))
-            reg_status_text.text = getString(R.string.not_set_userid_err)
-            reg_status_icon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
+            binding.regStatus.setCardBackgroundColor(this.colorList(R.color.reg_failed))
+            binding.regStatusText.text = getString(R.string.not_set_userid_err)
+            binding.regStatusIcon.setIcon(MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE)
         }
     }
 

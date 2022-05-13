@@ -9,8 +9,7 @@ import android.icu.text.SimpleDateFormat
 import android.text.method.ScrollingMovementMethod
 import android.view.LayoutInflater
 import android.view.View
-import android.widget.TextView
-import top.learningman.push.R
+import top.learningman.push.databinding.MessageDialogBinding
 import top.learningman.push.utils.Markwon
 import top.learningman.push.utils.Network
 import java.util.*
@@ -33,12 +32,12 @@ object MessageDialog {
         immediate: Boolean = true,
         cb: ((Boolean) -> Unit)? = null
     ): AlertDialog {
-        val dialogView = LayoutInflater.from(context)
-            .inflate(R.layout.message_dialog, null, false)
+        val binding = MessageDialogBinding.inflate(LayoutInflater.from(context))
+        val dialogView = binding.root
 
-        val dialogContent = dialogView.findViewById<TextView>(R.id.dialog_content)
-        val dialogLong = dialogView.findViewById<TextView>(R.id.dialog_long)
-        val dialogTime = dialogView.findViewById<TextView>(R.id.dialog_time)
+        val dialogContent = binding.dialogContent
+        val dialogLong = binding.dialogLong
+        val dialogTime = binding.dialogTime
 
         dialogContent.text = msg.content
         if (msg.long.isNotBlank()) {

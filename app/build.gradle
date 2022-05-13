@@ -1,7 +1,6 @@
 plugins {
     id 'com.android.application'
     id 'kotlin-android'
-    id 'kotlin-android-extensions' // TODO: Migrate to view binding
     id 'com.google.gms.google-services'
 }
 
@@ -64,7 +63,7 @@ android {
             buildConfigField "String", "APIURL", "\"https://push.learningman.top\""
             minifyEnabled true
             shrinkResources true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
     compileOptions {
@@ -78,6 +77,9 @@ android {
         resources {
             excludes += ['META-INF/atomicfu.kotlin_module']
         }
+    }
+    viewBinding {
+        enabled = true
     }
 }
 
@@ -118,7 +120,6 @@ dependencies {
     def appCenterSdkVersion = '4.4.3'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
-
     implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
 
     implementation files('libs/MiPush_SDK_Client_5_0_5.aar')

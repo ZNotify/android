@@ -7,14 +7,13 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import top.learningman.push.MessageViewModel
 import top.learningman.push.R
+import top.learningman.push.databinding.TextRowItemBinding
 import top.learningman.push.entity.Message
 import top.learningman.push.view.MessageDialog
 import java.util.*
@@ -33,10 +32,12 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
 
     class MessageHolder(itemView: View, private val viewModel: MessageViewModel) :
         RecyclerView.ViewHolder(itemView) {
-        private val messageItem: ConstraintLayout = itemView.findViewById(R.id.row_item)
-        private val messageItemTitleView: TextView = itemView.findViewById(R.id.row_item_title)
-        private val messageItemContentView: TextView = itemView.findViewById(R.id.row_item_content)
-        private val messageItemTimeView: TextView = itemView.findViewById(R.id.row_item_time)
+        private val binding = TextRowItemBinding.bind(itemView)
+        private val messageItem = binding.rowItem
+        private val messageItemTitleView = binding.rowItemTitle
+        private val messageItemContentView = binding.rowItemContent
+        private val messageItemTimeView = binding.rowItemTime
+
         val userid = PreferenceManager.getDefaultSharedPreferences(itemView.context)
             .getString("user_id", "none")!!
 
@@ -78,8 +79,6 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
             }
 
             fun String.fromRFC3339(): Date {
-                // 2022-02-08T18:00:54+08:00
-                // Log.d("MessageAdapter", "fromRFC3339: $this")
                 val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
                 return sdf.parse(this)
             }
