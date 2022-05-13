@@ -1,3 +1,24 @@
 -dontwarn com.xiaomi.push.**
--keep class com.xiaomi.** {*;}
--keep class top.learningman.push.** {*;}
+
+-keep class top.learningman.push.entity.** {*;}
+
+-keep class  com.xiaomi.channel.commonutils.android.** {*;}
+-keep class  com.xiaomi.channel.commonutils.file.** {*;}
+-keep class  com.xiaomi.channel.commonutils.network.** {*;}
+-keep class  com.xiaomi.channel.commonutils.misc.** {*;}
+-keep class  com.xiaomi.channel.commonutils.stats.** {*;}
+-keep class  com.xiaomi.channel.commonutils.string.** {*;}
+-keep class  com.xiaomi.mipush.sdk.** {*;}
+-keep class  com.xiaomi.mipush.network.** {*;}
+-keep class  com.xiaomi.mipush.push.** {*;}
+-keep class  com.xiaomi.mipush.smack.** {*;}
+-keep class  com.xiaomi.mipush.stats.** {*;}
+-keep class  com.xiaomi.xmpush.thrift.** {*;}
+-keep class  org.apache.thrift.** {*;}
+-keep class  org.apache.thrift.protocol.** {*;}
+-keep class  org.apache.thrift.meta_data.** {*;}
+-keep class  org.apache.thrift.transport.** {*;}
+-keep class  com.xiaomi.measite.smack.** {*;}
+-keep class  com.xiaomi.measite.smack.** {*;}
+-keepclasseswithmembernames class com.xiaomi.** {*;}
+-keep public class * extends com.xiaomi.mipush.sdk.PushMessageReceiver
