@@ -7,8 +7,6 @@ import android.os.Build
 import android.os.Handler
 import android.os.Process
 import android.util.Log
-import com.google.android.gms.common.GoogleApiAvailability
-import com.google.android.gms.common.api.GoogleApiActivity
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging

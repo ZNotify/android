@@ -2,7 +2,10 @@ package top.learningman.push.hook
 
 import android.content.Context
 import android.os.Message
-import com.xiaomi.mipush.sdk.*
+import com.xiaomi.mipush.sdk.ErrorCode
+import com.xiaomi.mipush.sdk.MiPushClient
+import com.xiaomi.mipush.sdk.MiPushCommandMessage
+import com.xiaomi.mipush.sdk.PushMessageReceiver
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import top.learningman.push.MainApplication
 import top.learningman.push.R
