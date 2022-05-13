@@ -3,8 +3,11 @@
 通过各移动设备的推送服务，接收通知。
 
 当前支持的推送服务有：
+
 - 【MiPush】：小米推送
 - 【FCM】：Google Firebase Cloud Messaging
+
+> 当系统无原生推送框架支持时，将使用 MiPush 的独立版本作为后备。
 
 联系 @Zxilly 获取 `https://push.learningman.top` 使用权限。
 

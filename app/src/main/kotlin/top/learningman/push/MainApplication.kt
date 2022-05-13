@@ -7,6 +7,7 @@ import android.os.Build
 import android.os.Handler
 import android.os.Process
 import android.util.Log
+import android.widget.Toast
 import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.ktx.messaging
@@ -22,14 +23,6 @@ class MainApplication : Application() {
         }
     }
 
-    fun setHandler(h: Handler) {
-        handler = h
-    }
-
-    fun getHandler(): Handler {
-        return handler
-    }
-
     override fun onCreate() {
         super.onCreate()
 
@@ -37,9 +30,12 @@ class MainApplication : Application() {
             Log.d("Manufacturer", Build.MANUFACTURER)
             if (Utils.isXiaoMi()) {
                 MiPushClient.registerPush(this, "2882303761520145940", "5542014546940")
-            } else {
+            } else if (Utils.isGMS(this)) {
                 Firebase.messaging.isAutoInitEnabled = true
                 FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
+            } else {
+                Toast.makeText(this, "Use fallback", Toast.LENGTH_SHORT).show()
+                MiPushClient.registerPush(this, "2882303761520145940", "5542014546940")
             }
         }
     }
