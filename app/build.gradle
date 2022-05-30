@@ -105,7 +105,7 @@ dependencies {
     implementation 'androidx.activity:activity-ktx:1.4.0'
 
     api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.2"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.1"
+    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.2"
 
     implementation 'net.steamcrafted:materialiconlib:1.1.5' // TODO: deprecate this dependency
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
