@@ -131,6 +131,7 @@ class MainActivity : AppCompatActivity() {
                             val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
                                 .newBuilder()
                                 .addPathSegment(userid)
+                                .addPathSegment("fcm")
                                 .addPathSegment("token")
                                 .build()
                             val client = OkHttpClient()
