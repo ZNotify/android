@@ -17,7 +17,7 @@
 
 [AppCenter](https://install.appcenter.ms/users/zxilly/apps/notify/distribution_groups/public)
 
-[Github Release](https://github.com/ZNotify/Notify/releases)
+[Github Release](https://github.com/ZNotify/android/releases)
 
 ## TODO
 
