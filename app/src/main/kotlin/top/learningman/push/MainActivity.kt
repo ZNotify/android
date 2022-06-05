@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
@@ -38,6 +39,11 @@ class MainActivity : AppCompatActivity() {
             Crashes::class.java,
             Distribute::class.java
         )
+
+        if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
+            Distribute.setEnabled(false)
+            // Not working on Xiaomi devices
+        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
