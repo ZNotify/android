@@ -47,10 +47,19 @@ class MiPushReceiver : PushMessageReceiver() {
             uiMsg.obj = uiMsgObj
             uiMsg.what = uiMsgWhat.ordinal
             thread {
+                var cnt = 0
                 while (!MainApplication.isHandlerInit()) {
                     Thread.sleep(100) // This is a ugly trick. Finding a better solution.
+                    cnt++
+                    if (cnt > 30) {
+                        break
+                    }
                 }
-                MainApplication.handler.sendMessage(uiMsg)
+                if (cnt > 30) {
+                    return@thread
+                } else {
+                    MainApplication.handler.sendMessage(uiMsg)
+                }
             }
         }
     }

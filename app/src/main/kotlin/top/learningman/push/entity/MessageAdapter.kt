@@ -1,4 +1,4 @@
-package top.learningman.push.utils
+package top.learningman.push.entity
 
 import android.content.DialogInterface
 import android.graphics.Color
@@ -14,7 +14,6 @@ import androidx.recyclerview.widget.RecyclerView
 import top.learningman.push.MessageViewModel
 import top.learningman.push.R
 import top.learningman.push.databinding.TextRowItemBinding
-import top.learningman.push.entity.Message
 import top.learningman.push.view.MessageDialog
 import java.util.*
 
@@ -38,7 +37,7 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
         private val messageItemContentView = binding.rowItemContent
         private val messageItemTimeView = binding.rowItemTime
 
-        val userid = PreferenceManager.getDefaultSharedPreferences(itemView.context)
+        private val userid = PreferenceManager.getDefaultSharedPreferences(itemView.context)
             .getString("user_id", "none")!!
 
         fun bind(msg: Message) {

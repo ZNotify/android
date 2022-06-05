@@ -7,13 +7,14 @@ import android.content.DialogInterface
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
 import android.text.method.ScrollingMovementMethod
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
+import kotlinx.coroutines.runBlocking
 import top.learningman.push.databinding.MessageDialogBinding
 import top.learningman.push.utils.Markwon
 import top.learningman.push.utils.Network
 import java.util.*
-import kotlin.concurrent.thread
 
 object MessageDialog {
     data class Message(
@@ -63,9 +64,12 @@ object MessageDialog {
                 cb?.invoke(true)
             }
             .setNeutralButton("删除") { dialog, _ ->
-                thread {
+                runBlocking {
                     Network.requestDelete(msg.userID, msg.msgID)
-                }.join()
+                        .onFailure {
+                            Log.e("MessageDialog", "Delete error", it)
+                        }
+                }
                 dialog.cancel()
                 cb?.invoke(false)
             }

@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.AppCompatActivity
 import top.learningman.push.databinding.ActivityTranslucentBinding
-import top.learningman.push.utils.MessageAdapter.MessageHolder.Companion.fromRFC3339
+import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.fromRFC3339
 import top.learningman.push.view.MessageDialog
 
 

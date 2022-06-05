@@ -7,7 +7,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import top.learningman.push.databinding.ActivityMessagesBinding
-import top.learningman.push.utils.MessageAdapter
+import top.learningman.push.entity.MessageAdapter
 import kotlin.concurrent.thread
 
 

@@ -3,16 +3,11 @@ package top.learningman.push
 import android.app.ActivityManager
 import android.app.Application
 import android.content.Context
-import android.os.Build
 import android.os.Handler
 import android.os.Process
-import android.util.Log
 import android.widget.Toast
-import com.google.firebase.analytics.FirebaseAnalytics
-import com.google.firebase.ktx.Firebase
-import com.google.firebase.messaging.ktx.messaging
-import com.xiaomi.mipush.sdk.MiPushClient
-import top.learningman.push.utils.Utils
+import top.learningman.push.channel.FCM
+import top.learningman.push.channel.MiPush
 
 class MainApplication : Application() {
     companion object {
@@ -27,15 +22,13 @@ class MainApplication : Application() {
         super.onCreate()
 
         if (shouldInit()) {
-            Log.d("Manufacturer", Build.MANUFACTURER)
-            if (Utils.isXiaoMi()) {
-                MiPushClient.registerPush(this, "2882303761520145940", "5542014546940")
-            } else if (Utils.isGMS(this)) {
-                Firebase.messaging.isAutoInitEnabled = true
-                FirebaseAnalytics.getInstance(this).setAnalyticsCollectionEnabled(true)
-            } else {
-                Toast.makeText(this, "Use fallback", Toast.LENGTH_SHORT).show()
-                MiPushClient.registerPush(this, "2882303761520145940", "5542014546940")
+            when (true) {
+                MiPush.should(this) -> MiPush.init(this)
+                FCM.should(this) -> FCM.init(this)
+                else -> {
+                    Toast.makeText(this, "Use fallback push channel.", Toast.LENGTH_SHORT).show()
+                    MiPush.init(this)
+                }
             }
         }
     }
