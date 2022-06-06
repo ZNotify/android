@@ -8,16 +8,17 @@ import okhttp3.HttpUrl.Companion.toHttpUrlOrNull
 import okhttp3.MediaType.Companion.toMediaTypeOrNull
 import okhttp3.RequestBody.Companion.toRequestBody
 import okio.IOException
-import top.learningman.push.BuildConfig
+import top.learningman.push.Constant
 import top.learningman.push.entity.Message
 import kotlin.coroutines.resume
 import kotlin.coroutines.resumeWithException
 
 object Network {
     private val client = OkHttpClient()
+    private val apiEndpointBuilder = Constant.API_ENDPOINT.toHttpUrlOrNull()!!.newBuilder()
 
     suspend fun requestDelete(userID: String, msgID: String): Result<Response> {
-        val url = BuildConfig.APIURL.toHttpUrlOrNull()!!.newBuilder()
+        val url = apiEndpointBuilder
             .addPathSegment(userID)
             .addPathSegment(msgID)
             .build()
@@ -35,15 +36,14 @@ object Network {
     }
 
     suspend fun check(userID: String): Result<Response> {
-        val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
-            .newBuilder()
+        val url = apiEndpointBuilder
             .addPathSegment(userID)
             .addPathSegment("check")
             .build()
         val request = Request.Builder()
             .url(url)
             .build()
-        return kotlin.runCatching {
+        return runCatching {
             val response = client.newCall(request).await()
             val responseText = response.body?.string() ?: throw Exception("No response")
             if (responseText != "true") {
@@ -54,8 +54,7 @@ object Network {
     }
 
     suspend fun reportFCMToken(userID: String, token: String): Result<Response> {
-        val url = BuildConfig.APIURL.toHttpUrlOrNull()!!
-            .newBuilder()
+        val url = apiEndpointBuilder
             .addPathSegment(userID)
             .addPathSegment("fcm")
             .addPathSegment("token")
@@ -64,7 +63,7 @@ object Network {
             .url(url)
             .put(token.toRequestBody("text/plain".toMediaTypeOrNull()))
             .build()
-        return kotlin.runCatching {
+        return runCatching {
             val response = client.newCall(request).await()
             if (response.code != 200) {
                 throw Exception("report failed")
@@ -74,14 +73,14 @@ object Network {
     }
 
     suspend fun fetchMessage(userID: String): Result<List<Message>> {
-        val url = BuildConfig.APIURL.toHttpUrlOrNull()!!.newBuilder()
+        val url = apiEndpointBuilder
             .addPathSegment(userID)
             .addPathSegment("record")
             .build()
         val request = Request.Builder()
             .url(url)
             .build()
-        return kotlin.runCatching {
+        return runCatching {
             val response = client.newCall(request).await()
             val body = response.body?.string() ?: throw Exception("no body")
             return@runCatching Gson()

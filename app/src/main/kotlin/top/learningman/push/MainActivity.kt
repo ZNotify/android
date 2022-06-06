@@ -34,7 +34,7 @@ class MainActivity : AppCompatActivity() {
 
         AppCenter.start(
             application,
-            "0c045975-212b-441d-9ee4-e6ab9c76f8a3",
+            Constant.APP_CENTER_SECRET,
             Analytics::class.java,
             Crashes::class.java,
             Distribute::class.java

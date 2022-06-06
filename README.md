@@ -28,3 +28,15 @@
 ## Warning
 
 应用内更新在 MIUI 设备上无法工作，已被禁用。请手动更新。
+
+## Self-hosting
+
+通常，你应该修改
+
+- `app/build.gradle` > `defaultConfig.applicationId`
+- `app/src/main/kotlin/top/learningman/push/Constant.kt`
+- `app/google-services.json`
+
+## License
+
+Distribute under BSD 3-Clause License

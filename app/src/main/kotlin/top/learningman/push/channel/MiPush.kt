@@ -8,12 +8,13 @@ import android.os.Message
 import android.util.Log
 import android.widget.Toast
 import com.xiaomi.mipush.sdk.MiPushClient
+import top.learningman.push.Constant
 import top.learningman.push.MainApplication
 import top.learningman.push.hook.MiPushReceiver
 
 object MiPush : Channel {
     override fun init(context: Context) {
-        MiPushClient.registerPush(context, "2882303761520145940", "5542014546940")
+        MiPushClient.registerPush(context, Constant.MIPUSH_APP_ID, Constant.MIPUSH_APP_SECRET)
     }
 
     override fun should(context: Context): Boolean {
