@@ -15,7 +15,8 @@ import kotlin.coroutines.resumeWithException
 
 object Network {
     private val client = OkHttpClient()
-    private val apiEndpointBuilder = Constant.API_ENDPOINT.toHttpUrlOrNull()!!.newBuilder()
+    private val apiEndpointBuilder
+        get() = Constant.API_ENDPOINT.toHttpUrlOrNull()!!.newBuilder()
 
     suspend fun requestDelete(userID: String, msgID: String): Result<Response> {
         val url = apiEndpointBuilder
