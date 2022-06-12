@@ -21,6 +21,17 @@ object Network {
     }
 
     suspend fun fetchMessage(userID: String): Result<List<Message>> {
-        return null // FIXME
+        val client = Client.create(userID).getOrElse { return Result.failure(it) }
+        return client.fetchMessage {
+            this.map {
+                Message(
+                    it.id,
+                    it.title,
+                    it.content,
+                    it.created_at,
+                    it.long
+                )
+            }
+        }
     }
 }

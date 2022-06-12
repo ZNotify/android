@@ -108,7 +108,7 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.google.code.gson:gson:2.9.0'
 
-    implementation 'dev.zxilly:notify-sdk:1.1.0'
+    implementation 'dev.zxilly:notify-sdk:1.2.1'
 
     def markwonVersion = '4.6.2'
     implementation "io.noties.markwon:core:${markwonVersion}"
