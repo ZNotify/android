@@ -9,6 +9,7 @@ import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.ktx.messaging
+import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import top.learningman.push.utils.Network
@@ -39,11 +40,16 @@ object FCM : Channel {
                         }
                         .onFailure {
                             Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
+                            Log.e("Firebase", "FCM 注册失败", it)
+                            Crashes.trackError(it)
                         }
                 }
             } else {
                 Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
                 Log.e("Firebase", "token error: ${task.exception}")
+                task.exception?.let { Crashes.trackError(it) } ?: run {
+                    Crashes.trackError(Throwable("Failed to get token from FCM"))
+                }
             }
         }
     }
