@@ -7,12 +7,12 @@ plugins {
 def gitCommitId = 'git rev-parse --short HEAD'.execute([], project.rootDir).text.trim()
 
 def majorVersion = 0
-def minorVersion = 0
-def buildVersion = 1
+def minorVersion = 1
+def buildVersion = 0
 // Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
 def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
-def versionBase = "${baseVersionName}.${releaseTime()}.${gitCommitId}"
+def versionBase = "${baseVersionName}.${gitCommitId}"
 
 
 static def releaseTime() {
@@ -25,11 +25,11 @@ android {
         minSdk 26
         targetSdk 32
         versionCode = currentVersionCode
-        versionName = versionBase + "-SNAPSHOT"
+        versionName = versionBase
     }
 
     signingConfigs {
-        release {
+        auto {
             def password
             def CI = System.getenv("CI")
             if (CI != null) {
@@ -53,10 +53,10 @@ android {
 
     buildTypes {
         debug {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.auto
         }
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.auto
             minifyEnabled true
             shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
@@ -101,8 +101,8 @@ dependencies {
     implementation 'androidx.fragment:fragment-ktx:1.4.1'
     implementation 'androidx.activity:activity-ktx:1.4.0'
 
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
-    api "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.3"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.3"
 
     implementation 'net.steamcrafted:materialiconlib:1.1.5' // TODO: deprecate this dependency
 
