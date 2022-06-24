@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.provider.Settings
 import androidx.appcompat.app.AlertDialog
@@ -12,10 +11,6 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.lifecycleScope
 import androidx.preference.PreferenceManager
-import com.microsoft.appcenter.AppCenter
-import com.microsoft.appcenter.analytics.Analytics
-import com.microsoft.appcenter.crashes.Crashes
-import com.microsoft.appcenter.distribute.Distribute
 import kotlinx.coroutines.launch
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import top.learningman.push.channel.FCM
@@ -31,19 +26,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
-        AppCenter.start(
-            application,
-            Constant.APP_CENTER_SECRET,
-            Analytics::class.java,
-            Crashes::class.java,
-            Distribute::class.java
-        )
-
-        if (Build.MANUFACTURER.equals("Xiaomi", ignoreCase = true)) {
-            Distribute.setEnabled(false)
-            // Not working on Xiaomi devices
-        }
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)

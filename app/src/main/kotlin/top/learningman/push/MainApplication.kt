@@ -6,6 +6,10 @@ import android.content.Context
 import android.os.Handler
 import android.os.Process
 import android.widget.Toast
+import com.microsoft.appcenter.AppCenter
+import com.microsoft.appcenter.analytics.Analytics
+import com.microsoft.appcenter.crashes.Crashes
+import com.microsoft.appcenter.distribute.Distribute
 import top.learningman.push.channel.FCM
 import top.learningman.push.channel.MiPush
 
@@ -20,6 +24,13 @@ class MainApplication : Application() {
 
     override fun onCreate() {
         super.onCreate()
+        AppCenter.start(
+            this,
+            Constant.APP_CENTER_SECRET,
+            Analytics::class.java,
+            Crashes::class.java,
+            Distribute::class.java
+        )
 
         if (shouldInit()) {
             when (true) {
