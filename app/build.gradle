@@ -114,7 +114,7 @@ dependencies {
     implementation "io.noties.markwon:html:${markwonVersion}"
     implementation "io.noties.markwon:image:${markwonVersion}"
 
-    def appCenterSdkVersion = '4.4.4'
+    def appCenterSdkVersion = '4.4.5'
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
