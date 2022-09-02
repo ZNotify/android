@@ -8,7 +8,7 @@ def gitCommitId = 'git rev-parse --short HEAD'.execute([], project.rootDir).text
 
 def majorVersion = 0
 def minorVersion = 1
-def buildVersion = 0
+def buildVersion = 1
 // Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
 def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
@@ -23,7 +23,7 @@ android {
     defaultConfig {
         applicationId "top.learningman.push"
         minSdk 26
-        targetSdk 32
+        targetSdk 33
         versionCode = currentVersionCode
         versionName = versionBase
     }
@@ -49,7 +49,7 @@ android {
             keyPassword password
         }
     }
-    compileSdk 32
+    compileSdk 33
 
     buildTypes {
         debug {
@@ -82,7 +82,7 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.8.0'
-    implementation 'androidx.appcompat:appcompat:1.4.2'
+    implementation 'androidx.appcompat:appcompat:1.5.0'
 
     implementation 'com.google.android.material:material:1.6.1'
 
@@ -93,13 +93,13 @@ dependencies {
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
     implementation 'androidx.preference:preference-ktx:1.2.0'
 
-    implementation 'androidx.lifecycle:lifecycle-common-java8:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.4.1'
-    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.4.1'
+    implementation 'androidx.lifecycle:lifecycle-common-java8:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
+    implementation 'androidx.lifecycle:lifecycle-livedata-ktx:2.5.1'
 
-    implementation 'androidx.fragment:fragment-ktx:1.4.1'
-    implementation 'androidx.activity:activity-ktx:1.4.0'
+    implementation 'androidx.fragment:fragment-ktx:1.5.2'
+    implementation 'androidx.activity:activity-ktx:1.5.1'
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
@@ -119,5 +119,5 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
 
-    implementation files('libs/MiPush_SDK_Client_5_0_5.aar')
+    implementation files('libs/MiPush_SDK_Client_5_1_0-C_3rd.aar')
 }
