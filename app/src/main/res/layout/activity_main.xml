@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <androidx.cardview.widget.CardView
+    <com.google.android.material.card.MaterialCardView
         android:id="@+id/card_view"
         android:layout_width="match_parent"
         android:layout_height="100dp"
@@ -14,7 +14,7 @@
         android:layout_margin="20dp"
         card_view:cardCornerRadius="4dp">
 
-        <androidx.cardview.widget.CardView
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/reg_status"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -42,7 +42,7 @@
                     card_view:materialIconSize="24dp"
                     tools:ignore="ImageContrastCheck" />
 
-                <TextView
+                <com.google.android.material.textview.MaterialTextView
                     android:id="@+id/reg_status_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
@@ -50,8 +50,8 @@
                     android:gravity="center_vertical"
                     android:paddingLeft="20dp"
                     android:text="@string/loading"
-                    android:textColor="@color/white"
                     android:textSize="18sp"
+                    android:textColor="@color/md_theme_light_onTertiary"
                     card_view:layout_constraintBottom_toBottomOf="parent"
                     card_view:layout_constraintEnd_toEndOf="parent"
                     card_view:layout_constraintStart_toStartOf="parent"
@@ -59,13 +59,13 @@
             </androidx.constraintlayout.widget.ConstraintLayout>
 
 
-        </androidx.cardview.widget.CardView>
+        </com.google.android.material.card.MaterialCardView>
 
-    </androidx.cardview.widget.CardView>
+    </com.google.android.material.card.MaterialCardView>
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/go_setting"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
@@ -75,9 +75,9 @@
         android:textSize="15sp"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/go_history"
-        style="@style/Widget.MaterialComponents.Button.OutlinedButton"
+        style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginHorizontal="20dp"
@@ -87,7 +87,7 @@
         android:textSize="15sp"
         tools:ignore="SpeakableTextPresentCheck" />
 
-    <Button
+    <com.google.android.material.button.MaterialButton
         android:id="@+id/debug"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

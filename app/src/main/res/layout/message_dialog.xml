@@ -6,13 +6,13 @@
     android:paddingLeft="24dp"
     android:paddingRight="24dp">
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/dialog_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="4dp" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/dialog_long"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -22,7 +22,7 @@
         android:scrollbars="vertical"
         android:visibility="gone" />
 
-    <TextView
+    <com.google.android.material.textview.MaterialTextView
         android:id="@+id/dialog_time"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

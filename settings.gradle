@@ -8,4 +8,5 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "Notify"
+
 include ':app'
