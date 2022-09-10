@@ -41,7 +41,7 @@ class SettingsActivity : AppCompatActivity() {
                     Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
                     true
                 }
-                summary = "Version ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+                summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
             }
         }
     }
