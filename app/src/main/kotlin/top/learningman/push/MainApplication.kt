@@ -6,6 +6,7 @@ import android.content.Context
 import android.os.Handler
 import android.os.Process
 import android.widget.Toast
+import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
@@ -31,6 +32,8 @@ class MainApplication : Application() {
             Crashes::class.java,
             Distribute::class.java
         )
+
+        DynamicColors.applyToActivitiesIfAvailable(this)
 
         if (shouldInit()) {
             when (true) {
