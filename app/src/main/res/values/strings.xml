@@ -17,5 +17,7 @@
     <string name="reg_success">注册成功</string>
     <string name="reg_failed">注册失败</string>
     <string name="fcm_msg_subscribed">FCM 注册成功</string>
-    <string name="fcm_msg_subscribe_failed" >FCM 注册失败</string>
+    <string name="fcm_msg_subscribe_failed">FCM 注册失败</string>
+    <string name="other">其他</string>
+    <string name="version">版本</string>
 </resources>

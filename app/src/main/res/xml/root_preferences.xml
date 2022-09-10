@@ -9,4 +9,11 @@
 
     </PreferenceCategory>
 
+    <PreferenceCategory app:title="@string/other">
+        <Preference
+            app:key="version"
+            app:summary="0.0.0"
+            app:title="@string/version" />
+    </PreferenceCategory>
+
 </PreferenceScreen>
