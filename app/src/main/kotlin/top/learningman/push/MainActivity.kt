@@ -15,7 +15,7 @@ import kotlinx.coroutines.launch
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import top.learningman.push.channel.FCM
 import top.learningman.push.databinding.ActivityMainBinding
-import top.learningman.push.utils.Network
+import top.learningman.push.utils.MessageUtils
 
 class MainActivity : AppCompatActivity() {
     lateinit var currentUserID: String
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
             }
 
             lifecycleScope.launch {
-                Network.check(userid)
+                MessageUtils.check(userid)
                     .onSuccess {
                         setStatus(RegStatus.SUCCESS)
                     }

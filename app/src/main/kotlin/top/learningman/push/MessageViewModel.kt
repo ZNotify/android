@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import top.learningman.push.entity.Message
-import top.learningman.push.utils.Network
+import top.learningman.push.utils.MessageUtils
 
 
 class MessageViewModel : ViewModel() {
@@ -16,7 +16,7 @@ class MessageViewModel : ViewModel() {
 
     fun loadMessages(userID: String) {
         viewModelScope.launch {
-            Network.fetchMessage(userID)
+            MessageUtils.fetchMessage(userID)
                 .onSuccess {
                     _message.postValue(it)
                 }

@@ -3,7 +3,7 @@ package top.learningman.push.utils
 import Client
 import top.learningman.push.entity.Message
 
-object Network {
+object MessageUtils {
 
     suspend fun requestDelete(userID: String, msgID: String): Result<Unit> {
         val client = Client.create(userID).getOrElse { return Result.failure(it) }

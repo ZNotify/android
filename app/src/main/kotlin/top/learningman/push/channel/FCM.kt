@@ -12,7 +12,7 @@ import com.google.firebase.messaging.ktx.messaging
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import top.learningman.push.utils.Network
+import top.learningman.push.utils.MessageUtils
 
 object FCM : Channel {
     override fun init(context: Context) {
@@ -34,7 +34,7 @@ object FCM : Channel {
                 val token = task.result
                 Log.d("Firebase", "token: $token")
                 scope.launch {
-                    Network.reportFCMToken(userID, token)
+                    MessageUtils.reportFCMToken(userID, token)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
                         }
