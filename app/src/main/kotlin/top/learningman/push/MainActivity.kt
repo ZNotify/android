@@ -14,7 +14,6 @@ import androidx.preference.PreferenceManager
 import kotlinx.coroutines.launch
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
 import top.learningman.push.channel.FCM
-import top.learningman.push.channel.MiPush
 import top.learningman.push.databinding.ActivityMainBinding
 import top.learningman.push.utils.Network
 
@@ -66,10 +65,9 @@ class MainActivity : AppCompatActivity() {
         if (userid != "none") {
             setStatus(RegStatus.PENDING)
 
-            when (true) {
-                MiPush.should(this) -> MiPush.setCallback(this, userid)
+            when {
                 FCM.should(this) -> FCM.setCallback(this, userid, lifecycleScope)
-                else -> MiPush.setCallback(this, userid) // FIXME: use self host implementation
+                else -> null
             }
 
             lifecycleScope.launch {

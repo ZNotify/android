@@ -12,7 +12,6 @@ import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import com.microsoft.appcenter.distribute.Distribute
 import top.learningman.push.channel.FCM
-import top.learningman.push.channel.MiPush
 
 class MainApplication : Application() {
     companion object {
@@ -37,11 +36,10 @@ class MainApplication : Application() {
 
         if (shouldInit()) {
             when (true) {
-                MiPush.should(this) -> MiPush.init(this)
                 FCM.should(this) -> FCM.init(this)
                 else -> {
                     Toast.makeText(this, "Use fallback push channel.", Toast.LENGTH_SHORT).show()
-                    MiPush.init(this)
+                    // FIXME: add fallback push channel
                 }
             }
         }
