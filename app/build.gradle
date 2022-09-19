@@ -106,7 +106,7 @@ dependencies {
 
     implementation 'net.steamcrafted:materialiconlib:1.1.5' // TODO: deprecate this dependency
 
-    implementation 'dev.zxilly:notify-sdk:1.5.1'
+    implementation 'dev.zxilly:notify-sdk:2.0.0'
 
     def markwonVersion = '4.6.2'
     implementation "io.noties.markwon:core:${markwonVersion}"
