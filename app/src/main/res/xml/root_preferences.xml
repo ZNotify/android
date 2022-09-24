@@ -12,6 +12,7 @@
     <PreferenceCategory app:title="@string/other">
         <Preference
             app:key="version"
+            app:persistent="false"
             app:summary="0.0.0"
             app:title="@string/version" />
     </PreferenceCategory>

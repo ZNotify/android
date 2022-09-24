@@ -1,6 +1,5 @@
-package top.learningman.push
+package top.learningman.push.activity
 
-import android.content.Context
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -8,6 +7,8 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import com.microsoft.appcenter.distribute.Distribute
+import top.learningman.push.BuildConfig
+import top.learningman.push.R
 import top.learningman.push.databinding.SettingsActivityBinding
 
 class SettingsActivity : AppCompatActivity() {
@@ -26,10 +27,6 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
-        override fun onAttach(context: Context) {
-            super.onAttach(context)
-            Log.d("SettingsActivity", "onAttach")
-        }
 
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)

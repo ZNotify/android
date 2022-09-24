@@ -1,4 +1,4 @@
-package top.learningman.push.channel
+package top.learningman.push.provider
 
 import android.content.Context
 import android.util.Log
@@ -12,15 +12,24 @@ import com.google.firebase.messaging.ktx.messaging
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import top.learningman.push.utils.MessageUtils
+import top.learningman.push.BuildConfig
+import top.learningman.push.utils.APIUtils
 
 object FCM : Channel {
+    override val name: String
+        get() = "Firebase Cloud Messaging"
+
     override fun init(context: Context) {
-        Firebase.messaging.isAutoInitEnabled = true
+        if (!Firebase.messaging.isAutoInitEnabled){
+            Firebase.messaging.isAutoInitEnabled = true
+        }
         FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(true)
     }
 
     override fun should(context: Context): Boolean {
+        if (BuildConfig.DEBUG) {
+            return false // FIXME: remove after testing
+        }
         val ga = GoogleApiAvailability.getInstance()
         return when (ga.isGooglePlayServicesAvailable(context)) {
             ConnectionResult.SUCCESS -> true
@@ -28,13 +37,12 @@ object FCM : Channel {
         }
     }
 
-    override fun setCallback(context: Context, userID: String, scope: CoroutineScope) {
+    override fun setUserCallback(context: Context, userID: String, scope: CoroutineScope) {
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
-                Log.d("Firebase", "token: $token")
                 scope.launch {
-                    MessageUtils.reportFCMToken(userID, token)
+                    APIUtils.reportFCMToken(userID, token)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
                         }

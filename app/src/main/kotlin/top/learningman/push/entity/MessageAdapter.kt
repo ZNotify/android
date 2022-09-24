@@ -11,7 +11,7 @@ import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import top.learningman.push.MessageViewModel
+import top.learningman.push.activity.MessageViewModel
 import top.learningman.push.R
 import top.learningman.push.databinding.TextRowItemBinding
 import top.learningman.push.view.MessageDialog
@@ -37,8 +37,6 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
         private val messageItemContentView = binding.rowItemContent
         private val messageItemTimeView = binding.rowItemTime
 
-        private val userid = PreferenceManager.getDefaultSharedPreferences(itemView.context)
-            .getString("user_id", "none")!!
 
         fun bind(msg: Message) {
             messageItemTitleView.text = msg.title
@@ -54,7 +52,7 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
                 msg.long,
                 msg.createdAt.fromRFC3339(),
                 msg.id,
-                userid
+                msg.userID
             )
 
             val dialog = MessageDialog.show(message, itemView.context, false) { positive ->
@@ -78,8 +76,23 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
             }
 
             fun String.fromRFC3339(): Date {
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ", Locale.getDefault())
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
                 return sdf.parse(this)
+            }
+
+            fun Date.toRFC3339(): String {
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
+                return sdf.format(this)
+            }
+
+            fun String.fromRFC3339Nano(): Date {
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX", Locale.getDefault())
+                return sdf.parse(this)
+            }
+
+            fun Date.toRFC3339Nano(): String {
+                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX", Locale.getDefault())
+                return sdf.format(this)
             }
         }
     }

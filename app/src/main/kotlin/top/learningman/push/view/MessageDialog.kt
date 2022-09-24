@@ -13,7 +13,7 @@ import android.view.View
 import kotlinx.coroutines.runBlocking
 import top.learningman.push.databinding.MessageDialogBinding
 import top.learningman.push.utils.Markwon
-import top.learningman.push.utils.MessageUtils
+import top.learningman.push.utils.APIUtils
 import java.util.*
 
 object MessageDialog {
@@ -65,7 +65,7 @@ object MessageDialog {
             }
             .setNeutralButton("删除") { dialog, _ ->
                 runBlocking {
-                    MessageUtils.requestDelete(msg.userID, msg.msgID)
+                    APIUtils.requestDelete(msg.userID, msg.msgID)
                         .onFailure {
                             Log.e("MessageDialog", "Delete error", it)
                         }

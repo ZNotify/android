@@ -1,4 +1,4 @@
-package top.learningman.push
+package top.learningman.push.activity
 
 import android.os.Bundle
 import androidx.activity.viewModels
@@ -6,10 +6,11 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
+import top.learningman.push.application.MainApplication
+import top.learningman.push.data.Repo
 import top.learningman.push.databinding.ActivityMessagesBinding
 import top.learningman.push.entity.MessageAdapter
 import kotlin.concurrent.thread
-
 
 class MessagesActivity : AppCompatActivity() {
     private lateinit var mLayoutManager: LinearLayoutManager
@@ -36,11 +37,11 @@ class MessagesActivity : AppCompatActivity() {
             mAdapter.submitList(it)
         }
 
-        // get userid from preference
-        val pref = PreferenceManager.getDefaultSharedPreferences(this)
-        val userid = pref.getString("user_id", "none")!!
+        val userid = (application as MainApplication).repo.getUser()
 
-        thread { mViewModel.loadMessages(userid) }
+        if (userid != Repo.PREF_USER_DEFAULT) {
+            thread { mViewModel.loadMessages(userid) }
+        }
     }
 
 }

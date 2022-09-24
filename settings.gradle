@@ -5,6 +5,7 @@ dependencyResolutionManagement {
         mavenCentral()
         //noinspection JcenterRepositoryObsolete
         jcenter()
+        maven { url 'https://jitpack.io' }
     }
 }
 rootProject.name = "Notify"
