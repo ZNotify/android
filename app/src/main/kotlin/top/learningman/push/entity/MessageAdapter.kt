@@ -7,12 +7,11 @@ import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import androidx.preference.PreferenceManager
 import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
-import top.learningman.push.activity.MessageViewModel
 import top.learningman.push.R
+import top.learningman.push.activity.MessageViewModel
 import top.learningman.push.databinding.TextRowItemBinding
 import top.learningman.push.view.MessageDialog
 import java.util.*

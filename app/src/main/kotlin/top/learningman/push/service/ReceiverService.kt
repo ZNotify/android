@@ -171,21 +171,21 @@ class ReceiverService : NotificationListenerService() {
     override fun onTaskRemoved(rootIntent: Intent) {
         val restartServiceIntent = Intent(applicationContext, ReceiverService::class.java).also {
             it.setPackage(packageName)
-        };
+        }
         val restartServicePendingIntent: PendingIntent = PendingIntent.getService(
             this,
             1,
             restartServiceIntent,
             PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        );
-        applicationContext.getSystemService(Context.ALARM_SERVICE);
+        )
+        applicationContext.getSystemService(Context.ALARM_SERVICE)
         val alarmService =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager;
+            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
         alarmService.set(
             AlarmManager.ELAPSED_REALTIME,
             SystemClock.elapsedRealtime() + 1000,
             restartServicePendingIntent
-        );
+        )
     }
 
     override fun onListenerDisconnected() {

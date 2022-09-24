@@ -13,7 +13,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.consumeEach
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
-import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem

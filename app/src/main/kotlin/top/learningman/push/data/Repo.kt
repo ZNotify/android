@@ -3,7 +3,6 @@ package top.learningman.push.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
-import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339
 import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339Nano
 import java.util.*
 
