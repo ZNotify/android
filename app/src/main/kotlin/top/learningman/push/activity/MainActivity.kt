@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
@@ -58,6 +59,7 @@ class MainActivity : AppCompatActivity() {
             if (status == RegStatus.SUCCESS) {
                 startActivity(Intent(this, MessagesActivity::class.java))
             } else {
+                Log.w("MainActivity", "Not registered $status")
                 Toast.makeText(this, "请输入正确用户名", Toast.LENGTH_SHORT).show()
             }
         }
@@ -106,6 +108,7 @@ class MainActivity : AppCompatActivity() {
 
     private var status = RegStatus.NOT_SET
     private fun setStatus(status: RegStatus) {
+        this.status = status
         val statusMap = mapOf(
             RegStatus.SUCCESS to listOf(
                 R.color.reg_success,
