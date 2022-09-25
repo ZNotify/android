@@ -46,9 +46,10 @@ class ReceiverService : NotificationListenerService() {
             Log.d(TAG, "using an intent with action ${intent.action}")
             when (intent.action) {
                 Action.UPDATE.name -> receiving(true)
-                else -> {}
+                else -> receiving()
             }
         } else {
+            receiving()
             Log.d(TAG, "with a null intent. It has been probably restarted by the system.")
         }
         return START_STICKY // restart if system kills the service
