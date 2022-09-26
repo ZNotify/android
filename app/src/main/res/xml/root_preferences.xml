@@ -1,12 +1,22 @@
-<PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:id="@+id/ps">
 
     <PreferenceCategory app:title="@string/setting_header">
 
         <EditTextPreference
-            app:key="user_id"
+            app:key="@string/pref_user_id_key"
             app:title="@string/user_id"
             app:useSimpleSummaryProvider="true" />
 
+
+        <ListPreference
+            app:dialogTitle="@string/available_channel"
+            app:entries="@array/empty_array"
+            app:entryValues="@array/empty_array"
+            app:key="@string/pref_channel_key"
+            app:title="@string/push_channel"
+            app:useSimpleSummaryProvider="true" />
     </PreferenceCategory>
 
     <PreferenceCategory app:title="@string/other">

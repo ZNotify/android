@@ -3,8 +3,9 @@ package top.learningman.push.provider
 import android.app.Activity
 import android.content.Context
 import kotlinx.coroutines.CoroutineScope
+import top.learningman.push.data.Repo
 
-interface Permission{
+interface Permission {
     val name: String
     val description: String
 
@@ -41,50 +42,42 @@ interface Channel {
     }
 }
 
-class AutoChannel private constructor(context: Context) : Channel {
-    private val impl: Channel
+val channels = arrayOf(FCM, Host)
 
-    init {
-        impl = when {
-            FCM.should(context) -> FCM
-            else -> Host
-        }
-    }
-
-    override val name: String
-        get() = impl.name
-
-    override fun init(context: Context) {
-        impl.init(context)
-    }
-
-    override fun permissions(): List<Permission> {
-        return impl.permissions()
-    }
-
-    override fun setUserCallback(context: Context, userID: String) {
-        impl.setUserCallback(context, userID)
-    }
-
-    override fun setUserCallback(context: Context, userID: String, scope: CoroutineScope) {
-        impl.setUserCallback(context, userID, scope)
-    }
-
+class AutoChannel private constructor(channel: Channel) : Channel by channel {
     companion object {
-        private var impl: Channel? = null
-        fun getInstance(context: Context): Channel {
-            if (impl == null) {
-                impl = AutoChannel(context)
-            }
-            return impl!!
-        }
-
+        private var instance: Channel? = null
         fun belong(chan: Channel): Boolean {
-            if (impl == null) {
+            if (instance == null) {
                 return false
             }
-            return impl!!.name == chan.name
+            return instance!!.name == chan.name
         }
 
+        fun getInstance(context: Context, channelText: String? = null): Channel {
+            return if (instance != null && channelText == null) {
+                instance as Channel
+            } else {
+                var impl: Channel? = null
+                if (channelText == null) {
+                    val channelID = Repo.getInstance(context).getChannel()
+                    if (channelID != null) {
+                        impl = channels.firstOrNull { it.name == channelID }
+                    }
+                } else {
+                    impl = channels.firstOrNull { it.name == channelText }
+                }
+
+                if (impl == null) {
+                    impl = when {
+                        FCM.should(context) -> FCM
+                        else -> Host
+                    }
+                }
+
+                instance = AutoChannel(impl)
+                instance as Channel
+            }
+        }
     }
 }

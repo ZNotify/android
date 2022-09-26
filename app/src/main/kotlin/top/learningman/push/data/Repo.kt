@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339Nano
+import top.learningman.push.provider.Channel
 import java.util.*
 
 class Repo(private val sharedPref: SharedPreferences) {
@@ -42,6 +43,14 @@ class Repo(private val sharedPref: SharedPreferences) {
         sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, time).apply()
     }
 
+    fun getChannel(): String? {
+        return sharedPref.getString(PREF_CHANNEL_KEY, null)
+    }
+
+    fun setChannel(channel: Channel){
+        sharedPref.edit().putString(PREF_CHANNEL_KEY, channel.name).apply()
+    }
+
     companion object {
         private var instance: Repo? = null
 
@@ -52,6 +61,8 @@ class Repo(private val sharedPref: SharedPreferences) {
         const val PREF_MESSAGE_WORKER_VERSION_KEY = "message_worker_version"
         const val PREF_MESSAGE_WORKER_VERSION_DEFAULT = 0
         const val PREF_LAST_MESSAGE_TIME_KEY = "last_message_time"
+        const val PREF_CHANNEL_KEY = "channel"
+
 
 
         fun getInstance(context: Context): Repo {

@@ -39,7 +39,6 @@ import top.learningman.push.provider.Permission
 import top.learningman.push.utils.PermissionManager
 import top.learningman.push.utils.setTextAnimation
 import top.learningman.push.utils.toPX
-import java.lang.Math.abs
 import com.android.setupwizardlib.R as SuwR
 
 class SetupActivity : AppCompatActivity() {
@@ -49,15 +48,20 @@ class SetupActivity : AppCompatActivity() {
     private lateinit var setup: SetupWizardLayout
     private lateinit var adapter: Adapter
     private lateinit var title: MaterialTextView
+    private var isGrantPermission = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        if (intent.action == PERMISSION_GRANT_ACTION) {
+            isGrantPermission = true
+        }
 
         binding = ActivitySetupBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
         setup = binding.setup
-        title = binding.setup.findViewById<MaterialTextView>(SuwR.id.suw_layout_title)!!
+        title = binding.setup.findViewById(SuwR.id.suw_layout_title)!!
 
 
         with(window) {
@@ -68,6 +72,7 @@ class SetupActivity : AppCompatActivity() {
 
         viewPager = binding.viewPager
         viewPager.adapter = adapter
+
         viewPager.setPageTransformer { view, position ->
             view.apply {
                 val pageWidth = width
@@ -81,7 +86,7 @@ class SetupActivity : AppCompatActivity() {
                         0f
                     }
                     position <= 1 -> {
-                        1 - abs(position)
+                        1 - kotlin.math.abs(position)
                     }
                     else -> {
                         0f
@@ -105,14 +110,22 @@ class SetupActivity : AppCompatActivity() {
                     }
                 }
             })
+        if (isGrantPermission) {
+            viewPager.setCurrentItem(adapter.itemCount - 1, false)
+        }
 
         setup = binding.setup
         setup.navigationBar.backButton.visibility = View.GONE
         setup.navigationBar.nextButton.setOnClickListener {
             if (viewPager.currentItem == adapter.itemCount - 1) {
-                startActivity(Intent(this, MainActivity::class.java).apply {
-                    addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
-                })
+                if (isGrantPermission) {
+                    finish()
+                } else {
+                    startActivity(Intent(this, MainActivity::class.java).apply {
+                        addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK or Intent.FLAG_ACTIVITY_NEW_TASK)
+                    })
+                    finish()
+                }
             } else {
                 viewPager.currentItem += 1
             }
@@ -151,7 +164,6 @@ class SetupActivity : AppCompatActivity() {
         override fun createFragment(position: Int): Fragment {
             return pages[position]
         }
-
     }
 
     fun setNextButtonEnabled(enabled: Boolean) {
@@ -307,4 +319,15 @@ class SetupActivity : AppCompatActivity() {
         }
     }
 
+    @Suppress("DEPRECATION")
+    @Deprecated("Deprecated in Java")
+    override fun onBackPressed() {
+        if (!isGrantPermission) {
+            super.onBackPressed()
+        }
+    }
+
+    companion object {
+        const val PERMISSION_GRANT_ACTION = "permission_grant_action"
+    }
 }
