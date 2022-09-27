@@ -18,8 +18,6 @@ import top.learningman.push.data.Repo
 import top.learningman.push.databinding.ActivityMainBinding
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Channel
-import top.learningman.push.provider.FCM
-import top.learningman.push.provider.Host
 import top.learningman.push.utils.APIUtils
 import top.learningman.push.utils.PermissionManager
 
@@ -45,8 +43,6 @@ class MainActivity : AppCompatActivity() {
             finish()
             return
         }
-
-
 
         binding = ActivityMainBinding.inflate(layoutInflater)
         setContentView(binding.root)
@@ -87,10 +83,7 @@ class MainActivity : AppCompatActivity() {
         if (userid != Repo.PREF_USER_DEFAULT) {
             setStatus(RegStatus.PENDING)
 
-            when {
-                FCM.should(this) -> FCM.setUserCallback(this, userid, lifecycleScope)
-                else -> Host.setUserCallback(this, userid)
-            }
+            channel.setUserCallback(this, userid, lifecycleScope)
 
             lifecycleScope.launch {
                 APIUtils.check(userid)

@@ -6,14 +6,11 @@ import android.app.Activity
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
-import androidx.work.Constraints
-import androidx.work.ExistingPeriodicWorkPolicy
-import androidx.work.NetworkType
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
+import androidx.work.*
 import top.learningman.push.BuildConfig
 import top.learningman.push.data.Repo
 import top.learningman.push.service.PollWorker
@@ -29,11 +26,16 @@ object Host : Channel {
         get() = "Websocket"
 
     override fun init(context: Context) {
+        context.packageManager.setComponentEnabledSetting(
+            ComponentName(context, ReceiverService::class.java),
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+        )
     }
 
     override fun setUserCallback(context: Context, userID: String) {
         context.startService(Intent(context, ReceiverService::class.java).apply {
             action = ReceiverService.Action.UPDATE.name
+            putExtra(ReceiverService.INTENT_USERID_KEY, userID)
         })
     }
 
