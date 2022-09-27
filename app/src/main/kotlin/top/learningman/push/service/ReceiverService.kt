@@ -102,13 +102,6 @@ class ReceiverService : NotificationListenerService() {
         private val client by lazy {
             HttpClient(OkHttp) {
                 install(WebSockets)
-//                install(HttpRequestRetry) {
-//                    retryOnServerErrors(maxRetries = 3)
-//                    exponentialDelay()
-//                    retryIf { _, response ->
-//                        response.status != HttpStatusCode.Unauthorized
-//                    }
-//                }
             }
         }
 
@@ -145,10 +138,16 @@ class ReceiverService : NotificationListenerService() {
             }
 
             currentUserID = nextUserID
-            return client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${nextUserID}/host/conn")
-            {
-                header("X-Message-Since", repo.getLastMessageTime())
-            }
+            return runCatching {
+                client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${nextUserID}/host/conn")
+                {
+                    header("X-Message-Since", repo.getLastMessageTime())
+                }
+            }.also {
+                if (it.isFailure) {
+                    Log.e(TAG, "getSession: ", it.exceptionOrNull())
+                }
+            }.getOrNull()
         }
 
         fun start() {
