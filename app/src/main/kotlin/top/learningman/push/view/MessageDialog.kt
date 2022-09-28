@@ -15,6 +15,7 @@ import top.learningman.push.databinding.MessageDialogBinding
 import top.learningman.push.utils.Markwon
 import top.learningman.push.utils.APIUtils
 import java.util.*
+import kotlin.concurrent.thread
 
 object MessageDialog {
     data class Message(
@@ -64,11 +65,13 @@ object MessageDialog {
                 cb?.invoke(true)
             }
             .setNeutralButton("删除") { dialog, _ ->
-                runBlocking {
-                    APIUtils.requestDelete(msg.userID, msg.msgID)
-                        .onFailure {
-                            Log.e("MessageDialog", "Delete error", it)
-                        }
+                thread {
+                    runBlocking {
+                        APIUtils.requestDelete(msg.userID, msg.msgID)
+                            .onFailure {
+                                Log.e("MessageDialog", "Delete error", it)
+                            }
+                    }
                 }
                 dialog.cancel()
                 cb?.invoke(false)
