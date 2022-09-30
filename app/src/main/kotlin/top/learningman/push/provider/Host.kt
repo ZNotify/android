@@ -107,7 +107,7 @@ object Host : Channel {
             }
         }
 
-        if (RomUtils.isMiui()){
+        if (RomUtils.isMiui()) {
             permissions.add(miuiAutoStartPermission)
         }
 
