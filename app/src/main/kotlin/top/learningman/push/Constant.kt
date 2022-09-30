@@ -12,7 +12,13 @@ object Constant {
         return ENDPOINT_LIST[0]
     }
 
-    private const val USE_SECURE_PROTOCOL = true
+    private val USE_SECURE_PROTOCOL: Boolean
+    get() {
+        if (BuildConfig.DEBUG){
+            return true
+        }
+        return true
+    }
 
     private val HTTP_PROTOCOL:String
     get() {

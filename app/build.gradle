@@ -1,7 +1,7 @@
 plugins {
     id "com.android.application"
     id "kotlin-android"
-    id "org.jetbrains.kotlin.plugin.serialization" version "1.7.10"
+    id "org.jetbrains.kotlin.plugin.serialization" version "1.7.20"
     id "com.google.gms.google-services"
 }
 
@@ -69,6 +69,11 @@ android {
     }
     kotlinOptions {
         jvmTarget = "1.8"
+
+        freeCompilerArgs += [
+                "-P",
+                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=1.7.20"
+        ]
     }
     packagingOptions {
         resources {
@@ -87,7 +92,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.3.0'
+        kotlinCompilerExtensionVersion '1.4.0-dev-k1.7.20-RC-a143c065804'
     }
     dependenciesInfo {
         includeInApk false
@@ -122,7 +127,7 @@ dependencies {
     def work_version = "2.7.1"
     implementation "androidx.work:work-runtime:$work_version"
     implementation "androidx.work:work-runtime-ktx:$work_version"
-    
+
     def lifecycle_version = "2.5.1"
     implementation "androidx.lifecycle:lifecycle-common-java8:$lifecycle_version"
     implementation "androidx.lifecycle:lifecycle-runtime-ktx:$lifecycle_version"
@@ -138,7 +143,7 @@ dependencies {
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
 
-    implementation "net.steamcrafted:materialiconlib:1.1.5" // TODO: deprecate this dependency
+    implementation "com.github.code-mc:material-icon-lib:1.1.5"
 
     def ktor_version = "2.1.1"
     implementation "io.ktor:ktor-client-core:$ktor_version"

@@ -106,6 +106,20 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
+        private val statusLock = AtomicInteger(0)
+        // 0 not started
+        // 1 try to start
+        // 2 running
+        // 3 stop and wait for network
+
+        private val jobLock = Mutex()
+
+        private val wakeLock: PowerManager.WakeLock by lazy {
+            (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
+                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)
+            }
+        }
+
         init {
             val connectivityManager =
                 context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
@@ -132,20 +146,6 @@ class ReceiverService : NotificationListenerService() {
 
                 }
             })
-        }
-
-        private val statusLock = AtomicInteger(0)
-        // 0 not started
-        // 1 try to start
-        // 2 running
-        // 3 stop and wait for network
-
-        private val jobLock = Mutex()
-
-        private val wakeLock: PowerManager.WakeLock by lazy {
-            (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)
-            }
         }
 
         fun update(userID: String, isRetry: Boolean = false) {
@@ -232,8 +232,8 @@ class ReceiverService : NotificationListenerService() {
                 }
 
                 Log.d(TAG, "retry: $userID")
-                Log.d(TAG, "Wait 5s to retry")
-                delay(5000)
+                Log.d(TAG, "Wait 2s to retry")
+                delay(2000)
                 Log.d(TAG, "Retry on ${Date()}")
 
                 update(userID, isRetry = true)
