@@ -3,6 +3,7 @@ package top.learningman.push.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.fromRFC3339Nano
 import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339Nano
 import top.learningman.push.provider.Channel
 import java.util.*
@@ -40,7 +41,20 @@ class Repo(private val sharedPref: SharedPreferences) {
     }
 
     fun setLastMessageTime(time: String) {
-        sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, time).apply()
+        fun save(){
+            sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, time).apply()
+        }
+
+        val rawCurrent = sharedPref.getString(PREF_LAST_MESSAGE_TIME_KEY,null)
+        if (rawCurrent == null ){
+            save()
+        } else {
+            val current = rawCurrent.fromRFC3339Nano()
+            val new = time.fromRFC3339Nano()
+            if (new.after(current)){
+                save()
+            }
+        }
     }
 
     fun getChannel(): String? {

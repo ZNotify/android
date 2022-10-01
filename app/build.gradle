@@ -10,10 +10,16 @@ def gitCommitId = "git rev-parse --short HEAD".execute([], project.rootDir).text
 def majorVersion = 0
 def minorVersion = 1
 def buildVersion = 1
+
+def isDebug = gradle.startParameter.taskRequests.any {
+    it.args.any { it.endsWith("Debug") }
+}
+def buildType = isDebug ? "Debug" : "Release"
+
 // Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
 def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
-def versionBase = "${baseVersionName}.${gitCommitId}"
+def versionBase = "${baseVersionName}.${gitCommitId}.${buildType}"
 
 
 static def releaseTime() {

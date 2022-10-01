@@ -1,6 +1,5 @@
 package top.learningman.push.service
 
-//import io.ktor.client.engine.okhttp.*
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.ComponentName
@@ -21,14 +20,13 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
-import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.Json
+import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem
 import top.learningman.push.entity.Message
 import java.util.*
-import java.util.concurrent.atomic.AtomicInteger
 
 
 class ReceiverService : NotificationListenerService() {
@@ -50,17 +48,19 @@ class ReceiverService : NotificationListenerService() {
             when (intent.action) {
                 Action.UPDATE.name -> {
                     val nextUserID =
-                        intent.getStringExtra(INTENT_USERID_KEY) ?: Repo.PREF_USER_DEFAULT
-                    manager.update(nextUserID)
+                        intent.getStringExtra(INTENT_USERID_KEY)
+                    if (!nextUserID.isNullOrEmpty()) {
+                        manager.updateUserID(nextUserID)
+                    }
                 }
                 else -> {
                     Log.d("ReceiverService", "Unknown action ${intent.action}")
-                    manager.start()
+                    manager.tryResume()
                 }
             }
         } else {
             Log.d(TAG, "with a null intent. It has been probably restarted by the system.")
-            manager.start()
+            manager.tryResume()
         }
         return START_STICKY
     }
@@ -88,7 +88,14 @@ class ReceiverService : NotificationListenerService() {
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
         Log.d(TAG, "onListenerDisconnected")
-        requestRebind(ComponentName(this, NotificationListenerService::class.java))
+        if (!BuildConfig.DEBUG) {
+            requestRebind(
+                ComponentName(
+                    applicationContext,
+                    NotificationListenerService::class.java
+                )
+            )
+        }
     }
 
     override fun onListenerConnected() {
@@ -96,12 +103,13 @@ class ReceiverService : NotificationListenerService() {
         Log.d(TAG, "onListenerConnected")
     }
 
-    private class WebsocketSessionManager(private val context: Context) {
-        @OptIn(ExperimentalCoroutinesApi::class)
-        private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
+    @OptIn(DelicateCoroutinesApi::class)
+    private class WebsocketSessionManager(private val context: Context) :
+        CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
+
         private var job: Job? = null
-        private var currentUserID = Repo.PREF_USER_DEFAULT
         private val repo by lazy { Repo.getInstance(context) }
+        private var currentUserID = repo.getUser()
         private val client by lazy {
             HttpClient(CIO) {
                 install(WebSockets)
@@ -109,13 +117,14 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
-        private val statusLock = AtomicInteger(0)
-        // 0 not started
-        // 1 try to start
-        // 2 running
-        // 3 stop and wait for network
+        private var status = Status.WAIT_START
 
-        private val jobLock = Mutex()
+        object Status {
+            const val WAIT_START = 0
+            const val RUNNING = 1
+            const val WAIT_RECONNECT = 2
+            const val NETWORK_LOST = 3
+        }
 
         init {
             val connectivityManager =
@@ -124,149 +133,83 @@ class ReceiverService : NotificationListenerService() {
                 ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: android.net.Network) {
                     super.onAvailable(network)
-                    if (statusLock.compareAndSet(3, 1)) {
+                    if (status == Status.NETWORK_LOST) {
                         Log.d(TAG, "network available, try start websocket")
                         Log.d(TAG, "resume from network lost")
-                        start()
+                        status = Status.WAIT_RECONNECT
+                        tryResume()
                     }
                 }
 
                 override fun onLost(network: android.net.Network) {
                     super.onLost(network)
                     Log.d(TAG, "network lost, stop websocket")
-                    statusLock.set(3)
-                    scope.launch {
-                        jobLock.lock()
+                    status = Status.NETWORK_LOST
+                    runBlocking {
                         job?.cancelAndJoin()
-                        jobLock.unlock()
+                        job = null
                     }
-
                 }
             })
         }
 
-        fun update(userID: String, isRetry: Boolean = false) {
-            Log.d(TAG, "update: $userID")
-            if (userID == currentUserID && !isRetry) {
-                Log.d(TAG, "update: same user, ignore")
-                return
-            }
-            if (isRetry) {
-                Log.d(TAG, "update: retry on ${Date()}")
-            }
-            scope.launch {
-                jobLock.lock()
-                if (job != null) {
-                    if (job?.isActive == true) {
-                        job?.cancelAndJoin()
-                    }
-                }
-                jobLock.unlock()
-                start()
+        fun tryResume() {
+            Log.d(TAG, "tryResume with status $status at ${Date()}")
+            if (status != Status.RUNNING) {
+                launch { connect() }
             }
         }
 
-        suspend fun getSession(userID: String? = null): WebSocketSession? {
-            var nextUserID = userID
-            if (nextUserID == null) {
-                nextUserID = repo.getUser()
-            }
-            if (nextUserID == Repo.PREF_USER_DEFAULT) {
-                return null
+        private fun recover() {
+            Log.d(TAG, "recover at ${Date()}")
+            status = Status.WAIT_RECONNECT
+            launch { connect() }
+        }
+
+        private suspend fun connect() {
+            if (job != null) {
+                Log.d(TAG, "job is not null, cancel it")
+                job?.cancelAndJoin()
+                job = null
             }
 
-            currentUserID = nextUserID
-            return runCatching {
-                client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${nextUserID}/host/conn")
+            val session = runCatching {
+                client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${currentUserID}/host/conn")
                 {
                     header("X-Message-Since", repo.getLastMessageTime())
                 }
             }.also {
                 if (it.isFailure) {
-                    Log.e(TAG, "getSession: ", it.exceptionOrNull())
+                    Log.e(TAG, "getSession:", it.exceptionOrNull())
                 }
             }.getOrNull()
-        }
-
-        fun start() {
-            scope.launch {
-                jobLock.lock()
-                if (job != null) {
-                    if (job?.isActive == true) {
-                        return@launch
-                    }
-                }
-                jobLock.unlock()
-
-                val session = getSession()
-                start(session)
-            }
-        }
-
-        private suspend fun start(session: WebSocketSession?) {
-            if (session == null) {
-                return
-            }
-
-            if (statusLock.compareAndSet(0, 1)) {
-                Log.d(TAG, "start: initial start")
-            }
-
-            Log.d(TAG, "Try to start websocket session")
-
-            val status = statusLock.get()
-            if (status != 1) {
-                Log.d(TAG, "start: status is $status, should not listen")
-                return
-            }
-
-            suspend fun retry() {
-                val userID = repo.getUser()
-                if (!statusLock.compareAndSet(2, 1)) {
-                    Log.d(TAG, "retry: status is not running, should not retry")
-                    return
-                }
-
-                Log.d(TAG, "retry: $userID")
-                Log.d(TAG, "Wait 2s to retry")
-                delay(2000)
-                Log.d(TAG, "Retry on ${Date()}")
-
-                update(userID, isRetry = true)
-            }
-
-            jobLock.lock()
-            job = scope.launch {
-                Log.d(TAG, "Start websocket session")
-                while (true) {
-                    val frameRet = session.incoming.receiveCatching()
-                    frameRet.onClosed {
-                        Log.d(TAG, "onClosed")
-                        Log.e(TAG, "WebSocket closed", it)
-                        scope.launch {
-                            retry()
-                        }
-                        return@launch
-                    }.onFailure {
-                        if (it is CancellationException) {
-                            Log.d(TAG, "This job is cancelled")
+            if (session != null) {
+                Log.d(TAG, "session is not null, launch WebSocket")
+                job = session.launch(coroutineContext) {
+                    while (true) {
+                        val frameRet = session.incoming.receiveCatching()
+                        frameRet.onClosed {
+                            Log.d(TAG, "onClosed")
+                            Log.e(TAG, "WebSocket closed", it)
+                            recover()
                             return@launch
-                        } else {
-                            Log.d(TAG, "onFailure")
-                            Log.e(TAG, "WebSocket error", it)
-                            scope.launch {
-                                retry()
+                        }.onFailure {
+                            if (it is CancellationException) {
+                                Log.d(TAG, "This job is cancelled")
+                                return@launch
+                            } else {
+                                Log.d(TAG, "onFailure")
+                                Log.e(TAG, "WebSocket error", it)
+                                recover()
+                                return@launch
                             }
-                            return@launch
+                        }.onSuccess {
+                            Log.d(TAG, "onSuccess receive frame")
+                            handleFrame(it)
                         }
-                    }.onSuccess {
-                        Log.d(TAG, "onSuccess receive frame")
-                        handleFrame(it)
                     }
                 }
             }
-            statusLock.set(2)
-            jobLock.unlock()
         }
 
         private fun handleFrame(frame: Frame) {
@@ -290,7 +233,7 @@ class ReceiverService : NotificationListenerService() {
                     })
                 }
                 else -> {
-                    Log.d(TAG, "Received unexpected frame: ${frame.frameType.name}")
+                    Log.e(TAG, "Received unexpected frame: ${frame.frameType.name}")
                 }
             }
         }
@@ -298,6 +241,11 @@ class ReceiverService : NotificationListenerService() {
         private fun notifyMessage(message: Message, from: String = "anonymous") {
             Log.d(TAG, "notifyMessage: $message from $from")
             Utils.notifyMessage(context, message)
+        }
+
+        fun updateUserID(nextUserID: String) {
+            currentUserID = nextUserID
+            launch { connect() }
         }
     }
 
