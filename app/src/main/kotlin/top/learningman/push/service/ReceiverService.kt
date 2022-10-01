@@ -1,18 +1,19 @@
 package top.learningman.push.service
 
+//import io.ktor.client.engine.okhttp.*
 import android.app.AlarmManager
 import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.os.PowerManager
 import android.os.SystemClock
 import android.service.notification.NotificationListenerService
 import android.util.Log
 import com.microsoft.appcenter.crashes.Crashes
 import io.ktor.client.*
-import io.ktor.client.engine.okhttp.*
+import io.ktor.client.engine.cio.*
+import io.ktor.client.plugins.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.websocket.*
@@ -96,13 +97,15 @@ class ReceiverService : NotificationListenerService() {
     }
 
     private class WebsocketSessionManager(private val context: Context) {
-        private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO)
+        @OptIn(ExperimentalCoroutinesApi::class)
+        private val scope: CoroutineScope = CoroutineScope(Dispatchers.IO.limitedParallelism(1))
         private var job: Job? = null
         private var currentUserID = Repo.PREF_USER_DEFAULT
         private val repo by lazy { Repo.getInstance(context) }
         private val client by lazy {
-            HttpClient(OkHttp) {
+            HttpClient(CIO) {
                 install(WebSockets)
+                install(HttpRequestRetry)
             }
         }
 
@@ -113,12 +116,6 @@ class ReceiverService : NotificationListenerService() {
         // 3 stop and wait for network
 
         private val jobLock = Mutex()
-
-        private val wakeLock: PowerManager.WakeLock by lazy {
-            (context.getSystemService(Context.POWER_SERVICE) as PowerManager).run {
-                newWakeLock(PowerManager.PARTIAL_WAKE_LOCK, WAKE_LOCK_TAG)
-            }
-        }
 
         init {
             val connectivityManager =
@@ -301,13 +298,7 @@ class ReceiverService : NotificationListenerService() {
 
         private fun notifyMessage(message: Message, from: String = "anonymous") {
             Log.d(TAG, "notifyMessage: $message from $from")
-            wakeLock.acquire(NOTIFICATION_RECEIVED_WAKELOCK_TIMEOUT_MILLIS)
             Utils.notifyMessage(context, message)
-            wakeLock.let {
-                if (it.isHeld) {
-                    it.release()
-                }
-            }
         }
     }
 
@@ -319,8 +310,6 @@ class ReceiverService : NotificationListenerService() {
     companion object {
         const val TAG = "ReceiverService"
 
-        private const val WAKE_LOCK_TAG = "ReceiverService:lock"
-        private const val NOTIFICATION_RECEIVED_WAKELOCK_TIMEOUT_MILLIS = 10 * 60 * 1000L
         const val INTENT_USERID_KEY = "nextUserID"
     }
 }
