@@ -5,7 +5,6 @@ import android.util.Log
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailability
-import com.google.firebase.analytics.FirebaseAnalytics
 import com.google.firebase.ktx.Firebase
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.ktx.messaging
@@ -22,7 +21,6 @@ object FCM : Channel {
         if (!Firebase.messaging.isAutoInitEnabled){
             Firebase.messaging.isAutoInitEnabled = true
         }
-        FirebaseAnalytics.getInstance(context).setAnalyticsCollectionEnabled(true)
     }
 
     override fun should(context: Context): Boolean {
