@@ -162,8 +162,7 @@ class ReceiverService : NotificationListenerService() {
                     }
                 }
                 jobLock.unlock()
-                val nextSession = getSession(userID)
-                start(nextSession)
+                start()
             }
         }
 

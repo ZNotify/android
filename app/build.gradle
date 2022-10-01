@@ -59,7 +59,6 @@ android {
         release {
             signingConfig signingConfigs.auto
             minifyEnabled true
-            shrinkResources true
             proguardFiles getDefaultProguardFile("proguard-android-optimize.txt"), "proguard-rules.pro"
         }
     }
@@ -145,7 +144,7 @@ dependencies {
 
     implementation "com.github.code-mc:material-icon-lib:1.1.5"
 
-    def ktor_version = "2.1.1"
+    def ktor_version = '2.1.2'
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-websockets:$ktor_version"
 //    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
