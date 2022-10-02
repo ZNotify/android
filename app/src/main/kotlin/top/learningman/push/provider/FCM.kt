@@ -11,6 +11,7 @@ import com.google.firebase.messaging.ktx.messaging
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import top.learningman.push.BuildConfig
 import top.learningman.push.utils.APIUtils
 
 object FCM : Channel {
@@ -18,12 +19,16 @@ object FCM : Channel {
         get() = "Firebase Cloud Messaging"
 
     override fun init(context: Context) {
-        if (!Firebase.messaging.isAutoInitEnabled){
+        if (!Firebase.messaging.isAutoInitEnabled) {
             Firebase.messaging.isAutoInitEnabled = true
         }
     }
 
     override fun should(context: Context): Boolean {
+        if (BuildConfig.DEBUG) {
+            return false
+        }
+
         val ga = GoogleApiAvailability.getInstance()
         return when (ga.isGooglePlayServicesAvailable(context)) {
             ConnectionResult.SUCCESS -> true

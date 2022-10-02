@@ -27,6 +27,7 @@ import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem
 import top.learningman.push.entity.Message
 import java.util.*
+import java.util.concurrent.atomic.AtomicInteger
 
 
 class ReceiverService : NotificationListenerService() {
@@ -117,13 +118,26 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
-        private var status = Status.WAIT_START
+        private var status = AtomicInteger(Status.WAIT_START)
+
 
         object Status {
             const val WAIT_START = 0
-            const val RUNNING = 1
-            const val WAIT_RECONNECT = 2
-            const val NETWORK_LOST = 3
+            const val CONNECTING = 1
+            const val RUNNING = 2
+            const val WAIT_RECONNECT = 3
+            const val NETWORK_LOST = 4
+
+            fun valueOf(value: Int): String {
+                return when (value) {
+                    WAIT_START -> "WAIT_START"
+                    CONNECTING -> "CONNECTING"
+                    RUNNING -> "RUNNING"
+                    WAIT_RECONNECT -> "WAIT_RECONNECT"
+                    NETWORK_LOST -> "NETWORK_LOST"
+                    else -> "UNKNOWN"
+                }
+            }
         }
 
         init {
@@ -133,18 +147,19 @@ class ReceiverService : NotificationListenerService() {
                 ConnectivityManager.NetworkCallback() {
                 override fun onAvailable(network: android.net.Network) {
                     super.onAvailable(network)
-                    if (status == Status.NETWORK_LOST) {
+                    if (status.compareAndSet(Status.NETWORK_LOST, Status.WAIT_RECONNECT)) {
                         Log.d(TAG, "network available, try start websocket")
                         Log.d(TAG, "resume from network lost")
-                        status = Status.WAIT_RECONNECT
                         tryResume()
+                    } else {
+                        Log.d(TAG, "network available, but not in network lost status")
                     }
                 }
 
                 override fun onLost(network: android.net.Network) {
                     super.onLost(network)
                     Log.d(TAG, "network lost, stop websocket")
-                    status = Status.NETWORK_LOST
+                    status.set(Status.NETWORK_LOST)
                     runBlocking {
                         job?.cancelAndJoin()
                         job = null
@@ -154,23 +169,59 @@ class ReceiverService : NotificationListenerService() {
         }
 
         fun tryResume() {
-            Log.d(TAG, "tryResume with status $status at ${Date()}")
-            if (status != Status.RUNNING) {
+            Log.d(TAG, "tryResume with status ${Status.valueOf(status.get())} at ${Date()}")
+            if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING)) {
                 launch { connect() }
+                Log.d(TAG, "tryResume: start websocket from WAIT_START, initial startup")
+            } else if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
+                launch { connect() }
+                Log.d(TAG, "tryResume: start websocket from WAIT_RECONNECT")
+            } else {
+                Log.d(TAG, "tryResume: not start websocket from status ${status.get()}")
+            }
+        }
+
+        fun updateUserID(nextUserID: String) {
+            if (currentUserID != nextUserID) {
+                currentUserID = nextUserID
+
+                launch {
+                    job?.cancelAndJoin()
+                    job = null
+                    connect()
+                }
+            } else {
+                tryResume()
             }
         }
 
         private fun recover() {
-            Log.d(TAG, "recover at ${Date()}")
-            status = Status.WAIT_RECONNECT
-            launch { connect() }
+            Log.d(TAG, "call recover at ${Date()}")
+            if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
+                launch {
+                    job?.cancelAndJoin()
+                    job = null
+                    connect()
+                }
+            } else {
+                Log.d(TAG, "recover: not start websocket from status ${status.get()}")
+            }
         }
 
         private suspend fun connect() {
             if (job != null) {
-                Log.d(TAG, "job is not null, cancel it")
-                job?.cancelAndJoin()
-                job = null
+                Log.d(TAG, "job is not null, cancel it, not clear")
+                return
+            }
+
+            if (!status.compareAndSet(Status.CONNECTING, Status.RUNNING)) {
+                Log.d(
+                    TAG,
+                    "connect: not connecting status,is ${Status.valueOf(status.get())}"
+                )
+                return
+            } else {
+                Log.d(TAG, "connect: start websocket from CONNECTING")
             }
 
             val session = runCatching {
@@ -191,7 +242,11 @@ class ReceiverService : NotificationListenerService() {
                         frameRet.onClosed {
                             Log.d(TAG, "onClosed")
                             Log.e(TAG, "WebSocket closed", it)
-                            recover()
+                            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                                recover()
+                            } else {
+                                Log.d(TAG, "onClosed: not recover from status ${status.get()}")
+                            }
                             return@launch
                         }.onFailure {
                             if (it is CancellationException) {
@@ -200,14 +255,33 @@ class ReceiverService : NotificationListenerService() {
                             } else {
                                 Log.d(TAG, "onFailure")
                                 Log.e(TAG, "WebSocket error", it)
-                                recover()
-                                return@launch
+                                // Failure not means the connection is closed
+                                // So we don't need to recover
+                                it?.let { e ->
+                                    Crashes.trackError(
+                                        e,
+                                        mutableMapOf("loc" to "Websocket Failure"),
+                                        null
+                                    )
+                                }
                             }
                         }.onSuccess {
                             Log.d(TAG, "onSuccess receive frame")
                             handleFrame(it)
                         }
                     }
+                }
+                if (job?.isActive == true) {
+                    Log.d(TAG, "job is active, start websocket success")
+                } else {
+                    Log.d(TAG, "job is not active, start websocket failed")
+                }
+            } else {
+                delay(5000)
+                if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                    recover()
+                } else {
+                    Log.d(TAG, "connect: not recover from status ${status.get()}")
                 }
             }
         }
@@ -241,11 +315,6 @@ class ReceiverService : NotificationListenerService() {
         private fun notifyMessage(message: Message, from: String = "anonymous") {
             Log.d(TAG, "notifyMessage: $message from $from")
             Utils.notifyMessage(context, message)
-        }
-
-        fun updateUserID(nextUserID: String) {
-            currentUserID = nextUserID
-            launch { connect() }
         }
     }
 
