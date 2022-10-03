@@ -15,6 +15,7 @@ import top.learningman.push.BuildConfig
 import top.learningman.push.data.Repo
 import top.learningman.push.service.PollWorker
 import top.learningman.push.service.ReceiverService
+import xyz.kumaraswamy.autostart.Autostart
 import java.util.concurrent.TimeUnit
 
 
@@ -87,27 +88,36 @@ object Host : Channel {
         }
         permissions.add(batteryIgnorePermission)
 
-        val miuiAutoStartPermission = object : Permission {
-            override val name: String
-                get() = "自启动"
-            override val description: String
-                get() = "Notify 需要自启动权限以保持后台运行。"
-
-            override fun check(context: Context): Boolean? {
-                return null
-            }
-
-            override fun grant(activity: Activity) {
-                val intent = Intent()
-                intent.component = ComponentName(
-                    "com.miui.securitycenter",
-                    "com.miui.permcenter.autostart.AutoStartManagementActivity"
-                )
-                activity.startActivity(intent)
-            }
-        }
-
         if (RomUtils.isMiui()) {
+            val miuiAutoStartPermission = object : Permission {
+                override val name: String
+                    get() = "自启动"
+                override val description: String
+                    get() = "Notify 需要自启动权限以保持后台运行。"
+
+                override fun check(context: Context): Boolean? {
+                    return kotlin.runCatching {
+                        val asi = Autostart(context)
+                        return@runCatching when (asi.autoStartState) {
+                            Autostart.State.UNEXPECTED_RESULT -> null
+                            Autostart.State.DISABLED -> false
+                            Autostart.State.ENABLED -> true
+                            Autostart.State.NO_INFO -> null
+                            null -> null
+                        }
+                    }.getOrNull()
+                }
+
+                override fun grant(activity: Activity) {
+                    val intent = Intent()
+                    intent.component = ComponentName(
+                        "com.miui.securitycenter",
+                        "com.miui.permcenter.autostart.AutoStartManagementActivity"
+                    )
+                    activity.startActivity(intent)
+                }
+            }
+
             permissions.add(miuiAutoStartPermission)
         }
 

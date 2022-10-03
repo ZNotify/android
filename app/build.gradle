@@ -169,5 +169,6 @@ dependencies {
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
 
-    implementation 'com.github.Zxilly:SetupWizardLib:e18ce88c39'
+    implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
+    implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
 }
