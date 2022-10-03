@@ -20,6 +20,7 @@ import kotlinx.coroutines.*
 import kotlinx.coroutines.channels.onClosed
 import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
+import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.Json
 import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
@@ -109,6 +110,7 @@ class ReceiverService : NotificationListenerService() {
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
 
         private var job: Job? = null
+        private var jobLock = Mutex()
         private val repo by lazy { Repo.getInstance(context) }
         private var currentUserID = repo.getUser()
         private val client by lazy {
@@ -161,11 +163,17 @@ class ReceiverService : NotificationListenerService() {
                     Log.d(TAG, "network lost, stop websocket")
                     status.set(Status.NETWORK_LOST)
                     runBlocking {
+                        jobLock.lock()
                         job?.cancelAndJoin()
                         job = null
+                        jobLock.unlock()
                     }
                 }
             })
+        }
+
+        private fun diagnose() {
+            Log.d(TAG, "current thread ${Thread.currentThread().id.toString()}")
         }
 
         fun tryResume() {
@@ -184,10 +192,11 @@ class ReceiverService : NotificationListenerService() {
         fun updateUserID(nextUserID: String) {
             if (currentUserID != nextUserID) {
                 currentUserID = nextUserID
-
                 launch {
+                    jobLock.lock()
                     job?.cancelAndJoin()
                     job = null
+                    jobLock.unlock()
                     connect()
                 }
             } else {
@@ -199,8 +208,10 @@ class ReceiverService : NotificationListenerService() {
             Log.d(TAG, "call recover at ${Date()}")
             if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
                 launch {
+                    jobLock.lock()
                     job?.cancelAndJoin()
                     job = null
+                    jobLock.unlock()
                     connect()
                 }
             } else {
@@ -209,10 +220,13 @@ class ReceiverService : NotificationListenerService() {
         }
 
         private suspend fun connect() {
+            diagnose()
+            jobLock.lock()
             if (job != null) {
                 Log.d(TAG, "job is not null, cancel it, not clear")
                 return
             }
+            jobLock.unlock()
 
             if (!status.compareAndSet(Status.CONNECTING, Status.RUNNING)) {
                 Log.d(
@@ -236,6 +250,7 @@ class ReceiverService : NotificationListenerService() {
             }.getOrNull()
             if (session != null) {
                 Log.d(TAG, "session is not null, launch WebSocket")
+                jobLock.lock()
                 job = session.launch(coroutineContext) {
                     while (true) {
                         val frameRet = session.incoming.receiveCatching()
@@ -276,6 +291,7 @@ class ReceiverService : NotificationListenerService() {
                 } else {
                     Log.d(TAG, "job is not active, start websocket failed")
                 }
+                jobLock.unlock()
             } else {
                 delay(5000)
                 if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
