@@ -173,7 +173,7 @@ class ReceiverService : NotificationListenerService() {
         }
 
         private fun diagnose() {
-            Log.d(TAG, "current thread ${Thread.currentThread().id.toString()}")
+            Log.d(TAG, "current thread ${Thread.currentThread().id}")
         }
 
         fun tryResume() {
