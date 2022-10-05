@@ -1,11 +1,13 @@
 package top.learningman.push.application
 
 import android.app.Application
+import android.util.Log
 import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
 import dev.zxilly.lib.upgrader.Upgrader
+import dev.zxilly.lib.upgrader.checker.GitHubReleaseMetadataChecker
 import top.learningman.push.Constant
 import top.learningman.push.data.Repo
 
@@ -14,7 +16,7 @@ class MainApplication : Application() {
         Repo.getInstance(this)
     }
 
-    lateinit var upgrader: Upgrader
+    var upgrader: Upgrader? = null
 
     override fun onCreate() {
         super.onCreate()
@@ -27,16 +29,21 @@ class MainApplication : Application() {
 
         DynamicColors.applyToActivitiesIfAvailable(this)
 
-//        upgrader = Upgrader(object : Checker {
-//            override suspend fun getLatestVersion(): Version {
-//                return Version(
-//                    1994896132,
-//                    "1.0.0",
-//                    "测试版本",
-//                    "https://github.com/ZNotify/android/releases/download/20220930T183614/app-release.apk",
-//                    "app.apk"
-//                )
-//            }
-//        }, this)
+        upgrader = runCatching {
+            Upgrader(
+                GitHubReleaseMetadataChecker(
+                    GitHubReleaseMetadataChecker.Config(
+                        owner = "ZNotify",
+                        repo = "android",
+                        upgradeChannel = GitHubReleaseMetadataChecker.Config.UpgradeChannel.PRE_RELEASE
+                    )
+                ),
+                app = this
+            )
+        }.also { ret ->
+            ret.onFailure {
+                Log.e("Upgrader", "Failed to initialize Upgrader", it)
+            }
+        }.getOrNull()
     }
 }

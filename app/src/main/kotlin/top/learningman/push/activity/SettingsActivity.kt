@@ -14,6 +14,7 @@ import kotlinx.coroutines.runBlocking
 import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.R
+import top.learningman.push.application.MainApplication
 import top.learningman.push.databinding.ActivitySettingsBinding
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Channel
@@ -43,7 +44,7 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<Preference>("version")?.apply {
                 setOnPreferenceClickListener {
                     Log.d("SettingsActivity", "Version Clicked")
-//                    (requireActivity().application as MainApplication).upgrader.tryUpgrade(false)
+                    (requireActivity().application as MainApplication).upgrader?.tryUpgrade(false)
                     Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
                     true
                 }
