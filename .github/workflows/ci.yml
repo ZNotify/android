@@ -41,7 +41,7 @@ jobs:
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
           files: |
-            app/build/outputs/apk/release/app-release.apk
+            app/build/outputs/apk/release/*
             
       - name: Upload artifact to App Center
         uses: wzieba/AppCenter-Github-Action@v1
