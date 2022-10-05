@@ -153,8 +153,7 @@ dependencies {
     def ktor_version = '2.1.2'
     implementation "io.ktor:ktor-client-core:$ktor_version"
     implementation "io.ktor:ktor-client-websockets:$ktor_version"
-//    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
-    implementation "io.ktor:ktor-client-cio:$ktor_version"
+    implementation "io.ktor:ktor-client-okhttp:$ktor_version"
 
     implementation "dev.zxilly:notify-sdk:2.0.1"
 
@@ -167,8 +166,9 @@ dependencies {
     def appCenterSdkVersion = "4.4.5"
     implementation "com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}"
     implementation "com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}"
-    implementation "com.microsoft.appcenter:appcenter-distribute:${appCenterSdkVersion}"
 
     implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
     implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
+
+    implementation 'com.github.Zxilly:upgrader:master-SNAPSHOT'
 }

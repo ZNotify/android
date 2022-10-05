@@ -11,7 +11,7 @@ import android.service.notification.NotificationListenerService
 import android.util.Log
 import com.microsoft.appcenter.crashes.Crashes
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
@@ -114,7 +114,7 @@ class ReceiverService : NotificationListenerService() {
         private val repo by lazy { Repo.getInstance(context) }
         private var currentUserID = repo.getUser()
         private val client by lazy {
-            HttpClient(CIO) {
+            HttpClient(OkHttp) {
                 install(WebSockets)
                 install(HttpRequestRetry)
             }

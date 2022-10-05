@@ -23,7 +23,7 @@ import top.learningman.push.utils.PermissionManager
 
 class MainActivity : AppCompatActivity() {
     private lateinit var currentUserID: String
-    var inited = false
+    private var inited = false
 
     private val repo by lazy {
         (application as MainApplication).repo

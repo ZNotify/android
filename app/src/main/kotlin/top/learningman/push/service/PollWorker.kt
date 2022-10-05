@@ -5,8 +5,7 @@ import android.util.Log
 import androidx.work.CoroutineWorker
 import androidx.work.WorkerParameters
 import io.ktor.client.*
-import io.ktor.client.engine.cio.*
-//import io.ktor.client.engine.okhttp.*
+import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.websocket.*
 import io.ktor.client.request.*
 import io.ktor.websocket.*
@@ -26,7 +25,7 @@ class PollWorker(ctx: Context, params: WorkerParameters) : CoroutineWorker(ctx, 
             val repository = Repo.getInstance(applicationContext)
             val userID = repository.getUser()
 
-            HttpClient(CIO) {
+            HttpClient(OkHttp) {
                 install(WebSockets)
             }.webSocket(urlString = "${Constant.API_WS_ENDPOINT}/${userID}/host/conn",
                 request = {

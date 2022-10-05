@@ -1,6 +1,5 @@
 package top.learningman.push.provider
 
-import RomUtils
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.ComponentName
@@ -15,6 +14,7 @@ import top.learningman.push.BuildConfig
 import top.learningman.push.data.Repo
 import top.learningman.push.service.PollWorker
 import top.learningman.push.service.ReceiverService
+import top.learningman.push.utils.RomUtils
 import xyz.kumaraswamy.autostart.Autostart
 import java.util.concurrent.TimeUnit
 

@@ -1,3 +1,5 @@
+package top.learningman.push.utils
+
 import android.os.Build
 import android.text.TextUtils
 import android.util.Log

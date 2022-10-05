@@ -9,7 +9,6 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.microsoft.appcenter.distribute.Distribute
 import dev.zxilly.notify.sdk.Client
 import kotlinx.coroutines.runBlocking
 import top.learningman.push.BuildConfig
@@ -38,14 +37,13 @@ class SettingsActivity : AppCompatActivity() {
     }
 
     class SettingsFragment : PreferenceFragmentCompat() {
-
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
             findPreference<Preference>("version")?.apply {
                 setOnPreferenceClickListener {
                     Log.d("SettingsActivity", "Version Clicked")
-                    Distribute.checkForUpdate()
+//                    (requireActivity().application as MainApplication).upgrader.tryUpgrade(false)
                     Toast.makeText(context, "Checking for updates...", Toast.LENGTH_SHORT).show()
                     true
                 }
