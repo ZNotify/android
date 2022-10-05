@@ -7,14 +7,16 @@ plugins {
 
 def gitCommitId = "git rev-parse --short HEAD".execute([], project.rootDir).text.trim()
 
-def majorVersion = 0
-def minorVersion = 1
-def buildVersion = 1
+def gitLastTag = "git describe --tags --abbrev=0".execute([], project.rootDir).text.trim()
+
+def majorVersion = 1
+def minorVersion = 0
+def buildVersion = 0
 
 def isDebug = gradle.startParameter.taskRequests.any {
     it.args.any { it.endsWith("Debug") }
 }
-def buildType = isDebug ? "Debug" : "Release"
+def buildType = isDebug ? "debug" : "release"
 
 // Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
@@ -103,6 +105,19 @@ android {
         includeInApk false
         includeInBundle false
     }
+
+    flavorDimensions "pub"
+    productFlavors {
+        free {
+            versionNameSuffix "(free)"
+        }
+        github {
+            versionNameSuffix "(github)"
+        }
+        appcenter {
+            versionNameSuffix "(appcenter)"
+        }
+    }
 }
 
 dependencies {
@@ -170,5 +185,5 @@ dependencies {
     implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
     implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
 
-    implementation 'com.github.Zxilly:upgrader:0.0.2'
+    implementation 'com.github.Zxilly:upgrader:0.0.4'
 }

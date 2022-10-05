@@ -5,6 +5,7 @@
 当前支持的推送渠道有：
 
 - 【FCM】：Google Firebase Cloud Messaging
+- 【WebSocket】：WebSocket 长连接
 
 联系 @Zxilly 获取 `https://push.learningman.top` 使用权限。
 
@@ -15,6 +16,14 @@
 [AppCenter](https://install.appcenter.ms/users/zxilly/apps/notify/distribution_groups/public)
 
 [Github Release](https://github.com/ZNotify/android/releases)
+
+**提示：**
+
+`app-free-release.apk` 不包含应用内更新。
+
+`app-github-release.apk` 包含从 `Github` 下载应用内更新的代码。
+
+`AppCenter` 的应用内更新由 `AppCenter` 提供。
 
 ## TODO
 

@@ -41,7 +41,8 @@ jobs:
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
           files: |
-            app/build/outputs/apk/release/*
+            app/build/outputs/apk/github/release/*
+            app/build/outputs/apk/free/release/app-free-release.apk
             
       - name: Upload artifact to App Center
         uses: wzieba/AppCenter-Github-Action@v1
@@ -49,5 +50,5 @@ jobs:
           appName: "zxilly/Notify"
           token: ${{secrets.APP_CENTER_TOKEN}}
           group: public
-          file: app/build/outputs/apk/release/app-release.apk
+          file: app/build/outputs/appcenter/release/app-appcenter-release.apk
           gitReleaseNotes: true
