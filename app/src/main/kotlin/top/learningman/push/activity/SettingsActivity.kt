@@ -45,11 +45,9 @@ class SettingsActivity : AppCompatActivity() {
                 setOnPreferenceClickListener {
                     Log.d("SettingsActivity", "Version Clicked")
                     (requireActivity().application as MainApplication).upgrader?.tryUpgrade(false)
-                        .also {
-                            Toast.makeText(context, "检查更新中...", Toast.LENGTH_SHORT).show()
-                        } ?: let {
-                        Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
-                    }
+                        ?: let {
+                            Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
+                        }
                     true
                 }
                 summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
