@@ -6,6 +6,7 @@ import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
@@ -22,8 +23,6 @@ import top.learningman.push.utils.APIUtils
 import top.learningman.push.utils.PermissionManager
 
 class MainActivity : AppCompatActivity() {
-    private lateinit var currentUserID: String
-    private var inited = false
 
     private val repo by lazy {
         (application as MainApplication).repo
@@ -31,6 +30,20 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
     private lateinit var channel: Channel
+
+    private val startSetting =
+        registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
+            Log.d("MainActivity", "Setting Activity Result ${it.resultCode}")
+            if (it.resultCode and SettingsActivity.UPDATE_CHANNEL == SettingsActivity.UPDATE_CHANNEL) {
+                Log.d("MainActivity", "Update Channel")
+                val channel = AutoChannel.getInstance(context = this, nocache = true)
+                channel.init(context = this)
+                channel.setUserCallback(this, repo.getUser(), lifecycleScope)
+            } else if (it.resultCode and SettingsActivity.UPDATE_USERNAME == SettingsActivity.UPDATE_USERNAME) {
+                Log.d("MainActivity", "Update User")
+                channel.setUserCallback(this, repo.getUser(), lifecycleScope)
+            }
+        }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
@@ -48,7 +61,7 @@ class MainActivity : AppCompatActivity() {
         setContentView(binding.root)
 
         binding.goSetting.setOnClickListener {
-            startActivity(Intent(this, SettingsActivity::class.java))
+            startSetting.launch(Intent(this, SettingsActivity::class.java))
         }
 
         binding.goHistory.setOnClickListener {
@@ -61,29 +74,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         val userid = repo.getUser()
-        currentUserID = userid
 
         if (userid == Repo.PREF_USER_DEFAULT) {
             setStatus(RegStatus.NOT_SET)
-        }
-        channel.init(this)
-    }
-
-    override fun onResume() {
-        super.onResume()
-
-        val userid = repo.getUser()
-
-        if (userid == currentUserID && inited) {
-            return
-        }
-
-        inited = true
-
-        if (userid != Repo.PREF_USER_DEFAULT) {
+        } else {
             setStatus(RegStatus.PENDING)
-
-            channel.setUserCallback(this, userid, lifecycleScope)
 
             lifecycleScope.launch {
                 APIUtils.check(userid)
@@ -94,9 +89,12 @@ class MainActivity : AppCompatActivity() {
                         setStatus(RegStatus.FAILED)
                     }
             }
-        } else {
-            setStatus(RegStatus.NOT_SET)
         }
+        channel.init(this)
+    }
+
+    override fun onResume() {
+        super.onResume()
     }
 
     private var status = RegStatus.NOT_SET

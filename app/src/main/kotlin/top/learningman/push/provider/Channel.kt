@@ -54,8 +54,8 @@ class AutoChannel private constructor(channel: Channel) : Channel by channel {
             return instance!!.name == chan.name
         }
 
-        fun getInstance(context: Context, channelText: String? = null): Channel {
-            return if (instance != null && channelText == null) {
+        fun getInstance(context: Context, channelText: String? = null, nocache: Boolean = false): Channel {
+            return if (instance != null && channelText == null && !nocache) {
                 instance as Channel
             } else {
                 var impl: Channel? = null

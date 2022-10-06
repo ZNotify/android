@@ -9,21 +9,18 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
+import dev.zxilly.lib.upgrader.Upgrader
 import dev.zxilly.notify.sdk.Client
 import kotlinx.coroutines.runBlocking
 import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.R
-import top.learningman.push.application.MainApplication
 import top.learningman.push.databinding.ActivitySettingsBinding
 import top.learningman.push.provider.AutoChannel
-import top.learningman.push.provider.Channel
 import top.learningman.push.provider.channels
 import kotlin.concurrent.thread
 
 class SettingsActivity : AppCompatActivity() {
-    private var nextChannel: Channel? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -42,13 +39,16 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
             findPreference<Preference>("version")?.apply {
-                setOnPreferenceClickListener {
-                    Log.d("SettingsActivity", "Version Clicked")
-                    (requireActivity().application as MainApplication).upgrader?.tryUpgrade(false)
-                        ?: let {
-                            Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
-                        }
-                    true
+                @Suppress("KotlinConstantConditions")
+                if (BuildConfig.FLAVOR != "free") {
+                    setOnPreferenceClickListener {
+                        Log.d("SettingsActivity", "Version Clicked")
+                        Upgrader.getInstance()?.tryUpgrade(false)
+                            ?: let {
+                                Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
+                            }
+                        true
+                    }
                 }
                 summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
             }
@@ -67,6 +67,7 @@ class SettingsActivity : AppCompatActivity() {
                             }
                         }
                     }
+                    (requireActivity() as SettingsActivity).updateResult(UPDATE_USERNAME)
                     true
                 }
             }
@@ -94,10 +95,8 @@ class SettingsActivity : AppCompatActivity() {
                         startActivity(Intent(context, SetupActivity::class.java).apply {
                             action = SetupActivity.PERMISSION_GRANT_ACTION
                         })
-                        (requireActivity() as SettingsActivity).nextChannel = next
-                    } else {
-                        next.init(context)
                     }
+                    (requireActivity() as SettingsActivity).updateResult(UPDATE_CHANNEL)
                     true
                 }
             } ?: run {
@@ -109,9 +108,16 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
-        if (nextChannel != null) {
-            nextChannel?.init(this)
-            nextChannel = null
-        }
+    }
+
+    private var resultCode = 0
+    private fun updateResult(result: Int) {
+        resultCode = resultCode or result
+        setResult(resultCode)
+    }
+
+    companion object {
+        const val UPDATE_USERNAME = 1 shl 0
+        const val UPDATE_CHANNEL = 1 shl 1
     }
 }
