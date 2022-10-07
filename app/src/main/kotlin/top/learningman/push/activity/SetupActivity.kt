@@ -38,7 +38,6 @@ import top.learningman.push.provider.Host
 import top.learningman.push.provider.Permission
 import top.learningman.push.utils.PermissionManager
 import top.learningman.push.utils.setTextAnimation
-import top.learningman.push.utils.toPX
 import com.android.setupwizardlib.R as SuwR
 
 class SetupActivity : AppCompatActivity() {
@@ -95,7 +94,6 @@ class SetupActivity : AppCompatActivity() {
             }
         }
         viewPager.isUserInputEnabled = false
-        viewPager.offscreenPageLimit = 1
         viewPager.registerOnPageChangeCallback(
             object : ViewPager2.OnPageChangeCallback() {
                 override fun onPageSelected(position: Int) {
@@ -106,10 +104,12 @@ class SetupActivity : AppCompatActivity() {
 
                     val fragment = adapter.pages[position]
                     if (fragment is FragmentWithTitle) {
-                        title.setTextAnimation(fragment.title, 500)
+                        title.setTextAnimation( fragment.title)
                     }
                 }
             })
+
+        viewPager.offscreenPageLimit = 1
         if (isGrantPermission) {
             viewPager.setCurrentItem(adapter.itemCount - 1, false)
         }
@@ -138,12 +138,32 @@ class SetupActivity : AppCompatActivity() {
             window.decorView.rootWindowInsets,
             window.decorView
         ).getInsets(WindowInsetsCompat.Type.statusBars()).top
+        val navigationBarHeight = WindowInsetsCompat.toWindowInsetsCompat(
+            window.decorView.rootWindowInsets,
+            window.decorView
+        ).getInsets(WindowInsetsCompat.Type.navigationBars())
 
+//        findViewById<StickyHeaderScrollView>(SuwR.id.suw_bottom_scroll_view)?.let {
+//            // set fitSystemWindows to true
+//            it.fitsSystemWindows = true
+//
+//            dispatchApplyWindowInsets(it, WindowInsetsCompat.Builder().setInsets(
+//                WindowInsetsCompat.Type.systemBars(),
+//                Insets.of(0, statusBarHeight, 0, navigationBarHeight.bottom)
+//            ).build())
+//        }
         title.setPadding(
+            title.paddingLeft,
+            statusBarHeight + title.paddingTop,
+            title.paddingRight,
+            title.paddingBottom
+        )
+
+        setup.setPadding(
             0,
-            statusBarHeight + 16.dp.toPX(this),
             0,
-            2.dp.toPX(this)
+            0,
+            navigationBarHeight.bottom
         )
     }
 

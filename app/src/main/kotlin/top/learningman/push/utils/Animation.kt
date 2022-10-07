@@ -3,6 +3,7 @@ package top.learningman.push.utils
 import android.animation.Animator
 import android.animation.TimeInterpolator
 import android.animation.ValueAnimator
+import android.util.Log
 import android.view.View
 import android.view.animation.AccelerateDecelerateInterpolator
 import android.widget.TextView
@@ -13,6 +14,7 @@ fun TextView.setTextAnimation(
     duration: Long = 300,
     completion: (() -> Unit)? = null
 ) {
+    Log.d("Animation", "setTextAnimation")
     fadOutAnimation(duration) {
         this.text = text
         fadInAnimation(duration) {
