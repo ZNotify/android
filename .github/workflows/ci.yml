@@ -36,7 +36,7 @@ jobs:
 
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: assembleRelease bundlePlayRelease
+          arguments: assembleRelease bundlePlayRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
 
