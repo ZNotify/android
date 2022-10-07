@@ -43,7 +43,7 @@ jobs:
 
       - name: PreRelease Package
         uses: marvinpinto/action-automatic-releases@latest
-        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
+        if: steps.release.outputs.release == 'false'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
@@ -54,7 +54,7 @@ jobs:
 
       - name: Release Package
         uses: marvinpinto/action-automatic-releases@latest
-        if: github.event_name == 'release'
+        if: steps.release.outputs.release == 'true'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ github.event.release.tag_name }}"
