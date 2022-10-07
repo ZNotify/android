@@ -51,7 +51,7 @@ jobs:
         with:
           apk-path: app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
 
-      - naem: Setup AppCenter CLI
+      - name: Setup AppCenter CLI
         run: |
           npm install -g appcenter-cli
           appcenter login --token ${{ secrets.APPCENTER_TOKEN }}
