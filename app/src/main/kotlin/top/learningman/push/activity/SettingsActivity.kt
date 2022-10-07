@@ -1,6 +1,7 @@
 package top.learningman.push.activity
 
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -47,6 +48,19 @@ class SettingsActivity : AppCompatActivity() {
                             ?: let {
                                 Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
                             }
+                        true
+                    }
+                } else {
+                    setOnPreferenceClickListener {
+                        Log.d("SettingsActivity", "Version Clicked")
+                        startActivity(
+                            Intent(
+                                Intent.ACTION_VIEW,
+                                Uri.parse("https://github.com/ZNotify/android/releases")
+                            ).apply {
+                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            }
+                        )
                         true
                     }
                 }
