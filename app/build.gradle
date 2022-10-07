@@ -9,24 +9,39 @@ def gitCommitId = "git rev-parse --short HEAD".execute([], project.rootDir).text
 
 def gitLastTag = "git describe --tags --abbrev=0".execute([], project.rootDir).text.trim()
 
-def majorVersion = 1
-def minorVersion = 0
-def buildVersion = 0
 
 def isDebug = gradle.startParameter.taskRequests.any {
     it.args.any { it.endsWith("Debug") }
 }
-def buildType = isDebug ? "debug" : "release"
+def buildType = isDebug ? ".debug" : ""
 
 // Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
-def baseVersionName = "${majorVersion}.${minorVersion}.${buildVersion}"
-def versionBase = "${baseVersionName}.${gitCommitId}.${buildType}"
 
-
-static def releaseTime() {
-    return new Date().format("yyyyMMdd", TimeZone.getTimeZone("UTC"))
+static def isCI(){
+    return System.getenv("CI") == "true"
 }
+
+def baseVersionName = "1.0.0"
+
+if (isCI()){
+    def currentEvent = System.getenv("GITHUB_EVENT_NAME")
+    if (currentEvent == "release") {
+        def tag = System.getenv("GITHUB_REF_NAME")
+        if (tag == null) {
+            throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
+        }
+        baseVersionName = tag
+    } else if (currentEvent == "push") {
+        def branch = System.getenv("GITHUB_REF_NAME")
+        if (branch == null) {
+            throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
+        }
+        baseVersionName = gitLastTag + "." + gitCommitId + ".canary"
+    }
+}
+
+def versionBase = "${baseVersionName}${buildType}"
 
 android {
     defaultConfig {
