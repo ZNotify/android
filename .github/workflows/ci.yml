@@ -81,4 +81,4 @@ jobs:
         env:
           VERSION_CODE: ${{ steps.apk-info.outputs.version-code }}
           VERSION_NAME: ${{ steps.apk-info.outputs.version-name }}
-          APPCENTER_TOKEN: ${{ secrets.APPCENTER_TOKEN }}
+          APPCENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
