@@ -12,7 +12,7 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import net.steamcrafted.materialiconlib.MaterialDrawableBuilder
+import net.steamcrafted.materialiconlib.MaterialDrawableBuilder.IconValue
 import top.learningman.push.R
 import top.learningman.push.application.MainApplication
 import top.learningman.push.data.Repo
@@ -96,10 +96,14 @@ class MainActivity : AppCompatActivity() {
         lifecycleScope.launch {
             APIUtils.check(repo.getUser())
                 .onSuccess {
-                    setStatus(RegStatus.SUCCESS)
+                    if (it){
+                        setStatus(RegStatus.SUCCESS)
+                    } else {
+                        setStatus(RegStatus.USERID_FAILED)
+                    }
                 }
                 .onFailure {
-                    setStatus(RegStatus.FAILED)
+                    setStatus(RegStatus.NETWORK_FAILED)
                 }
         }
     }
@@ -107,33 +111,44 @@ class MainActivity : AppCompatActivity() {
     private var status = RegStatus.NOT_SET
     private fun setStatus(status: RegStatus) {
         this.status = status
+
+        data class StatusData(
+            val color: Int,
+            val text: String,
+            val icon: IconValue
+        )
         val statusMap = mapOf(
-            RegStatus.SUCCESS to listOf(
+            RegStatus.SUCCESS to StatusData(
                 R.color.reg_success,
-                R.string.userid_success,
-                MaterialDrawableBuilder.IconValue.CHECK
+                getString(R.string.userid_success),
+                IconValue.CHECK
             ),
-            RegStatus.PENDING to listOf(
+            RegStatus.PENDING to StatusData(
                 R.color.reg_pending,
-                R.string.loading,
-                MaterialDrawableBuilder.IconValue.SYNC
+                getString(R.string.loading),
+                IconValue.SYNC
             ),
-            RegStatus.FAILED to listOf(
+            RegStatus.NETWORK_FAILED to StatusData(
                 R.color.reg_failed,
-                R.string.connect_err,
-                MaterialDrawableBuilder.IconValue.SYNC_ALERT
+                getString(R.string.connect_err),
+                IconValue.SYNC_ALERT
             ),
-            RegStatus.NOT_SET to listOf(
+            RegStatus.USERID_FAILED to StatusData(
                 R.color.reg_failed,
-                R.string.not_set_userid_err,
-                MaterialDrawableBuilder.IconValue.ALERT_CIRCLE_OUTLINE
+                getString(R.string.userid_failed),
+                IconValue.ACCOUNT_ALERT
+            ),
+            RegStatus.NOT_SET to StatusData(
+                R.color.reg_failed,
+                getString(R.string.not_set_userid_err),
+                IconValue.ALERT_CIRCLE_OUTLINE
             )
         )
         runOnUiThread {
-            val (color, text, icon) = statusMap[status]!!
-            binding.regStatusText.text = getString(text as Int)
-            binding.regStatus.setCardBackgroundColor(this.colorList(color as Int))
-            binding.regStatusIcon.setIcon(icon as MaterialDrawableBuilder.IconValue)
+            val currentStatus = statusMap[status] ?: return@runOnUiThread
+            binding.regStatusText.text = currentStatus.text
+            binding.regStatus.setCardBackgroundColor(this.colorList(currentStatus.color))
+            binding.regStatusIcon.setIcon(currentStatus.icon)
         }
     }
 
@@ -147,7 +162,8 @@ class MainActivity : AppCompatActivity() {
         enum class RegStatus {
             SUCCESS,
             PENDING,
-            FAILED,
+            NETWORK_FAILED,
+            USERID_FAILED,
             NOT_SET
         }
     }

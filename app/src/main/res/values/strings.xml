@@ -36,4 +36,5 @@
     <string name="pref_channel_key">channel</string>
     <string name="pref_user_id_key">user_id</string>
     <string name="pref_grant_permission_tip">请为新渠道配置权限</string>
+    <string name="userid_failed" >用户 ID 无效</string>
 </resources>
