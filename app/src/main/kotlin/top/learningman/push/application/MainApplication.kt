@@ -2,6 +2,7 @@ package top.learningman.push.application
 
 import android.app.Application
 import android.util.Log
+import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
@@ -36,5 +37,8 @@ class MainApplication : Application() {
                 Log.e("Upgrader", "Failed to initialize Upgrader", it)
             }
         }.getOrNull()
+
+        // FIXME: support dark mode
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
     }
 }
