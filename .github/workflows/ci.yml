@@ -29,8 +29,9 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - name: Build with Gradle
-        run: ./gradlew assembleRelease
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assembleRelease bundlePlayRelease
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
 
@@ -43,12 +44,21 @@ jobs:
           files: |
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
-            
-      - name: Upload artifact to App Center
-        uses: wzieba/AppCenter-Github-Action@v1
+
+      - name: Get apk info
+        id: apk-info
+        uses: hkusu/apk-info-action@v1
         with:
-          appName: "zxilly/Notify"
-          token: ${{secrets.APP_CENTER_TOKEN}}
-          group: public
-          file: app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
-          gitReleaseNotes: true
+          apk-path: app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
+
+      - naem: Setup AppCenter CLI
+        run: |
+          npm install -g appcenter-cli
+          appcenter login --token ${{ secrets.APPCENTER_TOKEN }}
+
+      - name: Upload artifact to App Center
+        run: |
+          bash ./scripts/appcenter.sh
+        env:
+          VERSION_CODE: ${{ steps.apk-info.outputs.version-code }}
+          VERSION_NAME: ${{ steps.apk-info.outputs.version-name }}
