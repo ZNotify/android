@@ -117,6 +117,9 @@ android {
         appcenter {
             versionNameSuffix "(appcenter)"
         }
+        play {
+            versionNameSuffix "(play)"
+        }
     }
 }
 
@@ -144,6 +147,9 @@ dependencies {
 
     implementation platform('com.google.firebase:firebase-bom:30.5.0')
     implementation "com.google.firebase:firebase-messaging-ktx"
+
+    playImplementation 'com.google.android.play:app-update:2.0.0'
+    playImplementation 'com.google.android.play:app-update-ktx:2.0.0'
 
     implementation "androidx.constraintlayout:constraintlayout:2.1.4"
     implementation 'androidx.navigation:navigation-fragment-ktx:2.5.2'

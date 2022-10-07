@@ -1,5 +1,6 @@
 package top.learningman.push
 
+import android.content.Context
 import dev.zxilly.lib.upgrader.checker.GitHubReleaseMetadataChecker
 
 internal val checker = GitHubReleaseMetadataChecker(
@@ -9,3 +10,6 @@ internal val checker = GitHubReleaseMetadataChecker(
         upgradeChannel = GitHubReleaseMetadataChecker.Config.UpgradeChannel.PRE_RELEASE
     )
 )
+
+internal fun playUpgrade(context: Context) {
+}

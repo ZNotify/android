@@ -17,6 +17,7 @@ import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.R
 import top.learningman.push.databinding.ActivitySettingsBinding
+import top.learningman.push.playUpgrade
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.channels
 import kotlin.concurrent.thread
@@ -40,30 +41,32 @@ class SettingsActivity : AppCompatActivity() {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
             findPreference<Preference>("version")?.apply {
-                @Suppress("KotlinConstantConditions")
-                if (BuildConfig.FLAVOR != "free") {
-                    setOnPreferenceClickListener {
-                        Log.d("SettingsActivity", "Version Clicked")
-                        Upgrader.getInstance()?.tryUpgrade(false)
-                            ?: let {
-                                Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
-                            }
-                        true
+                setOnPreferenceClickListener {
+                    @Suppress("KotlinConstantConditions")
+                    when(BuildConfig.FLAVOR){
+                        "free" -> {
+                            startActivity(
+                                Intent(
+                                    Intent.ACTION_VIEW,
+                                    Uri.parse("https://github.com/ZNotify/android/releases")
+                                ).apply {
+                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                }
+                            )
+                        }
+                        "play" -> {
+                            playUpgrade(requireActivity())
+                        }
+                        else -> {
+                            Upgrader.getInstance()?.tryUpgrade(false)
+                                ?: let {
+                                    Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
+                                }
+                        }
                     }
-                } else {
-                    setOnPreferenceClickListener {
-                        Log.d("SettingsActivity", "Version Clicked")
-                        startActivity(
-                            Intent(
-                                Intent.ACTION_VIEW,
-                                Uri.parse("https://github.com/ZNotify/android/releases")
-                            ).apply {
-                                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                            }
-                        )
-                        true
-                    }
+                    true
                 }
+
                 summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
             }
 
