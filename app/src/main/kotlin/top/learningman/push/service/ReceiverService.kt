@@ -102,6 +102,7 @@ class ReceiverService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
+        manager.tryResume()
         Log.d(TAG, "onListenerConnected")
     }
 
@@ -129,6 +130,7 @@ class ReceiverService : NotificationListenerService() {
             const val RUNNING = 2
             const val WAIT_RECONNECT = 3
             const val NETWORK_LOST = 4
+            const val INVALID = 5
 
             fun valueOf(value: Int): String {
                 return when (value) {
@@ -137,6 +139,7 @@ class ReceiverService : NotificationListenerService() {
                     RUNNING -> "RUNNING"
                     WAIT_RECONNECT -> "WAIT_RECONNECT"
                     NETWORK_LOST -> "NETWORK_LOST"
+                    INVALID -> "INVALID"
                     else -> "UNKNOWN"
                 }
             }
@@ -228,6 +231,11 @@ class ReceiverService : NotificationListenerService() {
             }
             jobLock.unlock()
 
+            if (status.get() == Status.INVALID) {
+                Log.d(TAG, "status is invalid, should not connect")
+                return
+            }
+
             if (!status.compareAndSet(Status.CONNECTING, Status.RUNNING)) {
                 Log.d(
                     TAG,
@@ -246,8 +254,18 @@ class ReceiverService : NotificationListenerService() {
             }.also {
                 if (it.isFailure) {
                     Log.e(TAG, "getSession:", it.exceptionOrNull())
+                    val exception = it.exceptionOrNull() ?: return@also
+                    val message = exception.message ?: return@also
+                    if (message.contains("401")) {
+                        status.set(Status.INVALID)
+                        Log.d(TAG, "connect: invalid status, seems userid not correct")
+                        return@also
+                    }
                 }
-            }.getOrNull()
+
+            }
+                .getOrNull()
+
             if (session != null) {
                 Log.d(TAG, "session is not null, launch WebSocket")
                 jobLock.lock()
@@ -297,7 +315,7 @@ class ReceiverService : NotificationListenerService() {
                 if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
                     recover()
                 } else {
-                    Log.d(TAG, "connect: not recover from status ${status.get()}")
+                    Log.d(TAG, "connect: not recover from status ${Status.valueOf(status.get())}")
                 }
             }
         }

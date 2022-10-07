@@ -34,13 +34,16 @@ class MainActivity : AppCompatActivity() {
     private val startSetting =
         registerForActivityResult(ActivityResultContracts.StartActivityForResult()) {
             Log.d("MainActivity", "Setting Activity Result ${it.resultCode}")
-            if (it.resultCode and SettingsActivity.UPDATE_CHANNEL == SettingsActivity.UPDATE_CHANNEL) {
+            if ((it.resultCode and SettingsActivity.UPDATE_CHANNEL) == SettingsActivity.UPDATE_CHANNEL) {
                 Log.d("MainActivity", "Update Channel")
                 val channel = AutoChannel.getInstance(context = this, nocache = true)
                 channel.init(context = this)
-                channel.setUserCallback(this, repo.getUser(), lifecycleScope)
-            } else if (it.resultCode and SettingsActivity.UPDATE_USERNAME == SettingsActivity.UPDATE_USERNAME) {
+            } else if ((it.resultCode and SettingsActivity.UPDATE_USERNAME) == SettingsActivity.UPDATE_USERNAME) {
                 Log.d("MainActivity", "Update User")
+            }
+
+            if (it.resultCode != 0) {
+                refreshStatus()
                 channel.setUserCallback(this, repo.getUser(), lifecycleScope)
             }
         }
@@ -78,23 +81,27 @@ class MainActivity : AppCompatActivity() {
         if (userid == Repo.PREF_USER_DEFAULT) {
             setStatus(RegStatus.NOT_SET)
         } else {
-            setStatus(RegStatus.PENDING)
-
-            lifecycleScope.launch {
-                APIUtils.check(userid)
-                    .onSuccess {
-                        setStatus(RegStatus.SUCCESS)
-                    }
-                    .onFailure {
-                        setStatus(RegStatus.FAILED)
-                    }
-            }
+            refreshStatus()
         }
         channel.init(this)
     }
 
     override fun onResume() {
         super.onResume()
+    }
+
+    private fun refreshStatus(){
+        setStatus(RegStatus.PENDING)
+
+        lifecycleScope.launch {
+            APIUtils.check(repo.getUser())
+                .onSuccess {
+                    setStatus(RegStatus.SUCCESS)
+                }
+                .onFailure {
+                    setStatus(RegStatus.FAILED)
+                }
+        }
     }
 
     private var status = RegStatus.NOT_SET
