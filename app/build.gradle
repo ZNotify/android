@@ -78,8 +78,7 @@ android {
         jvmTarget = "1.8"
 
         freeCompilerArgs += [
-                "-P",
-                "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=1.7.20"
+                // TODO: use k2
         ]
     }
     packagingOptions {
@@ -99,7 +98,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0-dev-k1.7.20-RC-a143c065804'
+        kotlinCompilerExtensionVersion '1.4.0-dev-k1.7.20-e49b3b6028b'
     }
     dependenciesInfo {
         includeInApk false
