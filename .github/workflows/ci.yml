@@ -1,8 +1,10 @@
 name: CI
 
 on:
-  push:
-    branches: [ master ]
+  release:
+    types:
+      - released
+  workflow_dispatch:
 
 jobs:
   build:
@@ -35,12 +37,24 @@ jobs:
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
 
-      - name: Release Package
+      - name: PreRelease Package
         uses: marvinpinto/action-automatic-releases@latest
+        if: github.event_name == 'workflow_dispatch'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
+          automatic_release_tag: "${{ steps.current-time.outputs.time }}"
           prerelease: true
+          files: |
+            app/build/outputs/apk/github/release/*
+            app/build/outputs/apk/free/release/app-free-release.apk
+
+      - name: Release Package
+        uses: marvinpinto/action-automatic-releases@latest
+        if: github.event_name == 'release'
+        with:
+          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          automatic_release_tag: "${{ github.event.release.tag_name }}"
+          prerelease: false
           files: |
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
@@ -54,7 +68,6 @@ jobs:
       - name: Setup AppCenter CLI
         run: |
           npm install -g appcenter-cli
-          appcenter login --token ${{ secrets.APPCENTER_TOKEN }}
 
       - name: Upload artifact to App Center
         run: |
@@ -62,3 +75,4 @@ jobs:
         env:
           VERSION_CODE: ${{ steps.apk-info.outputs.version-code }}
           VERSION_NAME: ${{ steps.apk-info.outputs.version-name }}
+          APPCENTER_TOKEN: ${{ secrets.APPCENTER_TOKEN }}
