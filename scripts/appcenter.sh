@@ -11,7 +11,7 @@ appcenter distribute release \
   --token "$APPCENTER_TOKEN"
 
 appcenter crashes upload-mappings \
-  --app "zxilly/Notify" \
+  --app "$app" \
   --version-code "$VERSION_CODE" \
   --version-name "$VERSION_NAME" \
   --mapping "app/build/outputs/mapping/appcenterRelease/mapping.txt" \
