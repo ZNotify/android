@@ -42,7 +42,7 @@ jobs:
         if: github.event_name == 'workflow_dispatch'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ steps.current-time.outputs.time }}"
+          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
           prerelease: true
           files: |
             app/build/outputs/apk/github/release/*
