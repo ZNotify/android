@@ -8,7 +8,13 @@ plugins {
 def gitCommitId = "git rev-parse --short HEAD".execute([], project.rootDir).text.trim()
 
 def gitLastTag = "git describe --tags --abbrev=0".execute([], project.rootDir).text.trim()
+if (gitLastTag == "") {
+    throw new GradleException("No git tags found. Please create a tag before building.")
+}
 
+def gitLastCommitMessage = "git log -1 --pretty=%B".execute([], project.rootDir).text.trim()
+
+def isRelease = gitLastCommitMessage.matches(".*\\[release:.*].*")
 
 def isDebug = gradle.startParameter.taskRequests.any {
     it.args.any { it.endsWith("Debug") }
@@ -26,18 +32,18 @@ def baseVersionName = "1.0.0"
 
 if (isCI()){
     def currentEvent = System.getenv("GITHUB_EVENT_NAME")
-    if (currentEvent == "release") {
-        def tag = System.getenv("GITHUB_REF_NAME")
-        if (tag == null) {
-            throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
+    if (currentEvent == "push") {
+        if (isRelease){
+            def versionAll = gitLastCommitMessage.split("\\[version:")[1]
+            def version = versionAll.split("]")[0].trim()
+            baseVersionName = version
+        } else {
+            def branch = System.getenv("GITHUB_REF_NAME")
+            if (branch == null) {
+                throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
+            }
+            baseVersionName = gitLastTag + "." + gitCommitId + ".canary"
         }
-        baseVersionName = tag
-    } else if (currentEvent == "push") {
-        def branch = System.getenv("GITHUB_REF_NAME")
-        if (branch == null) {
-            throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
-        }
-        baseVersionName = gitLastTag + "." + gitCommitId + ".canary"
     }
 }
 
