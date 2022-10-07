@@ -24,9 +24,6 @@
         android:supportsRtl="false"
         android:theme="@style/Theme.Notify"
         android:usesCleartextTraffic="true">
-        <profileable
-            android:shell="true"
-            tools:targetApi="q" />
 
         <activity
             android:name=".activity.SetupActivity"
@@ -35,9 +32,6 @@
 
         <meta-data
             android:name="firebase_messaging_auto_init_enabled"
-            android:value="false" />
-        <meta-data
-            android:name="firebase_analytics_collection_enabled"
             android:value="false" />
 
         <activity
