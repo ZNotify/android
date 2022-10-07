@@ -4,7 +4,7 @@ on:
   release:
     types:
       - released
-  workflow_dispatch:
+  push:
 
 jobs:
   build:
@@ -39,7 +39,7 @@ jobs:
 
       - name: PreRelease Package
         uses: marvinpinto/action-automatic-releases@latest
-        if: github.event_name == 'workflow_dispatch'
+        if: github.event_name == 'workflow_dispatch' || github.event_name == 'push'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
           automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
