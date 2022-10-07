@@ -1,4 +1,4 @@
-name: CI
+name: Build and release
 
 on:
   push:
@@ -19,6 +19,8 @@ jobs:
           utcOffset: "+08:00"
 
       - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0 # fetch tags
 
       - name: Grant permission for scripts
         run: chmod +x ./scripts/*.sh
@@ -58,7 +60,7 @@ jobs:
         if: steps.release.outputs.release == 'true'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ github.event.release.tag_name }}"
+          automatic_release_tag: "${{ steps.release.outputs.version }}"
           prerelease: false
           files: |
             app/build/outputs/apk/github/release/*
@@ -82,3 +84,21 @@ jobs:
           VERSION_CODE: ${{ steps.apk-info.outputs.version-code }}
           VERSION_NAME: ${{ steps.apk-info.outputs.version-name }}
           APPCENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
+
+      - name: Create whatsNew
+        if: steps.release.outputs.release == 'true'
+        run: |
+            ./scripts/whats_new.sh
+        env:
+          VERSION: ${{ steps.release.outputs.version }}
+
+      - name: Upload Android Release to Play Store
+        uses: r0adkll/upload-google-play@v1.0.18
+        if: steps.release.outputs.release == 'true'
+        with:
+          releaseFiles: app/build/outputs/bundle/playRelease/app-play-release.aab
+          serviceAccountJsonPlainText: ${{ secrets.SERVICE_ACCOUNT_JSON }}
+          packageName: top.learningman.push
+          track: beta
+          mappingFile: app/build/outputs/mapping/playRelease/mapping.txt
+          whatsNewDirectory: whatsNew
