@@ -14,7 +14,7 @@ if (gitLastTag == "") {
 
 def gitLastCommitMessage = "git log -1 --pretty=%B".execute([], project.rootDir).text.trim()
 
-def isRelease = gitLastCommitMessage.matches(".*\\[release:.*].*")
+def isRelease = gitLastCommitMessage.contains("[release")
 
 def isDebug = gradle.startParameter.taskRequests.any {
     it.args.any { it.endsWith("Debug") }
