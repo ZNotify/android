@@ -34,7 +34,7 @@ if (isCI()){
     def currentEvent = System.getenv("GITHUB_EVENT_NAME")
     if (currentEvent == "push") {
         if (isRelease){
-            def versionAll = gitLastCommitMessage.split("\\[version:")[1]
+            def versionAll = gitLastCommitMessage.split("\\[release:")[1]
             def version = versionAll.split("]")[0].trim()
             baseVersionName = version
         } else {
