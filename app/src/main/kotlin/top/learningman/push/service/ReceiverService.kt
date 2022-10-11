@@ -166,13 +166,22 @@ class ReceiverService : NotificationListenerService() {
                     Log.d(TAG, "network lost, stop websocket")
                     status.set(Status.NETWORK_LOST)
                     runBlocking {
-                        jobLock.lock()
-                        job?.cancelAndJoin()
-                        job = null
-                        jobLock.unlock()
+                        tryCancelJob()
                     }
                 }
             })
+        }
+
+        suspend fun tryCancelJob() {
+            jobLock.lock()
+            try {
+                job?.cancelAndJoin()
+                job = null
+            } catch (e:Throwable) {
+                Log.e(TAG, "tryCancelJob: ", e)
+            } finally {
+                jobLock.unlock()
+            }
         }
 
         private fun diagnose() {
@@ -196,10 +205,7 @@ class ReceiverService : NotificationListenerService() {
             if (currentUserID != nextUserID) {
                 currentUserID = nextUserID
                 launch {
-                    jobLock.lock()
-                    job?.cancelAndJoin()
-                    job = null
-                    jobLock.unlock()
+                    tryCancelJob()
                     connect()
                 }
             } else {
@@ -211,10 +217,7 @@ class ReceiverService : NotificationListenerService() {
             Log.d(TAG, "call recover at ${Date()}")
             if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
                 launch {
-                    jobLock.lock()
-                    job?.cancelAndJoin()
-                    job = null
-                    jobLock.unlock()
+                    tryCancelJob()
                     connect()
                 }
             } else {
@@ -226,7 +229,8 @@ class ReceiverService : NotificationListenerService() {
             diagnose()
             jobLock.lock()
             if (job != null) {
-                Log.d(TAG, "job is not null, cancel it, not clear")
+                Log.d(TAG, "job is not null, should cancel it before connect")
+                jobLock.unlock()
                 return
             }
             jobLock.unlock()
@@ -269,47 +273,50 @@ class ReceiverService : NotificationListenerService() {
             if (session != null) {
                 Log.d(TAG, "session is not null, launch WebSocket")
                 jobLock.lock()
-                job = session.launch(coroutineContext) {
-                    while (true) {
-                        val frameRet = session.incoming.receiveCatching()
-                        frameRet.onClosed {
-                            Log.d(TAG, "onClosed")
-                            Log.e(TAG, "WebSocket closed", it)
-                            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
-                                recover()
-                            } else {
-                                Log.d(TAG, "onClosed: not recover from status ${status.get()}")
-                            }
-                            return@launch
-                        }.onFailure {
-                            if (it is CancellationException) {
-                                Log.d(TAG, "This job is cancelled")
-                                return@launch
-                            } else {
-                                Log.d(TAG, "onFailure")
-                                Log.e(TAG, "WebSocket error", it)
-                                // Failure not means the connection is closed
-                                // So we don't need to recover
-                                it?.let { e ->
-                                    Crashes.trackError(
-                                        e,
-                                        mutableMapOf("loc" to "Websocket Failure"),
-                                        null
-                                    )
+                try {
+                    job = session.launch(coroutineContext) {
+                        while (true) {
+                            val frameRet = session.incoming.receiveCatching()
+                            frameRet.onClosed {
+                                Log.d(TAG, "onClosed")
+                                Log.e(TAG, "WebSocket closed", it)
+                                if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                                    recover()
+                                } else {
+                                    Log.d(TAG, "onClosed: not recover from status ${status.get()}")
                                 }
+                                return@launch
+                            }.onFailure {
+                                if (it is CancellationException) {
+                                    Log.d(TAG, "This job is cancelled")
+                                    return@launch
+                                } else {
+                                    Log.d(TAG, "onFailure")
+                                    Log.e(TAG, "WebSocket error", it)
+                                    // Failure not means the connection is closed
+                                    // So we don't need to recover
+                                    it?.let { e ->
+                                        Crashes.trackError(
+                                            e,
+                                            mutableMapOf("loc" to "Websocket Failure"),
+                                            null
+                                        )
+                                    }
+                                }
+                            }.onSuccess {
+                                Log.d(TAG, "onSuccess receive frame")
+                                handleFrame(it)
                             }
-                        }.onSuccess {
-                            Log.d(TAG, "onSuccess receive frame")
-                            handleFrame(it)
                         }
                     }
+                    if (job?.isActive == true) {
+                        Log.i(TAG, "job is active, start websocket success")
+                    } else {
+                        Log.e(TAG, "job is not active, start websocket failed")
+                    }
+                } finally {
+                    jobLock.unlock()
                 }
-                if (job?.isActive == true) {
-                    Log.d(TAG, "job is active, start websocket success")
-                } else {
-                    Log.d(TAG, "job is not active, start websocket failed")
-                }
-                jobLock.unlock()
             } else {
                 delay(5000)
                 if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
