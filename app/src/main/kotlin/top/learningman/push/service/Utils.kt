@@ -1,13 +1,18 @@
 package top.learningman.push.service
 
-import android.annotation.SuppressLint
+import android.Manifest
 import android.app.NotificationChannel
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
+import android.content.pm.PackageManager
+import android.util.Log
+import android.widget.Toast
+import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
+import com.microsoft.appcenter.crashes.Crashes
 import top.learningman.push.R
 import top.learningman.push.activity.TranslucentActivity
 import top.learningman.push.entity.Message
@@ -16,7 +21,7 @@ import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3
 import kotlin.random.Random
 
 object Utils {
-    @SuppressLint("MissingPermission")
+
     fun notifyMessage(context: Context, message: Message) {
         val notificationManager = NotificationManagerCompat.from(context)
         val notifyChannel = NotificationChannel(
@@ -51,6 +56,20 @@ object Utils {
             .setAutoCancel(true)
             .build()
 
+        if (ActivityCompat.checkSelfPermission(
+                context,
+                Manifest.permission.POST_NOTIFICATIONS
+            ) != PackageManager.PERMISSION_GRANTED
+        ) {
+            Log.e("Push", "No permission to post notification")
+            Crashes.trackError(
+                Throwable(
+                    "No permission to post notification"
+                )
+            )
+            Toast.makeText(context, "No permission to post notification", Toast.LENGTH_SHORT).show()
+            return
+        }
         notificationManager.notify(Random.nextInt(), notification)
     }
 

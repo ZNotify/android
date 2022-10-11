@@ -37,10 +37,12 @@ class ReceiverService : NotificationListenerService() {
     }
 
     private lateinit var manager: WebsocketSessionManager
+    private val id = UUID.randomUUID().toString()
 
     override fun onCreate() {
         super.onCreate()
         manager = WebsocketSessionManager(this)
+        Log.d(TAG, "ReceiverService $id create")
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -340,7 +342,7 @@ class ReceiverService : NotificationListenerService() {
                     }.fold({
                         Log.d(TAG, "prepare to send notification")
                         val notificationMessage = it.toMessage()
-                        notifyMessage(notificationMessage)
+                        notifyMessage(notificationMessage, from = (context as ReceiverService).id)
                         repo.setLastMessageTime(notificationMessage.createdAt)
                     }, {
                         Log.e(TAG, "Error parsing message", it)

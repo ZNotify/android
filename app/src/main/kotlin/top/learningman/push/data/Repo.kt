@@ -3,6 +3,7 @@ package top.learningman.push.data
 import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
+import top.learningman.push.R
 import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.fromRFC3339Nano
 import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339Nano
 import top.learningman.push.provider.Channel
@@ -41,17 +42,17 @@ class Repo(private val sharedPref: SharedPreferences) {
     }
 
     fun setLastMessageTime(time: String) {
-        fun save(){
+        fun save() {
             sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, time).apply()
         }
 
-        val rawCurrent = sharedPref.getString(PREF_LAST_MESSAGE_TIME_KEY,null)
-        if (rawCurrent == null ){
+        val rawCurrent = sharedPref.getString(PREF_LAST_MESSAGE_TIME_KEY, null)
+        if (rawCurrent == null) {
             save()
         } else {
             val current = rawCurrent.fromRFC3339Nano()
             val new = time.fromRFC3339Nano()
-            if (new.after(current)){
+            if (new.after(current)) {
                 save()
             }
         }
@@ -61,7 +62,7 @@ class Repo(private val sharedPref: SharedPreferences) {
         return sharedPref.getString(PREF_CHANNEL_KEY, null)
     }
 
-    fun setChannel(channel: Channel){
+    fun setChannel(channel: Channel) {
         sharedPref.edit().putString(PREF_CHANNEL_KEY, channel.name).apply()
     }
 
@@ -75,11 +76,11 @@ class Repo(private val sharedPref: SharedPreferences) {
         const val PREF_MESSAGE_WORKER_VERSION_KEY = "message_worker_version"
         const val PREF_MESSAGE_WORKER_VERSION_DEFAULT = 0
         const val PREF_LAST_MESSAGE_TIME_KEY = "last_message_time"
-        const val PREF_CHANNEL_KEY = "channel"
-
+        var PREF_CHANNEL_KEY = ""
 
 
         fun getInstance(context: Context): Repo {
+            PREF_CHANNEL_KEY = context.getString(R.string.pref_channel_key)
             return synchronized(Repo::class.java) {
                 instance ?: let {
                     val sharedPref = PreferenceManager.getDefaultSharedPreferences(context)
