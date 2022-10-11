@@ -108,6 +108,13 @@ class ReceiverService : NotificationListenerService() {
         Log.d(TAG, "onListenerConnected")
     }
 
+    override fun onDestroy() {
+        super.onDestroy()
+        manager.stop()
+        // Maybe useless but just in case
+        manager.cancel()
+    }
+
     @OptIn(DelicateCoroutinesApi::class)
     private class WebsocketSessionManager(private val context: Context) :
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
@@ -122,6 +129,9 @@ class ReceiverService : NotificationListenerService() {
                 install(HttpRequestRetry)
             }
         }
+        private val connectivityManager by lazy {
+            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        }
 
         private var status = AtomicInteger(Status.WAIT_START)
 
@@ -133,6 +143,7 @@ class ReceiverService : NotificationListenerService() {
             const val WAIT_RECONNECT = 3
             const val NETWORK_LOST = 4
             const val INVALID = 5
+            const val STOP = 6
 
             fun valueOf(value: Int): String {
                 return when (value) {
@@ -142,36 +153,46 @@ class ReceiverService : NotificationListenerService() {
                     WAIT_RECONNECT -> "WAIT_RECONNECT"
                     NETWORK_LOST -> "NETWORK_LOST"
                     INVALID -> "INVALID"
+                    STOP -> "STOP"
                     else -> "UNKNOWN"
                 }
             }
         }
 
-        init {
-            val connectivityManager =
-                context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-            connectivityManager.registerDefaultNetworkCallback(object :
-                ConnectivityManager.NetworkCallback() {
-                override fun onAvailable(network: android.net.Network) {
-                    super.onAvailable(network)
-                    if (status.compareAndSet(Status.NETWORK_LOST, Status.WAIT_RECONNECT)) {
-                        Log.d(TAG, "network available, try start websocket")
-                        Log.d(TAG, "resume from network lost")
-                        tryResume()
-                    } else {
-                        Log.d(TAG, "network available, but not in network lost status")
-                    }
+        private val netWorkCallback = object : ConnectivityManager.NetworkCallback(){
+            override fun onAvailable(network: android.net.Network) {
+                super.onAvailable(network)
+                if (status.compareAndSet(Status.NETWORK_LOST, Status.WAIT_RECONNECT)) {
+                    Log.d(TAG, "network available, try start websocket")
+                    Log.d(TAG, "resume from network lost")
+                    tryResume()
+                } else {
+                    Log.d(TAG, "network available, but not in network lost status")
                 }
+            }
 
-                override fun onLost(network: android.net.Network) {
-                    super.onLost(network)
-                    Log.d(TAG, "network lost, stop websocket")
-                    status.set(Status.NETWORK_LOST)
-                    runBlocking {
-                        tryCancelJob()
-                    }
+            override fun onLost(network: android.net.Network) {
+                super.onLost(network)
+                Log.d(TAG, "network lost, stop websocket")
+                if (status.get() == Status.STOP) {
+                    return
                 }
-            })
+                runBlocking {
+                    tryCancelJob()
+                }
+            }
+        }
+
+        init {
+            connectivityManager.registerDefaultNetworkCallback(netWorkCallback)
+        }
+
+        fun stop() {
+            status.set(Status.STOP)
+            runBlocking {
+                tryCancelJob()
+            }
+            connectivityManager.unregisterNetworkCallback(netWorkCallback)
         }
 
         suspend fun tryCancelJob() {
@@ -179,7 +200,7 @@ class ReceiverService : NotificationListenerService() {
             try {
                 job?.cancelAndJoin()
                 job = null
-            } catch (e:Throwable) {
+            } catch (e: Throwable) {
                 Log.e(TAG, "tryCancelJob: ", e)
             } finally {
                 jobLock.unlock()
