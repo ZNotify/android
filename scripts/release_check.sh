@@ -4,12 +4,12 @@
 git_commit_message=$(git log -1 --pretty=%B)
 
 if [[ $git_commit_message == *"[release:"* ]]; then
-    echo "::set-output name=release::true"
+    echo "release=true" >> "$GITHUB_OUTPUT"
     echo "Should release"
     # get version from [release: x.x.x]
     version=$(echo "$git_commit_message" | grep -o "\[release:.*\]" | sed "s/\[release:\s*//g" | sed "s/\s*\]//g")
     if [[ $version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "::set-output name=version::$version"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
         echo "Version is $version"
     else
         echo "Version format is not correct"
@@ -19,6 +19,6 @@ if [[ $git_commit_message == *"[release:"* ]]; then
     fi
 
 else
-    echo "::set-output name=release::false"
+    echo "release=false" >> "$GITHUB_OUTPUT"
     echo "Should not release"
 fi
