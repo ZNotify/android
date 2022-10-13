@@ -17,9 +17,7 @@
 
 [Github Release](https://github.com/ZNotify/android/releases)
 
-<a href="https://play.google.com/store/apps/details?id=top.learningman.push" rel="nofollow">
-  <img src="https://github.com/ZNotify/android/raw/master/static/google-play-badge.png" alt="" style="width: 250px;">
-</a>
+[![](/static/google-play-badge.png | width=250)](https://play.google.com/store/apps/details?id=top.learningman.push)
 
 **提示：**
 
