@@ -17,6 +17,8 @@
 
 [Github Release](https://github.com/ZNotify/android/releases)
 
+[![](static/google-play-badge.png)](https://play.google.com/store/apps/details?id=top.learningman.push)
+
 **提示：**
 
 `app-free-release.apk` 不包含应用内更新。
@@ -24,6 +26,8 @@
 `app-github-release.apk` 包含从 `Github` 下载应用内更新的代码。
 
 `AppCenter` 的应用内更新由 `AppCenter` 提供。
+
+`Google Play` 的应用内更新由 `Google Play In-app` 提供。
 
 ## TODO
 
