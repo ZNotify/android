@@ -17,7 +17,9 @@
 
 [Github Release](https://github.com/ZNotify/android/releases)
 
-[![](static/google-play-badge.png)](https://play.google.com/store/apps/details?id=top.learningman.push)
+<a href="https://play.google.com/store/apps/details?id=top.learningman.push" rel="nofollow">
+  <img src="/ZNotify/android/raw/master/static/google-play-badge.png" alt="" style="width: 250px;">
+</a>
 
 **提示：**
 
@@ -34,7 +36,6 @@
 - 支持推送到指定设备
 - 支持推送到指定渠道
 - 支持设备端选择推送渠道
-
 
 ## Self-hosting
 
