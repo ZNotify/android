@@ -1,20 +1,14 @@
 package top.learningman.push
 
 import android.app.Activity
+import android.app.Application
 import android.content.Context
 import com.google.android.play.core.appupdate.AppUpdateManagerFactory
 import com.google.android.play.core.install.model.AppUpdateType
 import com.google.android.play.core.install.model.UpdateAvailability
-import dev.zxilly.lib.upgrader.checker.Checker
-import dev.zxilly.lib.upgrader.checker.Version
 
-internal val checker = object : Checker {
-    override suspend fun getLatestVersion(): Version {
-        return Version(0, "", null, "", null)
-    }
-}
-
-internal fun playUpgrade(context: Context) {
+internal fun checkerInit(app: Application) {}
+internal fun checkUpgrade(context: Context) {
     val appUpdateManager = AppUpdateManagerFactory.create(context)
 
     val appUpdateInfoTask = appUpdateManager.appUpdateInfo

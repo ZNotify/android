@@ -1,7 +1,6 @@
 package top.learningman.push.activity
 
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
@@ -10,14 +9,11 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import dev.zxilly.lib.upgrader.Upgrader
+import com.microsoft.appcenter.crashes.Crashes
 import dev.zxilly.notify.sdk.Client
 import kotlinx.coroutines.runBlocking
-import top.learningman.push.BuildConfig
-import top.learningman.push.Constant
-import top.learningman.push.R
+import top.learningman.push.*
 import top.learningman.push.databinding.ActivitySettingsBinding
-import top.learningman.push.playUpgrade
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.channels
 import kotlin.concurrent.thread
@@ -42,27 +38,11 @@ class SettingsActivity : AppCompatActivity() {
 
             findPreference<Preference>("version")?.apply {
                 setOnPreferenceClickListener {
-                    @Suppress("KotlinConstantConditions")
-                    when(BuildConfig.FLAVOR){
-                        "free" -> {
-                            startActivity(
-                                Intent(
-                                    Intent.ACTION_VIEW,
-                                    Uri.parse("https://github.com/ZNotify/android/releases")
-                                ).apply {
-                                    addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
-                                }
-                            )
-                        }
-                        "play" -> {
-                            playUpgrade(requireActivity())
-                        }
-                        else -> {
-                            Upgrader.getInstance()?.tryUpgrade(false)
-                                ?: let {
-                                    Toast.makeText(context, "应用内更新未生效", Toast.LENGTH_SHORT).show()
-                                }
-                        }
+                    runCatching {
+                        checkUpgrade(requireActivity())
+                    }.onFailure {
+                        Log.e("Upgrader", "Failed to check upgrade", it)
+                        Crashes.trackError(it)
                     }
                     true
                 }

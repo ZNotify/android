@@ -1,14 +1,12 @@
 package top.learningman.push
 
+import android.app.Application
 import android.content.Context
-import dev.zxilly.lib.upgrader.checker.Checker
-import dev.zxilly.lib.upgrader.checker.Version
+import android.content.Intent
+import android.net.Uri
 
-internal val checker = object : Checker {
-    override suspend fun getLatestVersion(): Version {
-        return Version(0, "", null, "", null)
-    }
+fun checkerInit(app: Application) {
 }
 
-internal fun playUpgrade(context: Context) {
+fun checkUpgrade(context: Context) {
 }

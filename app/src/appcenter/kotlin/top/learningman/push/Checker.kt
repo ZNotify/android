@@ -1,9 +1,21 @@
 package top.learningman.push
 
+import android.app.Application
 import android.content.Context
+import android.util.Log
+import com.microsoft.appcenter.crashes.Crashes
+import dev.zxilly.lib.upgrader.Upgrader
 import dev.zxilly.lib.upgrader.checker.AppCenterChecker
 
-internal val checker = AppCenterChecker("0c045975-212b-441d-9ee4-e6ab9c76f8a3")
+fun checkerInit(app: Application) {
+    Upgrader(AppCenterChecker("0c045975-212b-441d-9ee4-e6ab9c76f8a3"), app)
+}
 
-internal fun playUpgrade(context: Context) {
+fun checkUpgrade(context: Context) {
+    runCatching {
+        Upgrader.getInstance()?.tryUpgrade()
+    }.onFailure {
+        Log.e("Upgrader", "Failed to check upgrade", it)
+        Crashes.trackError(it)
+    }
 }
