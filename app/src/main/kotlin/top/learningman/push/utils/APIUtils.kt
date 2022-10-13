@@ -1,6 +1,7 @@
 package top.learningman.push.utils
 
 import dev.zxilly.notify.sdk.Client
+import dev.zxilly.notify.sdk.entity.Channel
 import top.learningman.push.Constant
 import top.learningman.push.entity.Message
 
@@ -20,10 +21,15 @@ object APIUtils {
         return Result.failure(Exception("Unknown error"))
     }
 
-    suspend fun reportFCMToken(userID: String, token: String): Result<Unit> {
+    suspend fun register(
+        userID: String,
+        token: String,
+        channel: Channel,
+        deviceID: String
+    ): Result<Boolean> {
         val client =
             Client.create(userID, Constant.API_ENDPOINT).getOrElse { return Result.failure(it) }
-        return client.reportFCMToken(token)
+        return client.register(channel, token, deviceID)
     }
 
     suspend fun fetchMessage(userID: String): Result<List<Message>> {

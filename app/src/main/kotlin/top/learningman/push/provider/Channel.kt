@@ -42,7 +42,7 @@ interface Channel {
     }
 }
 
-val channels = arrayOf(FCM, Host)
+val channels = arrayOf(FCM, WebSocket)
 
 class AutoChannel private constructor(channel: Channel) : Channel by channel {
     companion object {
@@ -71,7 +71,7 @@ class AutoChannel private constructor(channel: Channel) : Channel by channel {
                 if (impl == null) {
                     impl = when {
                         FCM.should(context) -> FCM
-                        else -> Host
+                        else -> WebSocket
                     }
                 }
 

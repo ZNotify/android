@@ -10,19 +10,23 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import androidx.work.*
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
 import top.learningman.push.BuildConfig
 import top.learningman.push.data.Repo
 import top.learningman.push.service.PollWorker
 import top.learningman.push.service.ReceiverService
+import top.learningman.push.utils.APIUtils
 import top.learningman.push.utils.RomUtils
 import xyz.kumaraswamy.autostart.Autostart
 import java.util.concurrent.TimeUnit
+import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
 
 private const val ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listeners"
 
 
-object Host : Channel {
+object WebSocket : Channel {
     override val name: String
         get() = "Websocket"
 
@@ -33,11 +37,21 @@ object Host : Channel {
         )
     }
 
-    override fun setUserCallback(context: Context, userID: String) {
+    override fun setUserCallback(context: Context, userID: String, scope: CoroutineScope) {
         context.startService(Intent(context, ReceiverService::class.java).apply {
             action = ReceiverService.Action.UPDATE.name
             putExtra(ReceiverService.INTENT_USERID_KEY, userID)
         })
+        scope.launch {
+            val deviceID = Repo.getInstance(context).getDeviceID()
+            APIUtils.register(userID, "ws", NotifyChannel.WebSocket, deviceID)
+                .onSuccess {
+                    Log.d("WebSocket", "WebSocket 注册成功")
+                }
+                .onFailure {
+                    Log.e("WebSocket", "WebSocket 注册失败", it)
+                }
+        }
     }
 
     override fun permissions(): List<Permission> {

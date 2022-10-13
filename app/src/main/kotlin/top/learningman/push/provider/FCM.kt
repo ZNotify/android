@@ -11,7 +11,9 @@ import com.google.firebase.messaging.ktx.messaging
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import top.learningman.push.data.Repo
 import top.learningman.push.utils.APIUtils
+import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
 object FCM : Channel {
     override val name: String
@@ -32,11 +34,12 @@ object FCM : Channel {
     }
 
     override fun setUserCallback(context: Context, userID: String, scope: CoroutineScope) {
+        val deviceID = Repo.getInstance(context).getDeviceID()
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 val token = task.result
                 scope.launch {
-                    APIUtils.reportFCMToken(userID, token)
+                    APIUtils.register(userID, token, NotifyChannel.FCM, deviceID)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
                         }

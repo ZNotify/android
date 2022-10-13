@@ -66,6 +66,17 @@ class Repo(private val sharedPref: SharedPreferences) {
         sharedPref.edit().putString(PREF_CHANNEL_KEY, channel.name).apply()
     }
 
+    fun getDeviceID(): String {
+        val current = sharedPref.getString(PREF_DEVICE_ID_KEY, null)
+        return if(current == null){
+            val new = UUID.randomUUID().toString()
+            sharedPref.edit().putString(PREF_DEVICE_ID_KEY, new).apply()
+            new
+        } else {
+            current
+        }
+    }
+
     companion object {
         private var instance: Repo? = null
 
@@ -76,6 +87,7 @@ class Repo(private val sharedPref: SharedPreferences) {
         const val PREF_MESSAGE_WORKER_VERSION_KEY = "message_worker_version"
         const val PREF_MESSAGE_WORKER_VERSION_DEFAULT = 0
         const val PREF_LAST_MESSAGE_TIME_KEY = "last_message_time"
+        const val PREF_DEVICE_ID_KEY = "device_id"
         var PREF_CHANNEL_KEY = ""
 
 
