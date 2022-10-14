@@ -9,7 +9,9 @@ import android.content.pm.PackageManager
 import android.net.Uri
 import android.provider.Settings
 import android.util.Log
+import android.widget.Toast
 import androidx.work.*
+import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import top.learningman.push.BuildConfig
@@ -46,10 +48,12 @@ object WebSocket : Channel {
             val deviceID = Repo.getInstance(context).getDeviceID()
             APIUtils.register(userID, "ws", NotifyChannel.WebSocket, deviceID)
                 .onSuccess {
-                    Log.d("WebSocket", "WebSocket 注册成功")
+                    Toast.makeText(context, "WebSocket 注册成功", Toast.LENGTH_LONG).show()
+                    Log.i("WebSocket", "WebSocket 注册成功")
                 }
                 .onFailure {
                     Log.e("WebSocket", "WebSocket 注册失败", it)
+                    Crashes.trackError(it)
                 }
         }
     }

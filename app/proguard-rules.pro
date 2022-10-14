@@ -1,4 +1,5 @@
 -keep class dev.zxilly.notify.sdk.** {*;}
+-keep class dev.zxilly.notify.sdk.entity.** {*;}
 -keep class top.learningman.push.** {*;}
 
 -dontwarn com.caverock.androidsvg.SVG

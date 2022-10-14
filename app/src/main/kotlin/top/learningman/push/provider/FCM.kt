@@ -42,6 +42,7 @@ object FCM : Channel {
                     APIUtils.register(userID, token, NotifyChannel.FCM, deviceID)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
+                            Log.i("FCM", "FCM 注册成功")
                         }
                         .onFailure {
                             Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()

@@ -42,7 +42,15 @@ class ReceiverService : NotificationListenerService() {
     override fun onCreate() {
         super.onCreate()
         manager = WebsocketSessionManager(this)
-        Log.d(TAG, "ReceiverService $id create")
+        Log.i(TAG, "ReceiverService $id create")
+
+        services.add(id)
+        if (services.size > 1) {
+            Log.e(TAG, "ReceiverService $id create more than once")
+            for (service in services) {
+                Log.e(TAG, "ReceiverService $service exists")
+            }
+        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -69,42 +77,40 @@ class ReceiverService : NotificationListenerService() {
         return START_STICKY
     }
 
-    override fun onTaskRemoved(rootIntent: Intent) {
-        val restartServiceIntent = Intent(applicationContext, ReceiverService::class.java).also {
-            it.setPackage(packageName)
-        }
-        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(
-            this,
-            1,
-            restartServiceIntent,
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-        applicationContext.getSystemService(Context.ALARM_SERVICE)
-        val alarmService =
-            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmService.set(
-            AlarmManager.ELAPSED_REALTIME,
-            SystemClock.elapsedRealtime() + 1000,
-            restartServicePendingIntent
-        )
-    }
+//    override fun onTaskRemoved(rootIntent: Intent) {
+//        val restartServiceIntent = Intent(applicationContext, ReceiverService::class.java).also {
+//            it.setPackage(packageName)
+//        }
+//        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(
+//            this,
+//            1,
+//            restartServiceIntent,
+//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+//        )
+//        applicationContext.getSystemService(Context.ALARM_SERVICE)
+//        val alarmService =
+//            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//        alarmService.set(
+//            AlarmManager.ELAPSED_REALTIME,
+//            SystemClock.elapsedRealtime() + 1000,
+//            restartServicePendingIntent
+//        )
+//    }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        Log.d(TAG, "onListenerDisconnected")
-        if (!BuildConfig.DEBUG) {
-            requestRebind(
-                ComponentName(
-                    applicationContext,
-                    NotificationListenerService::class.java
-                )
+        Log.d(TAG, "onListenerDisconnected in $id")
+        requestRebind(
+            ComponentName(
+                applicationContext,
+                NotificationListenerService::class.java
             )
-        }
+        )
+        manager.tryResume()
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        manager.tryResume()
         Log.d(TAG, "onListenerConnected")
     }
 
@@ -113,15 +119,25 @@ class ReceiverService : NotificationListenerService() {
         manager.stop()
         // Maybe useless but just in case
         manager.cancel()
+
+        Log.i(TAG, "ReceiverService $id destroyed")
+
+        services.remove(id)
+        if (services.size > 0) {
+            Log.e(TAG, "ReceiverService $id destroy but still exists")
+            for (service in services) {
+                Log.e(TAG, "ReceiverService $service exists")
+            }
+        }
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private class WebsocketSessionManager(private val context: Context) :
+    private class WebsocketSessionManager(private val service: ReceiverService) :
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
 
         private var job: Job? = null
         private var jobLock = Mutex()
-        private val repo by lazy { Repo.getInstance(context) }
+        private val repo by lazy { Repo.getInstance(service) }
         private var currentUserID = repo.getUser()
         private val client by lazy {
             HttpClient(OkHttp) {
@@ -130,7 +146,7 @@ class ReceiverService : NotificationListenerService() {
             }
         }
         private val connectivityManager by lazy {
-            context.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+            service.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
         }
 
         private var status = AtomicInteger(Status.WAIT_START)
@@ -159,7 +175,7 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
-        private val netWorkCallback = object : ConnectivityManager.NetworkCallback(){
+        private val networkCallback = object : ConnectivityManager.NetworkCallback() {
             override fun onAvailable(network: android.net.Network) {
                 super.onAvailable(network)
                 if (status.compareAndSet(Status.NETWORK_LOST, Status.WAIT_RECONNECT)) {
@@ -184,7 +200,7 @@ class ReceiverService : NotificationListenerService() {
         }
 
         init {
-            connectivityManager.registerDefaultNetworkCallback(netWorkCallback)
+            connectivityManager.registerDefaultNetworkCallback(networkCallback)
         }
 
         fun stop() {
@@ -192,14 +208,17 @@ class ReceiverService : NotificationListenerService() {
             runBlocking {
                 tryCancelJob()
             }
-            connectivityManager.unregisterNetworkCallback(netWorkCallback)
+            connectivityManager.unregisterNetworkCallback(networkCallback)
         }
 
         suspend fun tryCancelJob() {
             jobLock.lock()
             try {
-                job?.cancelAndJoin()
-                job = null
+                if(job != null) {
+                    job?.cancelAndJoin()
+                    job = null
+                    Log.i(TAG, "job cancelled in ${service.id}")
+                }
             } catch (e: Throwable) {
                 Log.e(TAG, "tryCancelJob: ", e)
             } finally {
@@ -207,8 +226,11 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
-        private fun diagnose() {
+        private fun diagnose(msg: String = "") {
             Log.d(TAG, "current thread ${Thread.currentThread().id}")
+            if (msg.isNotEmpty()) {
+                Log.d(TAG, msg)
+            }
         }
 
         fun tryResume() {
@@ -333,7 +355,7 @@ class ReceiverService : NotificationListenerService() {
                         }
                     }
                     if (job?.isActive == true) {
-                        Log.i(TAG, "job is active, start websocket success")
+                        Log.i(TAG, "job is active, start websocket success in ${service.id}")
                     } else {
                         Log.e(TAG, "job is not active, start websocket failed")
                     }
@@ -363,7 +385,7 @@ class ReceiverService : NotificationListenerService() {
                     }.fold({
                         Log.d(TAG, "prepare to send notification")
                         val notificationMessage = it.toMessage()
-                        notifyMessage(notificationMessage, from = (context as ReceiverService).id)
+                        notifyMessage(notificationMessage, from = (service as ReceiverService).id)
                         repo.setLastMessageTime(notificationMessage.createdAt)
                     }, {
                         Log.e(TAG, "Error parsing message", it)
@@ -378,7 +400,7 @@ class ReceiverService : NotificationListenerService() {
 
         private fun notifyMessage(message: Message, from: String = "anonymous") {
             Log.d(TAG, "notifyMessage: $message from $from")
-            Utils.notifyMessage(context, message)
+            Utils.notifyMessage(service, message)
         }
     }
 
@@ -391,5 +413,7 @@ class ReceiverService : NotificationListenerService() {
         const val TAG = "ReceiverService"
 
         const val INTENT_USERID_KEY = "nextUserID"
+
+        var services = mutableListOf<String>()
     }
 }

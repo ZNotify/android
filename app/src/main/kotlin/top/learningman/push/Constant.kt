@@ -1,7 +1,7 @@
 package top.learningman.push
 
 object Constant {
-    private val ENDPOINT_LIST = arrayOf("push.learningman.top", "192.168.1.103:14444")
+    private val ENDPOINT_LIST = arrayOf("push.learningman.top", "192.168.0.108:14444")
     private const val ENDPOINT_INDEX = 0
 
     private val HOST:String

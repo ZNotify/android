@@ -36,7 +36,7 @@ class MainActivity : AppCompatActivity() {
             Log.d("MainActivity", "Setting Activity Result ${it.resultCode}")
             if ((it.resultCode and SettingsActivity.UPDATE_CHANNEL) == SettingsActivity.UPDATE_CHANNEL) {
                 Log.d("MainActivity", "Update Channel")
-                val channel = AutoChannel.getInstance(context = this, nocache = true)
+                channel = AutoChannel.getInstance(context = this, nocache = true)
                 channel.init(context = this)
             } else if ((it.resultCode and SettingsActivity.UPDATE_USERNAME) == SettingsActivity.UPDATE_USERNAME) {
                 Log.d("MainActivity", "Update User")

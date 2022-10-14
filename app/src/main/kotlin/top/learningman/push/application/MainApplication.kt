@@ -6,7 +6,6 @@ import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
 import com.microsoft.appcenter.analytics.Analytics
 import com.microsoft.appcenter.crashes.Crashes
-import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.checkerInit
 import top.learningman.push.data.Repo
@@ -24,10 +23,6 @@ class MainApplication : Application() {
             Analytics::class.java,
             Crashes::class.java
         )
-
-        if (BuildConfig.DEBUG){
-            Crashes.getInstance().isInstanceEnabled = false
-        }
 
         DynamicColors.applyToActivitiesIfAvailable(this)
 
