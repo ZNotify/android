@@ -47,7 +47,7 @@ class TranslucentActivity : Activity() {
         }
     }
 
-    companion object{
+    companion object {
         const val USERID_INTENT_KEY = "user_id"
         const val LONG_INTENT_KEY = "long"
         const val MSGID_INTENT_KEY = "msg_id"
