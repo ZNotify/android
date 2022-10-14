@@ -217,5 +217,5 @@ dependencies {
     implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
     implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
 
-    implementation 'com.github.Zxilly:upgrader:0.0.5'
+    implementation 'com.github.Zxilly:upgrader:c2009b44b5'
 }
