@@ -1,12 +1,9 @@
 package top.learningman.push.service
 
-import android.app.AlarmManager
-import android.app.PendingIntent
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.ConnectivityManager
-import android.os.SystemClock
 import android.service.notification.NotificationListenerService
 import android.util.Log
 import com.microsoft.appcenter.crashes.Crashes
@@ -22,7 +19,6 @@ import kotlinx.coroutines.channels.onFailure
 import kotlinx.coroutines.channels.onSuccess
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.serialization.json.Json
-import top.learningman.push.BuildConfig
 import top.learningman.push.Constant
 import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem
@@ -33,11 +29,15 @@ import java.util.concurrent.atomic.AtomicInteger
 
 class ReceiverService : NotificationListenerService() {
     init {
-        Log.d(TAG, "ReceiverService init")
+        Log.d("ReceiverService", "ReceiverService init")
     }
 
     private lateinit var manager: WebsocketSessionManager
     private val id = UUID.randomUUID().toString()
+
+    @Suppress("PrivatePropertyName")
+    private val TAG
+        get() = "Recv-${id.substring(0, 8)}"
 
     override fun onCreate() {
         super.onCreate()
@@ -112,6 +112,7 @@ class ReceiverService : NotificationListenerService() {
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.d(TAG, "onListenerConnected")
+        manager.tryResume()
     }
 
     override fun onDestroy() {
@@ -134,6 +135,9 @@ class ReceiverService : NotificationListenerService() {
     @OptIn(DelicateCoroutinesApi::class)
     private class WebsocketSessionManager(private val service: ReceiverService) :
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
+
+        private val TAG
+            get() = "Recv-${service.id.substring(0, 8)}-Mgr"
 
         private var job: Job? = null
         private var jobLock = Mutex()
@@ -214,7 +218,7 @@ class ReceiverService : NotificationListenerService() {
         suspend fun tryCancelJob() {
             jobLock.lock()
             try {
-                if(job != null) {
+                if (job != null) {
                     job?.cancelAndJoin()
                     job = null
                     Log.i(TAG, "job cancelled in ${service.id}")
@@ -235,14 +239,21 @@ class ReceiverService : NotificationListenerService() {
 
         fun tryResume() {
             Log.d(TAG, "tryResume with status ${Status.valueOf(status.get())} at ${Date()}")
-            if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING)) {
+            if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING) || status.compareAndSet(
+                    Status.WAIT_RECONNECT,
+                    Status.CONNECTING
+                )
+            ) {
                 launch { connect() }
-                Log.d(TAG, "tryResume: start websocket from WAIT_START, initial startup")
-            } else if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
-                launch { connect() }
-                Log.d(TAG, "tryResume: start websocket from WAIT_RECONNECT")
+                Log.d(
+                    TAG,
+                    "tryResume: start websocket from ${Status.valueOf(status.get())}, initial startup"
+                )
             } else {
-                Log.d(TAG, "tryResume: not start websocket from status ${status.get()}")
+                Log.d(
+                    TAG,
+                    "tryResume: not start websocket from status ${Status.valueOf(status.get())}"
+                )
             }
         }
 
@@ -385,7 +396,7 @@ class ReceiverService : NotificationListenerService() {
                     }.fold({
                         Log.d(TAG, "prepare to send notification")
                         val notificationMessage = it.toMessage()
-                        notifyMessage(notificationMessage, from = (service as ReceiverService).id)
+                        notifyMessage(notificationMessage, from = service.id)
                         repo.setLastMessageTime(notificationMessage.createdAt)
                     }, {
                         Log.e(TAG, "Error parsing message", it)
@@ -410,7 +421,6 @@ class ReceiverService : NotificationListenerService() {
     }
 
     companion object {
-        const val TAG = "ReceiverService"
 
         const val INTENT_USERID_KEY = "nextUserID"
 
