@@ -155,6 +155,8 @@ class ReceiverService : NotificationListenerService() {
 
         private var status = AtomicInteger(Status.WAIT_START)
 
+        private var retryLimit = 32
+
 
         object Status {
             const val WAIT_START = 0
@@ -270,12 +272,19 @@ class ReceiverService : NotificationListenerService() {
         }
 
         private fun recover() {
-            Log.d(TAG, "call recover at ${Date()}")
+            Log.i(TAG, "recover at ${Date()}")
             if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
-                launch {
-                    tryCancelJob()
-                    connect()
+                if (retryLimit-- > 0) {
+                    launch {
+                        delay(2000)
+                        tryCancelJob()
+                        connect()
+                    }
+                } else {
+                    Log.e(TAG, "retry limit reached, stop websocket")
+                    stop()
                 }
+
             } else {
                 Log.d(TAG, "recover: not start websocket from status ${status.get()}")
             }
