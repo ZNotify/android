@@ -36,6 +36,16 @@ class MessagesActivity : AppCompatActivity() {
             mAdapter.submitList(it)
         }
 
+        mViewModel.isError.observe(this) {
+            binding.warnNoMessage.visibility = if (it) {
+                binding.messagesList.visibility = android.view.View.GONE
+                android.view.View.VISIBLE
+            } else {
+                binding.messagesList.visibility = android.view.View.VISIBLE
+                android.view.View.GONE
+            }
+        }
+
         val userid = (application as MainApplication).repo.getUser()
 
         if (userid != Repo.PREF_USER_DEFAULT) {

@@ -13,15 +13,20 @@ class MessageViewModel : ViewModel() {
     private var _message = MutableLiveData(emptyList<Message>())
     val message: LiveData<List<Message>> = _message
 
+    private var _isError = MutableLiveData(false)
+    val isError: LiveData<Boolean> = _isError
+
     fun loadMessages(userID: String) {
         viewModelScope.launch {
             APIUtils.fetchMessage(userID)
                 .onSuccess {
                     _message.postValue(it)
+                    _isError.postValue(false)
                 }
                 .onFailure {
                     Log.e("MessageViewModel", it.message, it)
                     _message.postValue(emptyList())
+                    _isError.postValue(true)
                 }
         }
     }
