@@ -36,27 +36,27 @@ class ReceiverService : NotificationListenerService() {
     private val id = UUID.randomUUID().toString()
 
     @Suppress("PrivatePropertyName")
-    private val TAG
+    private val tag
         get() = "Recv-${id.substring(0, 8)}"
 
     override fun onCreate() {
         super.onCreate()
         manager = WebsocketSessionManager(this)
-        Log.i(TAG, "ReceiverService $id create")
+        Log.i(tag, "ReceiverService $id create")
 
         services.add(id)
         if (services.size > 1) {
-            Log.e(TAG, "ReceiverService $id create more than once")
+            Log.e(tag, "ReceiverService $id create more than once")
             for (service in services) {
-                Log.e(TAG, "ReceiverService $service exists")
+                Log.e(tag, "ReceiverService $service exists")
             }
         }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        Log.d(TAG, "onStartCommand executed with startId: $startId")
+        Log.d(tag, "onStartCommand executed with startId: $startId")
         if (intent != null) {
-            Log.d(TAG, "using an intent with action ${intent.action}")
+            Log.d(tag, "using an intent with action ${intent.action}")
             when (intent.action) {
                 Action.UPDATE.name -> {
                     val nextUserID =
@@ -71,7 +71,7 @@ class ReceiverService : NotificationListenerService() {
                 }
             }
         } else {
-            Log.d(TAG, "with a null intent. It has been probably restarted by the system.")
+            Log.d(tag, "with a null intent. It has been probably restarted by the system.")
             manager.tryResume()
         }
         return START_STICKY
@@ -99,7 +99,7 @@ class ReceiverService : NotificationListenerService() {
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
-        Log.d(TAG, "onListenerDisconnected in $id")
+        Log.d(tag, "onListenerDisconnected in $id")
         requestRebind(
             ComponentName(
                 applicationContext,
@@ -111,7 +111,7 @@ class ReceiverService : NotificationListenerService() {
 
     override fun onListenerConnected() {
         super.onListenerConnected()
-        Log.d(TAG, "onListenerConnected")
+        Log.d(tag, "onListenerConnected")
         manager.tryResume()
     }
 
@@ -121,13 +121,13 @@ class ReceiverService : NotificationListenerService() {
         // Maybe useless but just in case
         manager.cancel()
 
-        Log.i(TAG, "ReceiverService $id destroyed")
+        Log.i(tag, "ReceiverService $id destroyed")
 
         services.remove(id)
         if (services.size > 0) {
-            Log.e(TAG, "ReceiverService $id destroy but still exists")
+            Log.e(tag, "ReceiverService $id destroy but still exists")
             for (service in services) {
-                Log.e(TAG, "ReceiverService $service exists")
+                Log.e(tag, "ReceiverService $service exists")
             }
         }
     }
@@ -136,7 +136,7 @@ class ReceiverService : NotificationListenerService() {
     private class WebsocketSessionManager(private val service: ReceiverService) :
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
 
-        private val TAG
+        private val tag
             get() = "Recv-${service.id.substring(0, 8)}-Mgr"
 
         private var job: Job? = null
@@ -185,17 +185,17 @@ class ReceiverService : NotificationListenerService() {
             override fun onAvailable(network: android.net.Network) {
                 super.onAvailable(network)
                 if (status.compareAndSet(Status.NETWORK_LOST, Status.WAIT_RECONNECT)) {
-                    Log.d(TAG, "network available, try start websocket")
-                    Log.d(TAG, "resume from network lost")
+                    Log.d(tag, "network available, try start websocket")
+                    Log.d(tag, "resume from network lost")
                     tryResume()
                 } else {
-                    Log.d(TAG, "network available, but not in network lost status")
+                    Log.d(tag, "network available, but not in network lost status")
                 }
             }
 
             override fun onLost(network: android.net.Network) {
                 super.onLost(network)
-                Log.d(TAG, "network lost, stop websocket")
+                Log.d(tag, "network lost, stop websocket")
                 if (status.get() == Status.STOP) {
                     return
                 }
@@ -223,24 +223,24 @@ class ReceiverService : NotificationListenerService() {
                 if (job != null) {
                     job?.cancelAndJoin()
                     job = null
-                    Log.i(TAG, "job cancelled in ${service.id}")
+                    Log.i(tag, "job cancelled in ${service.id}")
                 }
             } catch (e: Throwable) {
-                Log.e(TAG, "tryCancelJob: ", e)
+                Log.e(tag, "tryCancelJob: ", e)
             } finally {
                 jobLock.unlock()
             }
         }
 
         private fun diagnose(msg: String = "") {
-            Log.d(TAG, "current thread ${Thread.currentThread().id}")
+            Log.d(tag, "current thread ${Thread.currentThread().id}")
             if (msg.isNotEmpty()) {
-                Log.d(TAG, msg)
+                Log.d(tag, msg)
             }
         }
 
         fun tryResume() {
-            Log.d(TAG, "tryResume with status ${Status.valueOf(status.get())} at ${Date()}")
+            Log.d(tag, "tryResume with status ${Status.valueOf(status.get())} at ${Date()}")
             if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING) || status.compareAndSet(
                     Status.WAIT_RECONNECT,
                     Status.CONNECTING
@@ -248,12 +248,12 @@ class ReceiverService : NotificationListenerService() {
             ) {
                 launch { connect() }
                 Log.d(
-                    TAG,
+                    tag,
                     "tryResume: start websocket from ${Status.valueOf(status.get())}, initial startup"
                 )
             } else {
                 Log.d(
-                    TAG,
+                    tag,
                     "tryResume: not start websocket from status ${Status.valueOf(status.get())}"
                 )
             }
@@ -272,7 +272,7 @@ class ReceiverService : NotificationListenerService() {
         }
 
         private fun recover() {
-            Log.i(TAG, "recover at ${Date()}")
+            Log.i(tag, "recover at ${Date()}")
             if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
                 if (retryLimit-- > 0) {
                     launch {
@@ -281,12 +281,12 @@ class ReceiverService : NotificationListenerService() {
                         connect()
                     }
                 } else {
-                    Log.e(TAG, "retry limit reached, stop websocket")
+                    Log.e(tag, "retry limit reached, stop websocket")
                     stop()
                 }
 
             } else {
-                Log.d(TAG, "recover: not start websocket from status ${status.get()}")
+                Log.d(tag, "recover: not start websocket from status ${status.get()}")
             }
         }
 
@@ -294,25 +294,25 @@ class ReceiverService : NotificationListenerService() {
             diagnose()
             jobLock.lock()
             if (job != null) {
-                Log.d(TAG, "job is not null, should cancel it before connect")
+                Log.d(tag, "job is not null, should cancel it before connect")
                 jobLock.unlock()
                 return
             }
             jobLock.unlock()
 
             if (status.get() == Status.INVALID) {
-                Log.d(TAG, "status is invalid, should not connect")
+                Log.d(tag, "status is invalid, should not connect")
                 return
             }
 
             if (!status.compareAndSet(Status.CONNECTING, Status.RUNNING)) {
                 Log.d(
-                    TAG,
+                    tag,
                     "connect: not connecting status,is ${Status.valueOf(status.get())}"
                 )
                 return
             } else {
-                Log.d(TAG, "connect: start websocket from CONNECTING")
+                Log.d(tag, "connect: start websocket from CONNECTING")
             }
 
             val session = runCatching {
@@ -322,12 +322,12 @@ class ReceiverService : NotificationListenerService() {
                 }
             }.also {
                 if (it.isFailure) {
-                    Log.e(TAG, "getSession:", it.exceptionOrNull())
+                    Log.e(tag, "getSession:", it.exceptionOrNull())
                     val exception = it.exceptionOrNull() ?: return@also
                     val message = exception.message ?: return@also
                     if (message.contains("401")) {
                         status.set(Status.INVALID)
-                        Log.d(TAG, "connect: invalid status, seems userid not correct")
+                        Log.d(tag, "connect: invalid status, seems userid not correct")
                         return@also
                     }
                 }
@@ -335,29 +335,37 @@ class ReceiverService : NotificationListenerService() {
             }
                 .getOrNull()
 
+            fun tryReStart() {
+                if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                    recover()
+                } else {
+                    Log.d(tag, "connect: not recover from status ${Status.valueOf(status.get())}")
+                }
+            }
+
             if (session != null) {
-                Log.d(TAG, "session is not null, launch WebSocket")
+                Log.d(tag, "session is not null, launch WebSocket")
                 jobLock.lock()
                 try {
                     job = session.launch(coroutineContext) {
                         while (true) {
                             val frameRet = session.incoming.receiveCatching()
                             frameRet.onClosed {
-                                Log.d(TAG, "onClosed")
-                                Log.e(TAG, "WebSocket closed", it)
+                                Log.d(tag, "onClosed")
+                                Log.e(tag, "WebSocket closed", it)
                                 if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
                                     recover()
                                 } else {
-                                    Log.d(TAG, "onClosed: not recover from status ${status.get()}")
+                                    Log.d(tag, "onClosed: not recover from status ${status.get()}")
                                 }
                                 return@launch
                             }.onFailure {
                                 if (it is CancellationException) {
-                                    Log.d(TAG, "This job is cancelled")
+                                    Log.d(tag, "This job is cancelled")
                                     return@launch
                                 } else {
-                                    Log.d(TAG, "onFailure")
-                                    Log.e(TAG, "WebSocket error", it)
+                                    Log.d(tag, "onFailure")
+                                    Log.e(tag, "WebSocket error", it)
                                     // Failure not means the connection is closed
                                     // So we don't need to recover
                                     it?.let { e ->
@@ -369,26 +377,23 @@ class ReceiverService : NotificationListenerService() {
                                     }
                                 }
                             }.onSuccess {
-                                Log.d(TAG, "onSuccess receive frame")
+                                Log.d(tag, "onSuccess receive frame")
                                 handleFrame(it)
                             }
                         }
                     }
                     if (job?.isActive == true) {
-                        Log.i(TAG, "job is active, start websocket success in ${service.id}")
+                        Log.i(tag, "job is active, start websocket success in ${service.id}")
+                        retryLimit = 32
                     } else {
-                        Log.e(TAG, "job is not active, start websocket failed")
+                        Log.e(tag, "job is not active, start websocket failed")
+                        tryReStart()
                     }
                 } finally {
                     jobLock.unlock()
                 }
             } else {
-                delay(5000)
-                if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
-                    recover()
-                } else {
-                    Log.d(TAG, "connect: not recover from status ${Status.valueOf(status.get())}")
-                }
+                tryReStart()
             }
         }
 
@@ -396,30 +401,30 @@ class ReceiverService : NotificationListenerService() {
             when (frame) {
                 is Frame.Text -> {
                     val message = frame.readText()
-                    Log.d(TAG, "handleFrame: $message")
+                    Log.d(tag, "handleFrame: $message")
                     runCatching {
                         return@runCatching Json.decodeFromString(
                             JSONMessageItem.serializer(),
                             message
                         )
                     }.fold({
-                        Log.d(TAG, "prepare to send notification")
+                        Log.d(tag, "prepare to send notification")
                         val notificationMessage = it.toMessage()
                         notifyMessage(notificationMessage, from = service.id)
                         repo.setLastMessageTime(notificationMessage.createdAt)
                     }, {
-                        Log.e(TAG, "Error parsing message", it)
+                        Log.e(tag, "Error parsing message", it)
                         Crashes.trackError(it)
                     })
                 }
                 else -> {
-                    Log.e(TAG, "Received unexpected frame: ${frame.frameType.name}")
+                    Log.e(tag, "Received unexpected frame: ${frame.frameType.name}")
                 }
             }
         }
 
         private fun notifyMessage(message: Message, from: String = "anonymous") {
-            Log.d(TAG, "notifyMessage: $message from $from")
+            Log.d(tag, "notifyMessage: $message from $from")
             Utils.notifyMessage(service, message)
         }
     }

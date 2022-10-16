@@ -22,7 +22,7 @@ def isDebug = gradle.startParameter.taskRequests.any {
 def buildType = isDebug ? ".debug" : ""
 
 // Get timestamp in seconds
-def currentVersionCode = (new Date()).getTime() / 1000
+def currentVersionCode = (new Date()).getTime() / 1000 - 1600000000
 
 static def isCI(){
     return System.getenv("CI") == "true"
