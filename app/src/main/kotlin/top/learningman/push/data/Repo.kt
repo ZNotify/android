@@ -19,18 +19,18 @@ class Repo(private val sharedPref: SharedPreferences) {
     }
 
     fun setLastMessageTime(time: String) {
-        fun save() {
-            sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, time).apply()
+        fun save(string: String) {
+            sharedPref.edit().putString(PREF_LAST_MESSAGE_TIME_KEY, string).apply()
         }
 
         val rawCurrent = sharedPref.getString(PREF_LAST_MESSAGE_TIME_KEY, null)
         if (rawCurrent == null) {
-            save()
+            save(time)
         } else {
             val current = rawCurrent.fromRFC3339Nano()
             val new = time.fromRFC3339Nano()
             if (new.after(current)) {
-                save()
+                save(new.toRFC3339Nano())
             }
         }
     }
