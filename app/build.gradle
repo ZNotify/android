@@ -187,7 +187,7 @@ dependencies {
     implementation "androidx.activity:activity-ktx:1.6.0"
     implementation "androidx.preference:preference-ktx:1.2.0"
 
-    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.0"
+    implementation "org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1"
 
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4"
     implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4"
