@@ -29,10 +29,12 @@ class Repo(private val sharedPref: SharedPreferences) {
         } else {
             val current = rawCurrent.fromRFC3339Nano()
             val new = time.fromRFC3339Nano()
-            if (new.after(current)) {
-                save(new.toRFC3339Nano())
+            if (new.isAfter(current)) {
+                save(time)
             }
         }
+
+
     }
 
     fun getChannel(): String? {
@@ -41,7 +43,7 @@ class Repo(private val sharedPref: SharedPreferences) {
 
     fun getDeviceID(): String {
         val current = sharedPref.getString(PREF_DEVICE_ID_KEY, null)
-        return if(current == null){
+        return if (current == null) {
             val new = UUID.randomUUID().toString()
             sharedPref.edit().putString(PREF_DEVICE_ID_KEY, new).apply()
             new

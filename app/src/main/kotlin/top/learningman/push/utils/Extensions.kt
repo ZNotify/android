@@ -4,6 +4,10 @@ import android.icu.text.SimpleDateFormat
 import android.util.Log
 import android.view.View
 import android.widget.TextView
+import java.time.Instant
+import java.time.LocalDateTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.*
 
 fun TextView.setTextAnimation(
@@ -56,14 +60,16 @@ fun String.fromRFC3339(): Date {
     return sdf.parse(this)
 }
 
-fun Date.toRFC3339(): String {
+fun Instant.toRFC3339(): String {
+    val date = Date.from(this)
     val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-    return sdf.format(this)
+    return sdf.format(date)
 }
 
-fun String.fromRFC3339Nano(): Date {
-    val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX", Locale.getDefault())
-    return sdf.parse(this)
+fun String.fromRFC3339Nano(): Instant {
+    val ldt =
+        LocalDateTime.parse(this, DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX"))
+    return ldt.atZone(ZoneId.systemDefault()).toInstant()
 }
 
 fun Date.toRFC3339Nano(): String {

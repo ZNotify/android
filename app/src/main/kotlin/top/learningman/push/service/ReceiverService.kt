@@ -298,7 +298,11 @@ class ReceiverService : NotificationListenerService() {
             val session = runCatching {
                 client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${currentUserID}/host/conn")
                 {
-                    header("X-Message-Since", repo.getLastMessageTime())
+                    header("X-Message-Since", let {
+                        val time = repo.getLastMessageTime()
+                        Log.i(tag, "last message time X-Since $time")
+                        time
+                    })
                 }
             }.also {
                 if (it.isFailure) {
