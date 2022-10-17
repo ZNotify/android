@@ -50,7 +50,7 @@ jobs:
         if: steps.release.outputs.release == 'false'
         with:
           repo_token: "${{ secrets.GITHUB_TOKEN }}"
-          automatic_release_tag: "${{ steps.current-time.outputs.formattedTime }}"
+          automatic_release_tag: "nightly"
           prerelease: true
           files: |
             app/build/outputs/apk/github/release/*

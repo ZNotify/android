@@ -21,19 +21,16 @@ def isDebug = gradle.startParameter.taskRequests.any {
 }
 def buildType = isDebug ? ".debug" : ""
 
-// Get timestamp in seconds
 def currentVersionCode = (new Date()).getTime() / 1000
 
-static def isCI(){
-    return System.getenv("CI") == "true"
-}
+def isCI = System.getenv("CI") == "true"
 
 def baseVersionName = "1.0.0"
 
-if (isCI()){
+if (isCI) {
     def currentEvent = System.getenv("GITHUB_EVENT_NAME")
     if (currentEvent == "push") {
-        if (isRelease){
+        if (isRelease) {
             def versionAll = gitLastCommitMessage.split("\\[release:")[1]
             def version = versionAll.split("]")[0].trim()
             baseVersionName = version
@@ -42,7 +39,7 @@ if (isCI()){
             if (branch == null) {
                 throw new IllegalArgumentException("GITHUB_REF_NAME is not set")
             }
-            baseVersionName = gitLastTag + "." + gitCommitId + ".canary"
+            baseVersionName = gitLastTag + "." + gitCommitId
         }
     }
 }
@@ -119,7 +116,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion '1.4.0-dev-k1.7.20-e49b3b6028b'
+        kotlinCompilerExtensionVersion '1.3.2'
     }
     dependenciesInfo {
         includeInApk false
@@ -217,5 +214,5 @@ dependencies {
     implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
     implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
 
-    implementation 'com.github.Zxilly:upgrader:fc2ce0efb8'
+    implementation 'com.github.Zxilly:upgrader:25af7513ee'
 }

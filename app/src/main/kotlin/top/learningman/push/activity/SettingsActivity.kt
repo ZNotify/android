@@ -3,6 +3,7 @@ package top.learningman.push.activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.widget.TextView
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.preference.EditTextPreference
@@ -21,6 +22,7 @@ import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Channel
 import top.learningman.push.provider.channels
 import top.learningman.push.provider.getChannel
+import java.util.*
 import kotlin.concurrent.thread
 
 class SettingsActivity : AppCompatActivity() {
@@ -43,7 +45,7 @@ class SettingsActivity : AppCompatActivity() {
         override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
             setPreferencesFromResource(R.xml.root_preferences, rootKey)
 
-            findPreference<Preference>("version")?.apply {
+            findPreference<Preference>(getString(R.string.pref_version_key))?.apply {
                 setOnPreferenceClickListener {
                     runCatching {
                         checkUpgrade(requireActivity())
@@ -54,7 +56,26 @@ class SettingsActivity : AppCompatActivity() {
                     true
                 }
 
-                summary = "${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})"
+                val summaryView: TextView? = view?.findViewById(android.R.id.summary)
+                if (summaryView != null) {
+                    summaryView.maxLines = 3
+                    summaryView.isSingleLine = false
+                }
+
+                fun timeStampToFormattedString(timeStamp: Int): String {
+                    return if (timeStamp == 0) {
+                        "未知"
+                    } else {
+                        Log.d("Settings", "timeStamp: $timeStamp")
+                        val date = Date((timeStamp.toLong() * 1000))
+                        val format = java.text.SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.CHINA)
+                        format.format(date)
+                    }
+                }
+
+                summary = "${BuildConfig.VERSION_NAME}\n"+
+                        "${BuildConfig.VERSION_CODE}\n"+
+                        timeStampToFormattedString(BuildConfig.VERSION_CODE)
             }
 
             findPreference<EditTextPreference>(getString(R.string.pref_user_id_key))?.apply {
