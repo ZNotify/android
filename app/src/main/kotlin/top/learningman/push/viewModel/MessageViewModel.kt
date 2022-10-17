@@ -1,4 +1,4 @@
-package top.learningman.push.activity
+package top.learningman.push.viewModel
 
 import android.util.Log
 import androidx.lifecycle.LiveData
@@ -7,7 +7,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.launch
 import top.learningman.push.entity.Message
-import top.learningman.push.utils.APIUtils
+import top.learningman.push.utils.Network
 
 class MessageViewModel : ViewModel() {
     private var _message = MutableLiveData(emptyList<Message>())
@@ -18,7 +18,7 @@ class MessageViewModel : ViewModel() {
 
     fun loadMessages(userID: String) {
         viewModelScope.launch {
-            APIUtils.fetchMessage(userID)
+            Network.fetchMessage(userID)
                 .onSuccess {
                     _message.postValue(it)
                     _isError.postValue(false)

@@ -5,7 +5,7 @@ import dev.zxilly.notify.sdk.entity.Channel
 import top.learningman.push.Constant
 import top.learningman.push.entity.Message
 
-object APIUtils {
+object Network {
     suspend fun requestDelete(userID: String, msgID: String): Result<Unit> {
         val client =
             Client.create(userID, Constant.API_ENDPOINT).getOrElse { return Result.failure(it) }

@@ -19,7 +19,7 @@ import top.learningman.push.data.Repo
 import top.learningman.push.databinding.ActivityMainBinding
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Channel
-import top.learningman.push.utils.APIUtils
+import top.learningman.push.utils.Network
 import top.learningman.push.utils.PermissionManager
 
 class MainActivity : AppCompatActivity() {
@@ -86,15 +86,11 @@ class MainActivity : AppCompatActivity() {
         channel.init(this)
     }
 
-    override fun onResume() {
-        super.onResume()
-    }
-
     private fun refreshStatus(){
         setStatus(RegStatus.PENDING)
 
         lifecycleScope.launch {
-            APIUtils.check(repo.getUser())
+            Network.check(repo.getUser())
                 .onSuccess {
                     if (it){
                         setStatus(RegStatus.SUCCESS)

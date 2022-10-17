@@ -2,7 +2,6 @@ package top.learningman.push.entity
 
 import android.content.DialogInterface
 import android.graphics.Color
-import android.icu.text.SimpleDateFormat
 import android.text.format.DateUtils
 import android.view.LayoutInflater
 import android.view.View
@@ -11,10 +10,10 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import top.learningman.push.R
-import top.learningman.push.activity.MessageViewModel
 import top.learningman.push.databinding.TextRowItemBinding
+import top.learningman.push.utils.fromRFC3339
 import top.learningman.push.view.MessageDialog
-import java.util.*
+import top.learningman.push.viewModel.MessageViewModel
 
 class MessageAdapter(private val viewModel: MessageViewModel) :
     ListAdapter<Message, MessageAdapter.MessageHolder>(WordsComparator()) {
@@ -72,26 +71,6 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
                 val view: View = LayoutInflater.from(parent.context)
                     .inflate(R.layout.text_row_item, parent, false)
                 return MessageHolder(view, viewModel)
-            }
-
-            fun String.fromRFC3339(): Date {
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-                return sdf.parse(this)
-            }
-
-            fun Date.toRFC3339(): String {
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX", Locale.getDefault())
-                return sdf.format(this)
-            }
-
-            fun String.fromRFC3339Nano(): Date {
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX", Locale.getDefault())
-                return sdf.parse(this)
-            }
-
-            fun Date.toRFC3339Nano(): String {
-                val sdf = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSSSSSXXX", Locale.getDefault())
-                return sdf.format(this)
             }
         }
     }

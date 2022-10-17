@@ -32,7 +32,7 @@ class ReceiverService : NotificationListenerService() {
         Log.d("ReceiverService", "ReceiverService init")
     }
 
-    private lateinit var manager: WebsocketSessionManager
+    private lateinit var manager: WebSocketSessionManager
     private val id = UUID.randomUUID().toString()
 
     @Suppress("PrivatePropertyName")
@@ -41,7 +41,7 @@ class ReceiverService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
-        manager = WebsocketSessionManager(this)
+        manager = WebSocketSessionManager(this)
         Log.i(tag, "ReceiverService $id create")
 
         services.add(id)
@@ -76,26 +76,6 @@ class ReceiverService : NotificationListenerService() {
         }
         return START_STICKY
     }
-
-//    override fun onTaskRemoved(rootIntent: Intent) {
-//        val restartServiceIntent = Intent(applicationContext, ReceiverService::class.java).also {
-//            it.setPackage(packageName)
-//        }
-//        val restartServicePendingIntent: PendingIntent = PendingIntent.getService(
-//            this,
-//            1,
-//            restartServiceIntent,
-//            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-//        )
-//        applicationContext.getSystemService(Context.ALARM_SERVICE)
-//        val alarmService =
-//            applicationContext.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-//        alarmService.set(
-//            AlarmManager.ELAPSED_REALTIME,
-//            SystemClock.elapsedRealtime() + 1000,
-//            restartServicePendingIntent
-//        )
-//    }
 
     override fun onListenerDisconnected() {
         super.onListenerDisconnected()
@@ -133,7 +113,7 @@ class ReceiverService : NotificationListenerService() {
     }
 
     @OptIn(DelicateCoroutinesApi::class)
-    private class WebsocketSessionManager(private val service: ReceiverService) :
+    private class WebSocketSessionManager(private val service: ReceiverService) :
         CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
 
         private val tag

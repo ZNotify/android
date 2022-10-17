@@ -14,14 +14,11 @@ import androidx.work.*
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
-import top.learningman.push.BuildConfig
 import top.learningman.push.data.Repo
-import top.learningman.push.service.PollWorker
 import top.learningman.push.service.ReceiverService
-import top.learningman.push.utils.APIUtils
+import top.learningman.push.utils.Network
 import top.learningman.push.utils.RomUtils
 import xyz.kumaraswamy.autostart.Autostart
-import java.util.concurrent.TimeUnit
 import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
 
@@ -30,7 +27,7 @@ private const val ENABLED_NOTIFICATION_LISTENERS = "enabled_notification_listene
 
 object WebSocket : Channel {
     override val name: String
-        get() = "Websocket"
+        get() = "WebSocket"
 
     override fun init(context: Context) {
         context.packageManager.setComponentEnabledSetting(
@@ -53,7 +50,7 @@ object WebSocket : Channel {
         })
         scope.launch {
             val deviceID = Repo.getInstance(context).getDeviceID()
-            APIUtils.register(userID, "ws", NotifyChannel.WebSocket, deviceID)
+            Network.register(userID, "ws", NotifyChannel.WebSocket, deviceID)
                 .onSuccess {
                     Toast.makeText(context, "WebSocket 注册成功", Toast.LENGTH_LONG).show()
                     Log.i("WebSocket", "WebSocket 注册成功")
@@ -148,33 +145,4 @@ object WebSocket : Channel {
 
         return permissions
     }
-
-    private fun scheduleMessageWorker(context: Context) {
-        val workManager = WorkManager.getInstance(context)
-        val repo = Repo.getInstance(context)
-        val workerVersion = repo.getMessageWorkerVersion()
-        val currentVersion = BuildConfig.VERSION_CODE
-        val workerPolicy = if (workerVersion == currentVersion) {
-            ExistingPeriodicWorkPolicy.KEEP
-        } else {
-            repo.setMessageWorkerVersion(currentVersion)
-            ExistingPeriodicWorkPolicy.REPLACE
-        }
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
-            .build()
-        val work =
-            PeriodicWorkRequestBuilder<PollWorker>(POLL_WORKER_INTERVAL_MINUTES, TimeUnit.MINUTES)
-                .setConstraints(constraints)
-                .addTag(PollWorker.TAG)
-                .addTag(PollWorker.WORK_NAME_PERIODIC_ALL)
-                .build()
-        Log.d(
-            "MainActivity",
-            "Poll worker: Scheduling period work every $POLL_WORKER_INTERVAL_MINUTES minutes"
-        )
-        workManager.enqueueUniquePeriodicWork(PollWorker.WORK_NAME_PERIODIC_ALL, workerPolicy, work)
-    }
-
-    private const val POLL_WORKER_INTERVAL_MINUTES = 60L
 }

@@ -19,7 +19,7 @@ fun checkerInit(app: Application) {
 
 fun checkUpgrade(context: Context) {
     runCatching {
-        Upgrader.getInstance()?.tryUpgrade()
+        Upgrader.getInstance()?.tryUpgrade()?: Log.e("Checker", "Upgrader is null")
     }.onFailure {
         Log.e("Upgrader", "Failed to check upgrade", it)
         Crashes.trackError(it)

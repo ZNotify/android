@@ -9,6 +9,7 @@ import top.learningman.push.application.MainApplication
 import top.learningman.push.data.Repo
 import top.learningman.push.databinding.ActivityMessagesBinding
 import top.learningman.push.entity.MessageAdapter
+import top.learningman.push.viewModel.MessageViewModel
 import kotlin.concurrent.thread
 
 class MessagesActivity : AppCompatActivity() {

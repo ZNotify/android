@@ -16,8 +16,8 @@ import com.microsoft.appcenter.crashes.Crashes
 import top.learningman.push.R
 import top.learningman.push.activity.TranslucentActivity
 import top.learningman.push.entity.Message
-import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.fromRFC3339Nano
-import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339
+import top.learningman.push.utils.fromRFC3339Nano
+import top.learningman.push.utils.toRFC3339
 import kotlin.random.Random
 
 object Utils {

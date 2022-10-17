@@ -12,7 +12,7 @@ import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import top.learningman.push.data.Repo
-import top.learningman.push.utils.APIUtils
+import top.learningman.push.utils.Network
 import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
 object FCM : Channel {
@@ -43,7 +43,7 @@ object FCM : Channel {
             if (task.isSuccessful) {
                 val token = task.result
                 scope.launch {
-                    APIUtils.register(userID, token, NotifyChannel.FCM, deviceID)
+                    Network.register(userID, token, NotifyChannel.FCM, deviceID)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
                             Log.i("FCM", "FCM 注册成功")

@@ -60,13 +60,6 @@ class AutoChannel private constructor(channel: Channel) : Channel by channel {
             return instance!!.name == chan.name
         }
 
-        fun updateInstance(context: Context, channelID: String) {
-            val channel = getChannel(channelID)?.takeIf { it.available(context) }
-            if (channel != null) {
-                instance = channel
-            }
-        }
-
         fun updateInstance(chan: Channel) {
             instance = chan
         }

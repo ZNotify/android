@@ -4,37 +4,14 @@ import android.content.Context
 import android.content.SharedPreferences
 import androidx.preference.PreferenceManager
 import top.learningman.push.R
-import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.fromRFC3339Nano
-import top.learningman.push.entity.MessageAdapter.MessageHolder.Companion.toRFC3339Nano
-import top.learningman.push.provider.Channel
+import top.learningman.push.utils.fromRFC3339Nano
+import top.learningman.push.utils.toRFC3339Nano
 import java.util.*
 
 class Repo(private val sharedPref: SharedPreferences) {
 
     fun getUser(): String {
         return sharedPref.getString(PREF_USER_KEY, PREF_USER_DEFAULT)!!
-    }
-
-    fun getRestartWorkerVersion(): Int {
-        return sharedPref.getInt(
-            PREF_RESTART_WORKER_VERSION_KEY,
-            PREF_RESTART_WORKER_VERSION_DEFAULT
-        )
-    }
-
-    fun setRestartWorkerVersion(version: Int) {
-        sharedPref.edit().putInt(PREF_RESTART_WORKER_VERSION_KEY, version).apply()
-    }
-
-    fun getMessageWorkerVersion(): Int {
-        return sharedPref.getInt(
-            PREF_MESSAGE_WORKER_VERSION_KEY,
-            PREF_MESSAGE_WORKER_VERSION_DEFAULT
-        )
-    }
-
-    fun setMessageWorkerVersion(version: Int) {
-        sharedPref.edit().putInt(PREF_MESSAGE_WORKER_VERSION_KEY, version).apply()
     }
 
     fun getLastMessageTime(): String {
@@ -62,10 +39,6 @@ class Repo(private val sharedPref: SharedPreferences) {
         return sharedPref.getString(PREF_CHANNEL_KEY, null)
     }
 
-    fun setChannel(channel: Channel) {
-        sharedPref.edit().putString(PREF_CHANNEL_KEY, channel.name).apply()
-    }
-
     fun getDeviceID(): String {
         val current = sharedPref.getString(PREF_DEVICE_ID_KEY, null)
         return if(current == null){
@@ -82,10 +55,6 @@ class Repo(private val sharedPref: SharedPreferences) {
 
         const val PREF_USER_KEY = "user_id"
         const val PREF_USER_DEFAULT = "plNjqo1n"
-        const val PREF_RESTART_WORKER_VERSION_KEY = "restart_worker_version"
-        const val PREF_RESTART_WORKER_VERSION_DEFAULT = 0
-        const val PREF_MESSAGE_WORKER_VERSION_KEY = "message_worker_version"
-        const val PREF_MESSAGE_WORKER_VERSION_DEFAULT = 0
         const val PREF_LAST_MESSAGE_TIME_KEY = "last_message_time"
         const val PREF_DEVICE_ID_KEY = "device_id"
         var PREF_CHANNEL_KEY = ""
@@ -102,7 +71,5 @@ class Repo(private val sharedPref: SharedPreferences) {
                 }
             }
         }
-
-
     }
 }
