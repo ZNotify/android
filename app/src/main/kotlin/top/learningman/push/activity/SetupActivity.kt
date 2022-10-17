@@ -34,8 +34,8 @@ import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.launch
 import top.learningman.push.databinding.ActivitySetupBinding
 import top.learningman.push.provider.AutoChannel
-import top.learningman.push.provider.WebSocket
 import top.learningman.push.provider.Permission
+import top.learningman.push.provider.WebSocket
 import top.learningman.push.utils.PermissionManager
 import top.learningman.push.utils.setTextAnimation
 import com.android.setupwizardlib.R as SuwR
@@ -247,7 +247,7 @@ class SetupActivity : AppCompatActivity() {
                         Column(modifier = Modifier.padding(40.dp)) {
                             Text("当前启用的推送服务是： ${channel.name}")
 
-                            if (AutoChannel.belong(WebSocket)) {
+                            if (AutoChannel.by(WebSocket)) {
                                 Spacer(modifier = Modifier.height(20.dp))
                                 Text("当前推送实现会消耗额外的电量。", color = Color.Gray)
                             }

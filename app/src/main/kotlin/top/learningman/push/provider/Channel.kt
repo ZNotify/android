@@ -17,11 +17,13 @@ interface Channel {
     val name: String
 
     fun init(context: Context)
-    fun should(context: Context): Boolean {
+    fun release(context: Context)
+
+    fun available(context: Context): Boolean {
         return true
     }
 
-    fun available(context: Context): Boolean {
+    fun granted(context: Context): Boolean {
         val permissions = permissions()
         return if (permissions.isEmpty()) {
             true
@@ -44,33 +46,44 @@ interface Channel {
 
 val channels = arrayOf(FCM, WebSocket)
 
+fun getChannel(name: String): Channel? {
+    return channels.firstOrNull { it.name == name }
+}
+
 class AutoChannel private constructor(channel: Channel) : Channel by channel {
     companion object {
         private var instance: Channel? = null
-        fun belong(chan: Channel): Boolean {
+        fun by(chan: Channel): Boolean {
             if (instance == null) {
                 return false
             }
             return instance!!.name == chan.name
         }
 
-        fun getInstance(context: Context, channelText: String? = null, nocache: Boolean = false): Channel {
-            return if (instance != null && channelText == null && !nocache) {
+        fun updateInstance(context: Context, channelID: String) {
+            val channel = getChannel(channelID)?.takeIf { it.available(context) }
+            if (channel != null) {
+                instance = channel
+            }
+        }
+
+        fun updateInstance(chan: Channel) {
+            instance = chan
+        }
+
+        fun getInstance(context: Context): Channel {
+            return if (instance != null) {
                 instance as Channel
             } else {
                 var impl: Channel? = null
-                if (channelText == null) {
-                    val channelID = Repo.getInstance(context).getChannel()
-                    if (channelID != null) {
-                        impl = channels.firstOrNull { it.name == channelID }
-                    }
-                } else {
-                    impl = channels.firstOrNull { it.name == channelText }
+                val channelID = Repo.getInstance(context).getChannel()
+                if (channelID != null) {
+                    impl = getChannel(channelID).takeIf { it != null && it.available(context) }
                 }
 
                 if (impl == null) {
                     impl = when {
-                        FCM.should(context) -> FCM
+                        FCM.available(context) -> FCM
                         else -> WebSocket
                     }
                 }

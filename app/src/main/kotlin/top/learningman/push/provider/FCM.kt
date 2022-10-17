@@ -25,7 +25,11 @@ object FCM : Channel {
         }
     }
 
-    override fun should(context: Context): Boolean {
+    override fun release(context: Context) {
+        Firebase.messaging.isAutoInitEnabled = false
+    }
+
+    override fun available(context: Context): Boolean {
         val ga = GoogleApiAvailability.getInstance()
         return when (ga.isGooglePlayServicesAvailable(context)) {
             ConnectionResult.SUCCESS -> true

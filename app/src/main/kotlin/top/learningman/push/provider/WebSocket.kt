@@ -35,11 +35,14 @@ object WebSocket : Channel {
     override fun init(context: Context) {
         context.packageManager.setComponentEnabledSetting(
             ComponentName(context, ReceiverService::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
+            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
         )
+    }
+
+    override fun release(context: Context) {
         context.packageManager.setComponentEnabledSetting(
             ComponentName(context, ReceiverService::class.java),
-            PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
+            PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP
         )
     }
 

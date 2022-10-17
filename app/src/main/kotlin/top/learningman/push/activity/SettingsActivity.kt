@@ -12,13 +12,20 @@ import androidx.preference.PreferenceFragmentCompat
 import com.microsoft.appcenter.crashes.Crashes
 import dev.zxilly.notify.sdk.Client
 import kotlinx.coroutines.runBlocking
-import top.learningman.push.*
+import top.learningman.push.BuildConfig
+import top.learningman.push.Constant
+import top.learningman.push.R
+import top.learningman.push.checkUpgrade
 import top.learningman.push.databinding.ActivitySettingsBinding
 import top.learningman.push.provider.AutoChannel
+import top.learningman.push.provider.Channel
 import top.learningman.push.provider.channels
+import top.learningman.push.provider.getChannel
 import kotlin.concurrent.thread
 
 class SettingsActivity : AppCompatActivity() {
+    var pendingInitChannel: Channel? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         val binding = ActivitySettingsBinding.inflate(layoutInflater)
@@ -72,7 +79,7 @@ class SettingsActivity : AppCompatActivity() {
             findPreference<ListPreference>(getString(R.string.pref_channel_key))?.apply {
                 entries = channels
                     .filter {
-                        it.should(context)
+                        it.available(context)
                     }.map {
                         it.name
                     }.toTypedArray()
@@ -82,16 +89,34 @@ class SettingsActivity : AppCompatActivity() {
                 }
 
                 setOnPreferenceChangeListener { _, newValue ->
-                    val next = AutoChannel.getInstance(context, newValue as String)
-                    if (!next.available(context)) {
-                        Toast.makeText(
-                            context,
-                            getString(R.string.pref_grant_permission_tip),
-                            Toast.LENGTH_LONG
-                        ).show()
-                        startActivity(Intent(context, SetupActivity::class.java).apply {
-                            action = SetupActivity.PERMISSION_GRANT_ACTION
-                        })
+                    val old = getChannel(value)
+                    val next = getChannel(newValue as String)
+                    if (old != null && next != null) {
+                        old.release(context)
+
+                        if (next.granted(context)) {
+                            next.init(context)
+                        } else {
+                            (requireActivity() as SettingsActivity).pendingInitChannel = next
+                            Toast.makeText(
+                                context,
+                                getString(R.string.pref_grant_permission_tip),
+                                Toast.LENGTH_LONG
+                            ).show()
+                            startActivity(Intent(context, SetupActivity::class.java).apply {
+                                action = SetupActivity.PERMISSION_GRANT_ACTION
+                            })
+                        }
+                        AutoChannel.updateInstance(next)
+                        (requireActivity() as SettingsActivity).updateResult(UPDATE_CHANNEL)
+                    } else {
+                        Log.e("SettingsActivity", "Failed to update channel")
+                        if (old == null) {
+                            Log.e("SettingsActivity", "Old channel $value is null")
+                        }
+                        if (next == null) {
+                            Log.e("SettingsActivity", "New channel $newValue is null")
+                        }
                     }
                     (requireActivity() as SettingsActivity).updateResult(UPDATE_CHANNEL)
                     true
@@ -105,6 +130,11 @@ class SettingsActivity : AppCompatActivity() {
 
     override fun onResume() {
         super.onResume()
+
+        if (pendingInitChannel != null) {
+            pendingInitChannel?.init(this)
+            pendingInitChannel = null
+        }
     }
 
     private var resultCode = 0
