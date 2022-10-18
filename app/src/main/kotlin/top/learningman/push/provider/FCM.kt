@@ -43,7 +43,7 @@ object FCM : Channel {
             if (task.isSuccessful) {
                 val token = task.result
                 scope.launch {
-                    Network.register(userID, token, NotifyChannel.FCM, deviceID)
+                    Network.register(token, NotifyChannel.FCM, deviceID)
                         .onSuccess {
                             Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
                             Log.i("FCM", "FCM 注册成功")

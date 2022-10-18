@@ -67,7 +67,7 @@ object MessageDialog {
             .setNeutralButton("删除") { dialog, _ ->
                 thread {
                     runBlocking {
-                        Network.requestDelete(msg.userID, msg.msgID)
+                        Network.requestDelete(msg.msgID)
                             .onFailure {
                                 Log.e("MessageDialog", "Delete error", it)
                             }

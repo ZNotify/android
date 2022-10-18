@@ -39,7 +39,6 @@ object WebSocket : Channel {
         )
         CoroutineScope(Dispatchers.IO).launch {
             Network.register(
-                Repo.getInstance(context).getUser(),
                 Date().toRFC3339Nano(),
                 NotifyChannel.WebSocket,
                 Repo.getInstance(context).getDeviceID()
@@ -61,7 +60,7 @@ object WebSocket : Channel {
         })
         scope.launch {
             val deviceID = Repo.getInstance(context).getDeviceID()
-            Network.register(userID, Date().toRFC3339Nano(), NotifyChannel.WebSocket, deviceID)
+            Network.register(Date().toRFC3339Nano(), NotifyChannel.WebSocket, deviceID)
                 .onSuccess {
                     Toast.makeText(context, "WebSocket 注册成功", Toast.LENGTH_LONG).show()
                     Log.i("WebSocket", "WebSocket 注册成功")

@@ -21,7 +21,6 @@ import top.learningman.push.utils.toRFC3339
 import kotlin.random.Random
 
 object Utils {
-
     fun notifyMessage(context: Context, message: Message) {
         val notificationManager = NotificationManagerCompat.from(context)
         val notifyChannel = NotificationChannel(

@@ -18,7 +18,7 @@ class MessageViewModel : ViewModel() {
 
     fun loadMessages(userID: String) {
         viewModelScope.launch {
-            Network.fetchMessage(userID)
+            Network.fetchMessage()
                 .onSuccess {
                     _message.postValue(it)
                     _isError.postValue(false)

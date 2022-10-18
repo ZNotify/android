@@ -43,11 +43,16 @@ class MainActivity : AppCompatActivity() {
 
             if (it.resultCode != 0) {
                 refreshStatus()
+                lifecycleScope.launch {
+                    Network.updateClient(repo.getUser())
+                }
                 channel.setUserCallback(this, repo.getUser(), lifecycleScope)
             }
         }
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        Log.d("MainActivity", "onCreate")
+
         installSplashScreen()
         super.onCreate(savedInstanceState)
         channel = AutoChannel.getInstance(this)
@@ -86,13 +91,13 @@ class MainActivity : AppCompatActivity() {
         channel.init(this)
     }
 
-    private fun refreshStatus(){
+    private fun refreshStatus() {
         setStatus(RegStatus.PENDING)
 
         lifecycleScope.launch {
             Network.check(repo.getUser())
                 .onSuccess {
-                    if (it){
+                    if (it) {
                         setStatus(RegStatus.SUCCESS)
                     } else {
                         setStatus(RegStatus.USERID_FAILED)
@@ -113,6 +118,7 @@ class MainActivity : AppCompatActivity() {
             val text: String,
             val icon: IconValue
         )
+
         val statusMap = mapOf(
             RegStatus.SUCCESS to StatusData(
                 R.color.reg_success,

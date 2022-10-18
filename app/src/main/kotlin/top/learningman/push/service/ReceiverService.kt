@@ -264,7 +264,6 @@ class ReceiverService : NotificationListenerService() {
                     Log.e(tag, "retry limit reached, stop websocket")
                     stop()
                 }
-
             } else {
                 Log.d(tag, "recover: not start websocket from status ${status.get()}")
             }
@@ -298,17 +297,17 @@ class ReceiverService : NotificationListenerService() {
             val session = runCatching {
                 client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${currentUserID}/host/conn")
                 {
-                    header("X-Message-Since", let {
-                        val time = repo.getLastMessageTime()
-                        Log.i(tag, "last message time X-Since $time")
-                        time
-                    })
+                    val deviceID = repo.getDeviceID()
+                    header("X-Device-ID", deviceID)
+                    Log.i(tag, "deviceID: $deviceID")
                 }
             }.also {
                 if (it.isFailure) {
                     Log.e(tag, "getSession:", it.exceptionOrNull())
                     val exception = it.exceptionOrNull() ?: return@also
                     val message = exception.message ?: return@also
+                    val longMessage = exception.stackTraceToString()
+                    Log.e(tag, "getSession: $longMessage")
                     if (message.contains("401")) {
                         status.set(Status.INVALID)
                         Log.d(tag, "connect: invalid status, seems userid not correct")
