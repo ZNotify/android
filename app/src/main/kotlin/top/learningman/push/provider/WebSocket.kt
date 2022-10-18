@@ -19,7 +19,6 @@ import top.learningman.push.data.Repo
 import top.learningman.push.service.ReceiverService
 import top.learningman.push.utils.Network
 import top.learningman.push.utils.RomUtils
-import top.learningman.push.utils.toRFC3339Nano
 import xyz.kumaraswamy.autostart.Autostart
 import java.util.*
 import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
@@ -37,12 +36,18 @@ object WebSocket : Channel {
             ComponentName(context, ReceiverService::class.java),
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
         )
+        Log.i("WebSocket", "WebSocket 初始化")
         CoroutineScope(Dispatchers.IO).launch {
             Network.register(
-                Date().toRFC3339Nano(),
+                "",
                 NotifyChannel.WebSocket,
                 Repo.getInstance(context).getDeviceID()
-            )
+            ).onSuccess {
+                Log.i("WebSocket", "WebSocket init 成功")
+            }.onFailure {
+                Log.e("WebSocket", "WebSocket init 失败", it)
+                Crashes.trackError(it)
+            }
         }
     }
 
@@ -60,7 +65,7 @@ object WebSocket : Channel {
         })
         scope.launch {
             val deviceID = Repo.getInstance(context).getDeviceID()
-            Network.register(Date().toRFC3339Nano(), NotifyChannel.WebSocket, deviceID)
+            Network.register("", NotifyChannel.WebSocket, deviceID)
                 .onSuccess {
                     Toast.makeText(context, "WebSocket 注册成功", Toast.LENGTH_LONG).show()
                     Log.i("WebSocket", "WebSocket 注册成功")

@@ -30,23 +30,24 @@ object Utils {
         )
         notificationManager.createNotificationChannel(notifyChannel)
 
+        val intent = Intent(context, TranslucentActivity::class.java).apply {
+            putExtra(
+                TranslucentActivity.TIME_INTENT_KEY,
+                message.createdAt.fromRFC3339Nano().toRFC3339()
+            )
+            putExtra(TranslucentActivity.CONTENT_INTENT_KEY, message.content)
+            putExtra(TranslucentActivity.TITLE_INTENT_KEY, message.title)
+            putExtra(TranslucentActivity.MSGID_INTENT_KEY, message.id)
+            putExtra(TranslucentActivity.LONG_INTENT_KEY, message.long)
+            putExtra(TranslucentActivity.USERID_INTENT_KEY, message.userID)
+        }
+
         val pendingIntent = PendingIntent.getActivity(
             context,
             0,
-            Intent(context, TranslucentActivity::class.java).also {
-                it.putExtra(
-                    TranslucentActivity.TIME_INTENT_KEY,
-                    message.createdAt.fromRFC3339Nano().toRFC3339()
-                )
-                it.putExtra(TranslucentActivity.CONTENT_INTENT_KEY, message.content)
-                it.putExtra(TranslucentActivity.TITLE_INTENT_KEY, message.title)
-                it.putExtra(TranslucentActivity.MSGID_INTENT_KEY, message.id)
-                it.putExtra(TranslucentActivity.LONG_INTENT_KEY, message.long)
-                it.putExtra(TranslucentActivity.USERID_INTENT_KEY, message.userID)
-            },
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_IMMUTABLE
+            intent,
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
         )
-
         val notification = NotificationCompat.Builder(context, NOTIFICATION_CHANNEL_ID)
             .setContentTitle(message.title)
             .setContentText(message.content)
@@ -69,6 +70,7 @@ object Utils {
             Toast.makeText(context, "No permission to post notification", Toast.LENGTH_SHORT).show()
             return
         }
+        Log.i("Push", "Notification posted")
         notificationManager.notify(Random.nextInt(), notification)
     }
 

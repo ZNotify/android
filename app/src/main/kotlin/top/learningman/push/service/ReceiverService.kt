@@ -23,6 +23,7 @@ import top.learningman.push.Constant
 import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem
 import top.learningman.push.entity.Message
+import java.time.Duration
 import java.util.*
 import java.util.concurrent.atomic.AtomicInteger
 
@@ -114,18 +115,20 @@ class ReceiverService : NotificationListenerService() {
 
     @OptIn(DelicateCoroutinesApi::class)
     private class WebSocketSessionManager(private val service: ReceiverService) :
-        CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager")) {
+        CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager") + SupervisorJob()) {
 
         private val tag
             get() = "Recv-${service.id.substring(0, 8)}-Mgr"
 
-        private var job: Job? = null
+        private var session: DefaultClientWebSocketSession? = null
         private var jobLock = Mutex()
         private val repo by lazy { Repo.getInstance(service) }
         private var currentUserID = repo.getUser()
         private val client by lazy {
             HttpClient(OkHttp) {
-                install(WebSockets)
+                install(WebSockets) {
+                    pingInterval = Duration.ofSeconds(30).toMillis()
+                }
                 install(HttpRequestRetry)
             }
         }
@@ -197,12 +200,14 @@ class ReceiverService : NotificationListenerService() {
             connectivityManager.unregisterNetworkCallback(networkCallback)
         }
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         suspend fun tryCancelJob() {
+            Log.i(tag, "tryCancelJob")
             jobLock.lock()
             try {
-                if (job != null) {
-                    job?.cancelAndJoin()
-                    job = null
+                if (session != null) {
+                    session?.cancel()
+                    session = null
                     Log.i(tag, "job cancelled in ${service.id}")
                 }
             } catch (e: Throwable) {
@@ -244,6 +249,7 @@ class ReceiverService : NotificationListenerService() {
                 currentUserID = nextUserID
                 launch {
                     tryCancelJob()
+                    delay(1000)
                     connect()
                 }
             } else {
@@ -256,8 +262,8 @@ class ReceiverService : NotificationListenerService() {
             if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
                 if (retryLimit-- > 0) {
                     launch {
-                        delay(2000)
                         tryCancelJob()
+                        delay(2000)
                         connect()
                     }
                 } else {
@@ -269,10 +275,11 @@ class ReceiverService : NotificationListenerService() {
             }
         }
 
+        @OptIn(ExperimentalCoroutinesApi::class)
         private suspend fun connect() {
             diagnose()
             jobLock.lock()
-            if (job != null) {
+            if (session != null) {
                 Log.d(tag, "job is not null, should cancel it before connect")
                 jobLock.unlock()
                 return
@@ -294,7 +301,7 @@ class ReceiverService : NotificationListenerService() {
                 Log.d(tag, "connect: start websocket from CONNECTING")
             }
 
-            val session = runCatching {
+            session = runCatching {
                 client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${currentUserID}/host/conn")
                 {
                     val deviceID = repo.getDeviceID()
@@ -313,12 +320,17 @@ class ReceiverService : NotificationListenerService() {
                         Log.d(tag, "connect: invalid status, seems userid not correct")
                         return@also
                     }
+                    if (exception is CancellationException) {
+                        Log.d(tag, "connect: cancelled")
+                        status.set(Status.STOP)
+                        return@also
+                    }
                 }
 
             }
                 .getOrNull()
 
-            fun tryReStart() {
+            fun tryRestart() {
                 if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
                     recover()
                 } else {
@@ -330,17 +342,23 @@ class ReceiverService : NotificationListenerService() {
                 Log.d(tag, "session is not null, launch WebSocket")
                 jobLock.lock()
                 try {
-                    job = session.launch(coroutineContext) {
+                    session?.also {
+                        it.outgoing.invokeOnClose {
+                            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                                recover()
+                            } else {
+                                Log.d(tag, "onClosed: not recover from status ${status.get()}")
+                            }
+                        }
+                    }?.launch(coroutineContext) {
                         while (true) {
-                            val frameRet = session.incoming.receiveCatching()
+                            val frameRet = session?.incoming?.receiveCatching() ?: let {
+                                Log.d(tag, "session is null, should not receive")
+                                return@launch
+                            }
                             frameRet.onClosed {
                                 Log.d(tag, "onClosed")
                                 Log.e(tag, "WebSocket closed", it)
-                                if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
-                                    recover()
-                                } else {
-                                    Log.d(tag, "onClosed: not recover from status ${status.get()}")
-                                }
                                 return@launch
                             }.onFailure {
                                 if (it is CancellationException) {
@@ -365,18 +383,18 @@ class ReceiverService : NotificationListenerService() {
                             }
                         }
                     }
-                    if (job?.isActive == true) {
+                    if (session?.isActive == true) {
                         Log.i(tag, "job is active, start websocket success in ${service.id}")
                         retryLimit = 32
                     } else {
                         Log.e(tag, "job is not active, start websocket failed")
-                        tryReStart()
+                        tryRestart()
                     }
                 } finally {
                     jobLock.unlock()
                 }
             } else {
-                tryReStart()
+                tryRestart()
             }
         }
 
@@ -394,7 +412,6 @@ class ReceiverService : NotificationListenerService() {
                         Log.d(tag, "prepare to send notification")
                         val notificationMessage = it.toMessage()
                         notifyMessage(notificationMessage, from = service.id)
-                        repo.setLastMessageTime(notificationMessage.createdAt)
                     }, {
                         Log.e(tag, "Error parsing message", it)
                         Crashes.trackError(it)
