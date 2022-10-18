@@ -13,12 +13,15 @@ import android.widget.Toast
 import androidx.work.*
 import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import top.learningman.push.data.Repo
 import top.learningman.push.service.ReceiverService
 import top.learningman.push.utils.Network
 import top.learningman.push.utils.RomUtils
+import top.learningman.push.utils.toRFC3339Nano
 import xyz.kumaraswamy.autostart.Autostart
+import java.util.*
 import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
 
@@ -34,6 +37,14 @@ object WebSocket : Channel {
             ComponentName(context, ReceiverService::class.java),
             PackageManager.COMPONENT_ENABLED_STATE_ENABLED, PackageManager.DONT_KILL_APP
         )
+        CoroutineScope(Dispatchers.IO).launch {
+            Network.register(
+                Repo.getInstance(context).getUser(),
+                Date().toRFC3339Nano(),
+                NotifyChannel.WebSocket,
+                Repo.getInstance(context).getDeviceID()
+            )
+        }
     }
 
     override fun release(context: Context) {
@@ -50,7 +61,7 @@ object WebSocket : Channel {
         })
         scope.launch {
             val deviceID = Repo.getInstance(context).getDeviceID()
-            Network.register(userID, "ws", NotifyChannel.WebSocket, deviceID)
+            Network.register(userID, Date().toRFC3339Nano(), NotifyChannel.WebSocket, deviceID)
                 .onSuccess {
                     Toast.makeText(context, "WebSocket 注册成功", Toast.LENGTH_LONG).show()
                     Log.i("WebSocket", "WebSocket 注册成功")
