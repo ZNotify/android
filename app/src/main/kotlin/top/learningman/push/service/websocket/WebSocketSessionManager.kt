@@ -224,6 +224,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
                     }
                     header("X-Device-ID", repo.getDeviceID())
                 }) {
+                    retryLimit = 32
                     while (this@launch.isActive) {
                         val frame = select<Result<Frame>> {
                             incoming.onReceive { Result.success(it) }
