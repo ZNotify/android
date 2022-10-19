@@ -19,7 +19,11 @@ object Network {
     }
 
     suspend fun updateClient(userID: String) = sync {
-        client = Client.create(userID, Constant.API_ENDPOINT).getOrNull()
+        client = Client.create(userID, Constant.API_ENDPOINT)
+            .onFailure {
+                Log.e("Network", "Client create failed", it)
+            }
+            .getOrNull()
     }
 
     suspend fun requestDelete(msgID: String) = sync {

@@ -13,6 +13,7 @@ import top.learningman.push.Constant
 import top.learningman.push.checkerInit
 import top.learningman.push.data.Repo
 import top.learningman.push.utils.Network
+import kotlin.system.exitProcess
 
 class MainApplication : Application() {
     val repo by lazy {
@@ -27,6 +28,17 @@ class MainApplication : Application() {
             Analytics::class.java,
             Crashes::class.java
         )
+
+        val oldHandler = Thread.getDefaultUncaughtExceptionHandler()
+
+        Thread.setDefaultUncaughtExceptionHandler { thr, err ->
+            Crashes.trackError(err)
+            if (oldHandler != null) oldHandler.uncaughtException(
+                thr,
+                err
+            )
+            else exitProcess(2)
+        }
 
         DynamicColors.applyToActivitiesIfAvailable(this)
 
