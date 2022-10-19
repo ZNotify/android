@@ -12,7 +12,8 @@ import io.ktor.client.request.*
 import io.ktor.http.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.*
-import kotlinx.coroutines.channels.onSuccess
+import kotlinx.coroutines.channels.*
+import kotlinx.coroutines.selects.select
 import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import top.learningman.push.Constant
@@ -20,7 +21,8 @@ import top.learningman.push.data.Repo
 import top.learningman.push.entity.JSONMessageItem
 import top.learningman.push.entity.Message
 import top.learningman.push.service.ReceiverService
-import top.learningman.push.service.Utils
+import top.learningman.push.service.Utils.notifyMessage
+import java.net.ProtocolException
 import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
@@ -40,11 +42,17 @@ class WebSocketSessionManager(private val service: ReceiverService) :
             install(HttpRequestRetry)
             engine {
                 preconfigured = OkHttpClient.Builder()
-                    .pingInterval(20, TimeUnit.SECONDS)
+                    .pingInterval(4, TimeUnit.MINUTES)
                     .build()
             }
         }
     }
+
+    private class ManualCloseException : Exception("Manual Close Session")
+
+    private var errorChannel = Channel<ManualCloseException>(Channel.RENDEZVOUS).also { it.close() }
+
+
     private val connectivityManager by lazy {
         service.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     }
@@ -96,9 +104,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
             if (status.get() == Status.STOP) {
                 return
             }
-            runBlocking {
-                tryCancelJob()
-            }
+            tryCancelJob("network lost")
         }
     }
 
@@ -108,16 +114,24 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     fun stop() {
         status.set(Status.STOP)
-        runBlocking {
-            tryCancelJob()
-        }
+
+        tryCancelJob("stop", true)
+
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
 
-    fun tryCancelJob() {
-        Log.i(tag, "tryCancelJob")
-        // kill all job in current scope
+    @OptIn(ExperimentalCoroutinesApi::class)
+    fun tryCancelJob(reason: String = "unknown", elegant: Boolean = false) {
+        Log.i(tag, "tryCancelJob reason: $reason")
         coroutineContext.ensureActive()
+        if (elegant) {
+            if (!errorChannel.isClosedForSend && !errorChannel.isClosedForReceive) {
+                errorChannel.trySend(ManualCloseException())
+            }
+        } else {
+            coroutineContext.cancelChildren()
+        }
+        Log.d(tag, "tryCancelJob done reason: $reason elegant: $elegant")
     }
 
     private fun diagnose(msg: String = "") {
@@ -129,12 +143,10 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     fun tryResume() {
         Log.d(tag, "tryResume with status ${currentStatusString()} at ${Date()}")
-        if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING) || status.compareAndSet(
-                Status.WAIT_RECONNECT,
-                Status.CONNECTING
-            )
+        if (status.compareAndSet(Status.WAIT_START, Status.CONNECTING) ||
+            status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)
         ) {
-            launch { connect() }
+            connect()
         } else {
             Log.d(
                 tag,
@@ -146,10 +158,12 @@ class WebSocketSessionManager(private val service: ReceiverService) :
     fun updateUserID(nextUserID: String) {
         if (currentUserID != nextUserID) {
             currentUserID = nextUserID
-            launch {
-                tryCancelJob()
-                delay(1000)
-                connect()
+            tryCancelJob("user changed", true)
+            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                launch {
+                    delay(1000)
+                    tryResume()
+                }
             }
         } else {
             tryResume()
@@ -160,8 +174,8 @@ class WebSocketSessionManager(private val service: ReceiverService) :
         Log.i(tag, "recover at ${Date()}")
         if (status.compareAndSet(Status.WAIT_RECONNECT, Status.CONNECTING)) {
             if (retryLimit-- > 0) {
+                tryCancelJob("recover")
                 launch {
-                    tryCancelJob()
                     delay(2000)
                     connect()
                 }
@@ -176,6 +190,14 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     private fun connect() {
         diagnose()
+
+        fun restart() {
+            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
+                recover()
+            } else {
+                Log.d(tag, "connect: not recover from status ${currentStatusString()}")
+            }
+        }
 
         if (status.get() == Status.INVALID) {
             Log.d(tag, "status is invalid, should not connect")
@@ -193,38 +215,65 @@ class WebSocketSessionManager(private val service: ReceiverService) :
         }
 
         launch {
+            errorChannel = Channel(Channel.RENDEZVOUS)
             runCatching {
                 client.webSocket({
-                    url{
+                    url {
                         this.takeFrom(Constant.API_WS_ENDPOINT)
                         appendEncodedPathSegments(currentUserID, "host", "conn")
                     }
-                    request {
-                        header("X-Device-ID", repo.getDeviceID())
-                    }
-                }){
-                    while (this.isActive){
-                        val frame = incoming.receiveCatching()
-                        frame.onSuccess {
-
+                    header("X-Device-ID", repo.getDeviceID())
+                }) {
+                    while (this@launch.isActive) {
+                        val frame = select<Result<Frame>> {
+                            incoming.onReceive { Result.success(it) }
+                            errorChannel.onReceive { Result.failure(it) }
                         }
+                        frame.fold({
+                            handleFrame(it)
+                        }, {
+                            when (it) {
+                                is ClosedReceiveChannelException -> {
+                                    Log.d(tag, "websocket closed", it)
+                                    restart()
+                                }
+                                is CancellationException -> {
+                                    Log.d(tag, "websocket cancelled")
+                                    restart()
+                                }
+                                is ManualCloseException -> {
+                                    Log.d(tag, "websocket closed manually")
+                                    close(
+                                        CloseReason(
+                                            CloseReason.Codes.GOING_AWAY,
+                                            "manually close"
+                                        )
+                                    )
+                                    restart()
+                                }
+                                else -> {
+                                    Log.e(tag, "websocket unexpected error", it)
+                                    restart()
+                                }
+                            }
+                            return@webSocket
+                        })
+
                     }
                 }
-
-                client.webSocketSession(urlString = "${Constant.API_WS_ENDPOINT}/${currentUserID}/host/conn")
-                {
-                    val deviceID = repo.getDeviceID()
-                    header("X-Device-ID", deviceID)
-                    Log.i(tag, "deviceID: $deviceID")
+            }.onFailure {
+                Log.e(tag, "websocket first connect error", it)
+                if (it is ProtocolException) {
+                    if (it.message?.contains("401") == true) {
+                        Log.i(tag, "seems userid not valid")
+                        status.set(Status.INVALID)
+                        return@onFailure
+                    }
                 }
-            }
-        }
-
-        fun tryRestart() {
-            if (status.compareAndSet(Status.RUNNING, Status.WAIT_RECONNECT)) {
-                recover()
-            } else {
-                Log.d(tag, "connect: not recover from status ${currentStatusString()}")
+                if (it is CancellationException) {
+                    return@onFailure
+                }
+                restart()
             }
         }
     }
@@ -256,6 +305,6 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     private fun notifyMessage(message: Message, from: String = "anonymous") {
         Log.d(tag, "notifyMessage: $message from $from")
-        Utils.notifyMessage(service, message)
+        notifyMessage(service, message)
     }
 }
