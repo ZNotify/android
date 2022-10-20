@@ -42,7 +42,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
             install(HttpRequestRetry)
             engine {
                 preconfigured = OkHttpClient.Builder()
-                    .pingInterval(4, TimeUnit.MINUTES)
+                    .pingInterval(30, TimeUnit.SECONDS)
                     .build()
             }
         }
@@ -263,7 +263,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
                     }
                 }
             }.onFailure {
-                Log.e(tag, "websocket first connect error", it)
+                Log.e(tag, "websocket error", it)
                 if (it is ProtocolException) {
                     if (it.message?.contains("401") == true) {
                         Log.i(tag, "seems userid not valid")
