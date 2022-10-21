@@ -34,6 +34,8 @@ class WebSocketSessionManager(private val service: ReceiverService) :
     private val tag
         get() = "Recv-${service.id.substring(0, 8)}-Mgr"
 
+    private var isInitialize = true
+
     private val repo by lazy { Repo.getInstance(service) }
     private var currentUserID = repo.getUser()
     private val client by lazy {
@@ -116,6 +118,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
         status.set(Status.STOP)
 
         tryCancelJob("stop", true)
+        cancel(CancellationException("websocket manager destroyed."))
 
         connectivityManager.unregisterNetworkCallback(networkCallback)
     }
@@ -215,6 +218,14 @@ class WebSocketSessionManager(private val service: ReceiverService) :
         }
 
         launch {
+            if (isInitialize) {
+                Log.i(tag, "first time init, wait for another 3 seconds.")
+                // FIXME: sometimes android will create service multi times. Prevent duplicate connection.
+                delay(3000)
+                isInitialize = false
+            }
+
+
             errorChannel = Channel(Channel.RENDEZVOUS)
             runCatching {
                 client.webSocket({
