@@ -1,6 +1,7 @@
 package top.learningman.push.application
 
 import android.app.Application
+import android.util.Log
 import androidx.appcompat.app.AppCompatDelegate
 import com.google.android.material.color.DynamicColors
 import com.microsoft.appcenter.AppCenter
@@ -49,6 +50,7 @@ class MainApplication : Application() {
 
         CoroutineScope(Dispatchers.IO).launch {
             Network.updateClient(repo.getUser())
+            Log.i("MainApplication", "client init")
         }
     }
 }

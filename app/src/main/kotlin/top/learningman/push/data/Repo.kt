@@ -16,6 +16,10 @@ class Repo(private val sharedPref: SharedPreferences) {
         return sharedPref.getString(PREF_CHANNEL_KEY, null)
     }
 
+    fun setChannel(channel: String) {
+        sharedPref.edit().putString(PREF_CHANNEL_KEY, channel).apply()
+    }
+
     fun getDeviceID(): String {
         val current = sharedPref.getString(PREF_DEVICE_ID_KEY, null)
         return if (current == null) {

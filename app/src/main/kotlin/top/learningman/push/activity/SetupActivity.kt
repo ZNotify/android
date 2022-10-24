@@ -32,6 +32,7 @@ import androidx.viewpager2.widget.ViewPager2
 import com.android.setupwizardlib.SetupWizardLayout
 import com.google.android.material.textview.MaterialTextView
 import kotlinx.coroutines.launch
+import top.learningman.push.data.Repo
 import top.learningman.push.databinding.ActivitySetupBinding
 import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Permission
@@ -143,15 +144,6 @@ class SetupActivity : AppCompatActivity() {
             window.decorView
         ).getInsets(WindowInsetsCompat.Type.navigationBars())
 
-//        findViewById<StickyHeaderScrollView>(SuwR.id.suw_bottom_scroll_view)?.let {
-//            // set fitSystemWindows to true
-//            it.fitsSystemWindows = true
-//
-//            dispatchApplyWindowInsets(it, WindowInsetsCompat.Builder().setInsets(
-//                WindowInsetsCompat.Type.systemBars(),
-//                Insets.of(0, statusBarHeight, 0, navigationBarHeight.bottom)
-//            ).build())
-//        }
         title.setPadding(
             title.paddingLeft,
             statusBarHeight + title.paddingTop,
@@ -235,7 +227,9 @@ class SetupActivity : AppCompatActivity() {
             savedInstanceState: Bundle?
         ): View {
             val channel = AutoChannel.getInstance(requireContext())
-
+            with(Repo.getInstance(requireContext())) {
+                setChannel(channel.name)
+            }
             return ComposeView(requireContext()).apply {
                 setViewCompositionStrategy(
                     ViewCompositionStrategy.DisposeOnLifecycleDestroyed(
