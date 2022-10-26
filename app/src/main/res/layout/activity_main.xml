@@ -1,66 +1,62 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:card_view="http://schemas.android.com/apk/res-auto"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
+    android:orientation="vertical"
+    android:padding="24dp">
 
     <com.google.android.material.card.MaterialCardView
-        android:id="@+id/card_view"
+        android:id="@+id/cardView"
+        style="@style/Widget.Material3.CardView.Outlined"
         android:layout_width="match_parent"
-        android:layout_height="100dp"
-        android:layout_gravity="top"
-        android:layout_margin="20dp"
-        card_view:cardCornerRadius="4dp">
+        android:layout_height="wrap_content">
 
-        <com.google.android.material.card.MaterialCardView
-            android:id="@+id/reg_status"
+        <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_margin="8dp"
-            android:elevation="0dp"
-            card_view:cardBackgroundColor="@color/reg_pending"
-            card_view:cardCornerRadius="4dp">
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            app:cardCornerRadius="24dp">
 
-            <androidx.constraintlayout.widget.ConstraintLayout
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:gravity="center">
+            <net.steamcrafted.materialiconlib.MaterialIconView
+                android:id="@+id/reg_status_icon"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:paddingHorizontal="8dp"
+                android:paddingVertical="16dp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:materialIcon="sync"
+                app:materialIconSize="24dp" />
 
-                <net.steamcrafted.materialiconlib.MaterialIconView
-                    android:id="@+id/reg_status_icon"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:scaleType="center"
-                    card_view:layout_constraintBottom_toBottomOf="parent"
-                    card_view:layout_constraintEnd_toStartOf="@+id/reg_status_text"
-                    card_view:layout_constraintTop_toTopOf="parent"
-                    card_view:materialIcon="sync"
-                    card_view:materialIconColor="#fff"
-                    card_view:materialIconSize="24dp"
-                    tools:ignore="ImageContrastCheck" />
+            <androidx.appcompat.widget.LinearLayoutCompat
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="16dp"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toEndOf="@+id/reg_status_icon"
+                app:layout_constraintTop_toTopOf="parent">
 
-                <com.google.android.material.textview.MaterialTextView
+                <TextView
+                    style="@style/TextAppearance.MaterialComponents.Headline6"
                     android:id="@+id/reg_status_text"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:fontFamily="sans-serif"
-                    android:gravity="center_vertical"
-                    android:paddingLeft="20dp"
-                    android:text="@string/loading"
-                    android:textSize="18sp"
-                    android:textColor="@color/md_theme_light_onTertiary"
-                    card_view:layout_constraintBottom_toBottomOf="parent"
-                    card_view:layout_constraintEnd_toEndOf="parent"
-                    card_view:layout_constraintStart_toStartOf="parent"
-                    card_view:layout_constraintTop_toTopOf="parent" />
-            </androidx.constraintlayout.widget.ConstraintLayout>
+                    android:text="Registration Status"
+                    tools:ignore="HardcodedText" />
 
+                <TextView
+                    android:id="@+id/channel_status_text"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Channel Status"
+                    tools:ignore="HardcodedText" />
 
-        </com.google.android.material.card.MaterialCardView>
-
+            </androidx.appcompat.widget.LinearLayoutCompat>
+        </androidx.constraintlayout.widget.ConstraintLayout>
     </com.google.android.material.card.MaterialCardView>
 
     <com.google.android.material.button.MaterialButton
@@ -68,7 +64,6 @@
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
         android:layout_marginTop="20dp"
         android:layout_marginBottom="0dp"
         android:text="@string/setting"
@@ -80,7 +75,6 @@
         style="@style/Widget.Material3.Button.OutlinedButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginHorizontal="20dp"
         android:layout_marginTop="8dp"
         android:layout_marginBottom="0dp"
         android:text="@string/history"

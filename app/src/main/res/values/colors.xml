@@ -59,9 +59,4 @@
     <color name="md_theme_dark_onPrimary">#381E72</color>
     <color name="md_theme_dark_primaryContainer">#4F378B</color>
     <color name="md_theme_dark_primary">#D0BCFF</color>
-
-    <!--  状态颜色  -->
-    <color name="reg_success">#43a047</color>
-    <color name="reg_pending">#fb8c00</color>
-    <color name="reg_failed">#d32f2f</color>
 </resources>

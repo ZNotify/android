@@ -1,16 +1,17 @@
 package top.learningman.push.activity
 
-import android.content.Context
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.content.res.ColorStateList
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import android.widget.Toast
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
-import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
+import com.google.android.material.color.MaterialColors
 import kotlinx.coroutines.launch
 import net.steamcrafted.materialiconlib.MaterialDrawableBuilder.IconValue
 import top.learningman.push.R
@@ -21,6 +22,7 @@ import top.learningman.push.provider.AutoChannel
 import top.learningman.push.provider.Channel
 import top.learningman.push.utils.Network
 import top.learningman.push.utils.PermissionManager
+import com.google.android.material.R as MaterialR
 
 class MainActivity : AppCompatActivity() {
 
@@ -110,38 +112,40 @@ class MainActivity : AppCompatActivity() {
     }
 
     private var status = RegStatus.NOT_SET
+
+    @SuppressLint("ResourceType")
     private fun setStatus(status: RegStatus) {
         this.status = status
 
         data class StatusData(
-            val color: Int,
+            val success: Boolean,
             val text: String,
             val icon: IconValue
         )
 
         val statusMap = mapOf(
             RegStatus.SUCCESS to StatusData(
-                R.color.reg_success,
+                true,
                 getString(R.string.userid_success),
                 IconValue.CHECK
             ),
             RegStatus.PENDING to StatusData(
-                R.color.reg_pending,
+                false,
                 getString(R.string.loading),
                 IconValue.SYNC
             ),
             RegStatus.NETWORK_FAILED to StatusData(
-                R.color.reg_failed,
+                false,
                 getString(R.string.connect_err),
                 IconValue.SYNC_ALERT
             ),
             RegStatus.USERID_FAILED to StatusData(
-                R.color.reg_failed,
+                false,
                 getString(R.string.userid_failed),
                 IconValue.ACCOUNT_ALERT
             ),
             RegStatus.NOT_SET to StatusData(
-                R.color.reg_failed,
+                false,
                 getString(R.string.not_set_userid_err),
                 IconValue.ALERT_CIRCLE_OUTLINE
             )
@@ -149,13 +153,32 @@ class MainActivity : AppCompatActivity() {
         runOnUiThread {
             val currentStatus = statusMap[status] ?: return@runOnUiThread
             binding.regStatusText.text = currentStatus.text
-            binding.regStatus.setCardBackgroundColor(this.colorList(currentStatus.color))
+            if (currentStatus.success) {
+                binding.channelStatusText.visibility = View.VISIBLE
+                binding.channelStatusText.text = channel.name
+
+                val colorSurfaceVariant = MaterialColors.getColor(
+                    this,
+                    MaterialR.attr.colorSurfaceVariant,
+                    MaterialR.color.m3_sys_color_light_surface_variant
+                )
+                val colorOnSurfaceVariant = MaterialColors.getColor(
+                    this,
+                    MaterialR.attr.colorOnSurfaceVariant,
+                    MaterialR.color.m3_sys_color_light_on_surface_variant
+                )
+
+                binding.cardView.setCardBackgroundColor(ColorStateList.valueOf(colorSurfaceVariant))
+                binding.channelStatusText.setTextColor(colorOnSurfaceVariant)
+                binding.regStatusText.setTextColor(colorOnSurfaceVariant)
+                binding.regStatusIcon.setColor(colorOnSurfaceVariant)
+            } else {
+                binding.channelStatusText.visibility = View.GONE
+                binding.channelStatusText.visibility = View.GONE
+
+            }
             binding.regStatusIcon.setIcon(currentStatus.icon)
         }
-    }
-
-    private fun Context.colorList(id: Int): ColorStateList {
-        return ColorStateList.valueOf(ContextCompat.getColor(this, id))
     }
 
 

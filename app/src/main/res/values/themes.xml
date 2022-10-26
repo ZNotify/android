@@ -31,6 +31,9 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">?attr/isLightTheme</item>
+
+        <item name="toolbarStyle">@style/Widget.Toolbar</item>
+        <item name="actionBarStyle">@style/Widget.Toolbar</item>
     </style>
 
     <style name="Theme.Notify.NoActionBar" parent="Theme.Notify">
@@ -41,6 +44,10 @@
     <style name="Theme.Notify.SetupActivity" parent="Theme.Notify.NoActionBar">
         <item name="android:windowLightStatusBar">false</item>
         <item name="android:windowLightNavigationBar">false</item>
+    </style>
+
+    <style name="Widget.Toolbar" parent="@style/Widget.Material3.Light.ActionBar.Solid">
+        <item name="contentInsetStart">24dp</item>
     </style>
 
     <style name="msg_title">
