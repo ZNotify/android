@@ -21,7 +21,7 @@ def isDebug = gradle.startParameter.taskRequests.any {
 }
 def buildType = isDebug ? ".debug" : ""
 
-def currentVersionCode = (new Date()).getTime() / 1000
+def currentVersionCode = (new Date()).getTime() / 1000 - 16000000
 
 def isCI = System.getenv("CI") == "true"
 
@@ -214,5 +214,5 @@ dependencies {
     implementation 'com.github.Zxilly:SetupWizardLib:master-SNAPSHOT'
     implementation 'com.github.XomaDev:MIUI-autostart:master-SNAPSHOT'
 
-    implementation 'com.github.Zxilly:upgrader:3771feb35f'
+    implementation 'com.github.Zxilly:upgrader:37e5978178'
 }
