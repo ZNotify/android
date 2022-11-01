@@ -52,7 +52,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     private class ManualCloseException : Exception("Manual Close Session")
 
-    private var errorChannel = Channel<ManualCloseException>(Channel.RENDEZVOUS).also { it.close() }
+    private var errorChannel = Channel<ManualCloseException>(Channel.RENDEZVOUS)
 
 
     private val connectivityManager by lazy {
