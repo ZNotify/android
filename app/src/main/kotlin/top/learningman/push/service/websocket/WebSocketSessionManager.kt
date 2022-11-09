@@ -35,7 +35,7 @@ class WebSocketSessionManager(service: ReceiverService) :
     private val applicationContext = service.applicationContext
 
     fun setServiceID(id: String) {
-        serviceID = id
+        serviceID = id.substring(0, 8)
         Log.d("WebSocketSessionManager", "Session controlled by $id")
     }
 

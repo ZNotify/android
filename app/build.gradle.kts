@@ -226,5 +226,5 @@ dependencies {
     implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
     implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
 
-    implementation("dev.zxilly.lib:upgrader:nightly.b00ca7d")
+    implementation("dev.zxilly.lib:upgrader:nightly.8f61e9a")
 }
