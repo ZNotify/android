@@ -28,15 +28,20 @@ import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
 @OptIn(DelicateCoroutinesApi::class)
-class WebSocketSessionManager(private val service: ReceiverService) :
+class WebSocketSessionManager(service: ReceiverService) :
     CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager") + SupervisorJob()) {
 
+    private var serviceID = service.id.substring(0, 8)
+    private val applicationContext = service.applicationContext
+
+    fun setServiceID(id: String) {
+        serviceID = id
+    }
+
     private val tag
-        get() = "Recv-${service.id.substring(0, 8)}-Mgr"
+        get() = "Recv-$serviceID-Mgr"
 
-    private var isInitialize = true
-
-    private val repo by lazy { Repo.getInstance(service) }
+    private val repo by lazy { Repo.getInstance(applicationContext) }
     private var currentUserID = repo.getUser()
     private val client by lazy {
         HttpClient(OkHttp) {
@@ -53,12 +58,8 @@ class WebSocketSessionManager(private val service: ReceiverService) :
     private class ManualCloseException : Exception("Manual Close Session")
 
     private var errorChannel = Channel<ManualCloseException>(Channel.RENDEZVOUS)
-
-
-    private val connectivityManager by lazy {
-        service.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
-    }
-
+    private val connectivityManager =
+        applicationContext.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
     private var status = AtomicInteger(Status.WAIT_START)
     private fun currentStatusString() = Status.valueOf(status.get())
 
@@ -218,14 +219,6 @@ class WebSocketSessionManager(private val service: ReceiverService) :
         }
 
         launch {
-            if (isInitialize) {
-                Log.i(tag, "first time init, wait for another 3 seconds.")
-                // FIXME: sometimes android will create service multi times. Prevent duplicate connection.
-                delay(3000)
-                isInitialize = false
-            }
-
-
             errorChannel = Channel(Channel.RENDEZVOUS)
             runCatching {
                 client.webSocket({
@@ -303,7 +296,7 @@ class WebSocketSessionManager(private val service: ReceiverService) :
                 }.fold({
                     Log.d(tag, "prepare to send notification")
                     val notificationMessage = it.toMessage()
-                    notifyMessage(notificationMessage, from = service.id)
+                    notifyMessage(notificationMessage, from = serviceID)
                 }, {
                     Log.e(tag, "Error parsing message", it)
                     Crashes.trackError(it)
@@ -317,6 +310,6 @@ class WebSocketSessionManager(private val service: ReceiverService) :
 
     private fun notifyMessage(message: Message, from: String = "anonymous") {
         Log.d(tag, "notifyMessage: $message from $from")
-        notifyMessage(service, message)
+        notifyMessage(applicationContext, message)
     }
 }

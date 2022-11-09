@@ -4,7 +4,6 @@ import android.content.ComponentName
 import android.content.Intent
 import android.service.notification.NotificationListenerService
 import android.util.Log
-import kotlinx.coroutines.cancel
 import top.learningman.push.service.websocket.WebSocketSessionManager
 import java.util.*
 
@@ -14,7 +13,6 @@ class ReceiverService : NotificationListenerService() {
         Log.d("ReceiverService", "ReceiverService init")
     }
 
-    private lateinit var manager: WebSocketSessionManager
     val id = UUID.randomUUID().toString()
 
     private val tag
@@ -22,16 +20,12 @@ class ReceiverService : NotificationListenerService() {
 
     override fun onCreate() {
         super.onCreate()
-        manager = WebSocketSessionManager(this)
+        if (manager == null) {
+            manager = WebSocketSessionManager(this)
+        }
+        manager?.setServiceID(id)
         Log.i(tag, "ReceiverService $id create")
 
-        services.add(id)
-        if (services.size > 1) {
-            Log.e(tag, "ReceiverService $id create more than once")
-            for (service in services) {
-                Log.e(tag, "ReceiverService $service exists")
-            }
-        }
     }
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -43,17 +37,17 @@ class ReceiverService : NotificationListenerService() {
                     val nextUserID =
                         intent.getStringExtra(INTENT_USERID_KEY)
                     if (!nextUserID.isNullOrEmpty()) {
-                        manager.updateUserID(nextUserID)
+                        manager?.updateUserID(nextUserID)
                     }
                 }
                 else -> {
                     Log.d("ReceiverService", "Unknown action ${intent.action}")
-                    manager.tryResume()
+                    manager?.tryResume()
                 }
             }
         } else {
             Log.d(tag, "with a null intent. It has been probably restarted by the system.")
-            manager.tryResume()
+            manager?.tryResume()
         }
         return START_STICKY
     }
@@ -67,30 +61,19 @@ class ReceiverService : NotificationListenerService() {
                 NotificationListenerService::class.java
             )
         )
-        manager.tryResume()
+        manager?.tryResume()
     }
 
     override fun onListenerConnected() {
         super.onListenerConnected()
         Log.d(tag, "onListenerConnected")
-        manager.tryResume()
+        manager?.tryResume()
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        manager.stop()
-        // Maybe useless but just in case
-        manager.cancel()
 
         Log.i(tag, "ReceiverService $id destroyed")
-
-        services.remove(id)
-        if (services.size > 0) {
-            Log.e(tag, "ReceiverService $id destroy but still exists")
-            for (service in services) {
-                Log.e(tag, "ReceiverService $service exists")
-            }
-        }
     }
 
 
@@ -100,7 +83,6 @@ class ReceiverService : NotificationListenerService() {
 
     companion object {
         const val INTENT_USERID_KEY = "nextUserID"
-
-        var services = mutableListOf<String>()
+        var manager: WebSocketSessionManager? = null
     }
 }
