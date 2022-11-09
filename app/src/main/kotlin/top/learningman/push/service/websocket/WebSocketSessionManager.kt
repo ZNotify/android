@@ -36,6 +36,7 @@ class WebSocketSessionManager(service: ReceiverService) :
 
     fun setServiceID(id: String) {
         serviceID = id
+        Log.d("WebSocketSessionManager", "Session controlled by $id")
     }
 
     private val tag
