@@ -44,7 +44,7 @@ val isDebug = gradle.startParameter.taskRequests.any { req ->
 val buildType = if (isDebug) ".debug" else ""
 
 //get current timestamp
-val currentVersionCode = System.currentTimeMillis().toInt() / 1000
+val currentVersionCode = System.currentTimeMillis() / 1000
 
 var baseVersionName = "1.0.0"
 
@@ -72,7 +72,7 @@ android {
         applicationId = "top.learningman.push"
         minSdk = 28
         targetSdk = 33
-        versionCode = currentVersionCode
+        versionCode = currentVersionCode.toInt()
         versionName = versionBase
     }
 
