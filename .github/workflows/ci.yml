@@ -44,6 +44,7 @@ jobs:
           arguments: assembleRelease bundlePlayRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
 
       - name: PreRelease Package
         uses: marvinpinto/action-automatic-releases@latest
