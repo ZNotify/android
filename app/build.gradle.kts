@@ -5,7 +5,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.20"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.21"
     id("com.google.gms.google-services")
 }
 
@@ -205,12 +205,12 @@ dependencies {
 
     implementation("com.github.code-mc:material-icon-lib:1.1.5")
 
-    val ktorVersion = "2.1.2"
+    val ktorVersion = "2.1.3"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-    implementation("dev.zxilly:notify-sdk:2.1.1")
+    implementation("dev.zxilly:notify-sdk:2.2.0")
 
     val markwonVersion = "4.6.2"
     implementation("io.noties.markwon:core:${markwonVersion}")
