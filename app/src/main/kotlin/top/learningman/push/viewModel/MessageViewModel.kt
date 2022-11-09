@@ -16,7 +16,7 @@ class MessageViewModel : ViewModel() {
     private var _isError = MutableLiveData(false)
     val isError: LiveData<Boolean> = _isError
 
-    fun loadMessages(userID: String) {
+    fun loadMessages() {
         viewModelScope.launch {
             Network.fetchMessage()
                 .onSuccess {
