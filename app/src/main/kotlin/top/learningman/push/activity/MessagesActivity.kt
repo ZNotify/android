@@ -50,7 +50,7 @@ class MessagesActivity : AppCompatActivity() {
         val userid = (application as MainApplication).repo.getUser()
 
         if (userid != Repo.PREF_USER_DEFAULT) {
-            thread { mViewModel.loadMessages(userid) }
+            thread { mViewModel.loadMessages() }
         }
     }
 
