@@ -9,8 +9,6 @@ plugins {
     id("com.google.gms.google-services")
 }
 
-val isCI = System.getenv("CI") == "true"
-
 fun getCommandResult(command: String): String {
     val process = Runtime.getRuntime().exec(command.split(" ").toTypedArray())
     process.waitFor()
@@ -18,12 +16,15 @@ fun getCommandResult(command: String): String {
 }
 
 fun getProp(key: String): String? {
+    val isCI = System.getenv("CI") == "true"
     return if (isCI) {
         System.getenv(key)
     } else {
         gradleLocalProperties(rootDir).getProperty(key)
     }
 }
+
+val isCI = System.getenv("CI") == "true"
 
 val gitCommitId = getCommandResult("git describe --tags --abbrev=0")
 
@@ -225,5 +226,5 @@ dependencies {
     implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
     implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
 
-    implementation("com.github.Zxilly:upgrader:37e5978178")
+    implementation("dev.zxilly.lib:upgrader:nightly.b00ca7d")
 }
