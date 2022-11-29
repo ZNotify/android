@@ -5,7 +5,7 @@ import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.21"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.google.gms.google-services")
 }
 
