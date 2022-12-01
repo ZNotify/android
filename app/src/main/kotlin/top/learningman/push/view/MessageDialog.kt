@@ -6,7 +6,7 @@ import android.content.Context
 import android.content.DialogInterface
 import android.graphics.Color
 import android.icu.text.SimpleDateFormat
-import android.text.method.ScrollingMovementMethod
+import android.text.method.LinkMovementMethod
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -45,7 +45,7 @@ object MessageDialog {
         if (msg.long.isNotBlank()) {
             val markwon = Markwon.getInstance(context)
             markwon.setMarkdown(dialogLong, msg.long)
-            dialogLong.movementMethod = ScrollingMovementMethod.getInstance()
+            dialogLong.movementMethod = LinkMovementMethod.getInstance()
             dialogLong.visibility = View.VISIBLE
         }
 
