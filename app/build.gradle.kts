@@ -26,12 +26,7 @@ fun getProp(key: String): String? {
 
 val isCI = System.getenv("CI") == "true"
 
-val gitCommitId = getCommandResult("git describe --tags --abbrev=0")
-
-val gitLastTag = getCommandResult("git describe --tags --abbrev=0")
-if (gitLastTag == "") {
-    throw GradleException("No git tags found. Please create a tag before building.")
-}
+val gitCommitId = getCommandResult("git rev-parse --short HEAD")
 
 val gitLastCommitMessage = getCommandResult("git log -1 --pretty=%B")
 
@@ -51,16 +46,14 @@ var baseVersionName = "1.0.0"
 if (isCI) {
     val currentEvent = System.getenv("GITHUB_EVENT_NAME")
     if (currentEvent == "push") {
-        if (isRelease) {
+        baseVersionName = if (isRelease) {
             val versionAll = gitLastCommitMessage.split("\\[release:")[1]
             val version = versionAll.split("]")[0].trim()
-            baseVersionName = version
+            version
         } else {
             val branch = System.getenv("GITHUB_REF_NAME")
-            if (branch == null) {
-                throw IllegalArgumentException("GITHUB_REF_NAME is not set")
-            }
-            baseVersionName = "$gitLastTag.$gitCommitId"
+                ?: throw IllegalArgumentException("GITHUB_REF_NAME is not set")
+            "$branch.$gitCommitId"
         }
     }
 }
@@ -173,7 +166,7 @@ dependencies {
     implementation("androidx.compose.animation:animation:1.3.1")
     implementation("androidx.compose.ui:ui-tooling:1.3.1")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
-    implementation("com.google.android.material:compose-theme-adapter:1.1.21")
+    implementation("com.google.android.material:compose-theme-adapter:1.2.1")
 
     implementation("com.google.android.material:material:1.7.0")
 
@@ -198,6 +191,8 @@ dependencies {
     implementation("androidx.fragment:fragment-ktx:1.5.4")
     implementation("androidx.activity:activity-ktx:1.6.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
+
+    implementation("androidx.browser:browser:1.5.0-alpha01")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
