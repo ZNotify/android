@@ -40,9 +40,19 @@ jobs:
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
-      - uses: gradle/gradle-build-action@v2
+      - name: Build apks
+        uses: gradle/gradle-build-action@v2
         with:
-          arguments: assembleRelease bundlePlayRelease --scan
+          arguments: assembleRelease --scan
+        env:
+          PASSWORD: "${{ secrets.PASSWORD }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+
+      - name: Build aab
+        if: steps.release.outputs.release == 'true'
+        uses: gradle/gradle-build-action@v2
+        with:
+          arguments: bundlePlayRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
@@ -69,6 +79,7 @@ jobs:
           files: |
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
+            app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
 
       - name: Get apk info
         id: apk-info
