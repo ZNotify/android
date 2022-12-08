@@ -13,7 +13,7 @@ if [[ $git_commit_message == *"[release:"* ]]; then
         echo "Version is $version"
     else
         echo "Version format is not correct"
-        echo "Version format should be x.x.x"
+        echo "Version format should be x.x.x, x is number"
         echo "But got $version"
         exit 1
     fi
