@@ -1,0 +1,27 @@
+name: Build Test
+
+on:
+  pull_request:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: set up JDK 11
+        uses: actions/setup-java@v2
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+          cache: gradle
+
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
+
+      - uses: gradle/gradle-build-action@v2
+        with:
+          arguments: assemble --scan
+        env:
+          PASSWORD: "${{ secrets.PASSWORD }}"
+          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
