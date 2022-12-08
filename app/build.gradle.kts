@@ -161,10 +161,10 @@ dependencies {
     implementation("androidx.appcompat:appcompat:1.5.1")
 
     implementation("androidx.activity:activity-compose:1.6.1")
-    implementation("androidx.compose.material3:material3:1.1.0-alpha02")
-    implementation("androidx.compose.material3:material3-window-size-class:1.1.0-alpha02")
-    implementation("androidx.compose.animation:animation:1.3.1")
-    implementation("androidx.compose.ui:ui-tooling:1.3.1")
+    implementation("androidx.compose.material3:material3:1.1.0-alpha03")
+    implementation("androidx.compose.material3:material3-window-size-class:1.1.0-alpha03")
+    implementation("androidx.compose.animation:animation:1.3.2")
+    implementation("androidx.compose.ui:ui-tooling:1.3.2")
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.5.1")
     implementation("com.google.android.material:compose-theme-adapter:1.2.1")
 
@@ -188,11 +188,11 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
-    implementation("androidx.fragment:fragment-ktx:1.5.4")
+    implementation("androidx.fragment:fragment-ktx:1.5.5")
     implementation("androidx.activity:activity-ktx:1.6.1")
     implementation("androidx.preference:preference-ktx:1.2.0")
 
-    implementation("androidx.browser:browser:1.5.0-alpha01")
+    implementation("androidx.browser:browser:1.5.0-alpha02")
 
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.4.1")
 
@@ -219,7 +219,9 @@ dependencies {
     implementation("com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}")
 
     implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
-    implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
 
-    implementation("dev.zxilly.lib:upgrader:nightly.8f61e9a")
+    val githubImplementation by configurations
+    val appcenterImplementation by configurations
+    githubImplementation("dev.zxilly.lib:upgrader:nightly.a683af7")
+    appcenterImplementation("dev.zxilly.lib:upgrader:nightly.a683af7")
 }
