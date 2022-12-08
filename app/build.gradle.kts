@@ -10,21 +10,23 @@ plugins {
 }
 
 fun getCommandResult(command: String): String {
+    println("Executing command: $command")
     val process = Runtime.getRuntime().exec(command.split(" ").toTypedArray())
     process.waitFor()
-    return process.inputStream.bufferedReader().readText().trim()
+    val result = process.inputStream.bufferedReader().readText().trim()
+    println("Command result: $result")
+    return result
 }
 
+val isCI = System.getenv("CI") == "true"
+
 fun getProp(key: String): String? {
-    val isCI = System.getenv("CI") == "true"
     return if (isCI) {
         System.getenv(key)
     } else {
         gradleLocalProperties(rootDir).getProperty(key)
     }
 }
-
-val isCI = System.getenv("CI") == "true"
 
 val gitCommitId = getCommandResult("git rev-parse --short HEAD")
 
@@ -47,7 +49,7 @@ if (isCI) {
     val currentEvent = System.getenv("GITHUB_EVENT_NAME")
     if (currentEvent == "push") {
         baseVersionName = if (isRelease) {
-            val versionAll = gitLastCommitMessage.split("\\[release:")[1]
+            val versionAll = gitLastCommitMessage.split("[release:")[1]
             val version = versionAll.split("]")[0].trim()
             version
         } else {
@@ -219,6 +221,7 @@ dependencies {
     implementation("com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}")
 
     implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
+    implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
 
     val githubImplementation by configurations
     val appcenterImplementation by configurations
