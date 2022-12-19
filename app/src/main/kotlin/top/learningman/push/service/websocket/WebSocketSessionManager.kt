@@ -224,7 +224,7 @@ class WebSocketSessionManager(service: ReceiverService) :
             runCatching {
                 client.webSocket({
                     url {
-                        this.takeFrom(Constant.API_WS_ENDPOINT)
+                        takeFrom(Constant.API_WS_ENDPOINT)
                         appendEncodedPathSegments(currentUserID, "host", "conn")
                     }
                     header("X-Device-ID", repo.getDeviceID())

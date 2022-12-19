@@ -80,6 +80,7 @@ jobs:
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
             app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
+            app/build/outputs/bundle/playRelease/app-play-release.aab
 
       - name: Get apk info
         id: apk-info
