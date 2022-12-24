@@ -105,7 +105,7 @@ class SetupActivity : AppCompatActivity() {
 
                     val fragment = adapter.pages[position]
                     if (fragment is FragmentWithTitle) {
-                        title.setTextAnimation( fragment.title)
+                        title.setTextAnimation(fragment.title)
                     }
                 }
             })
