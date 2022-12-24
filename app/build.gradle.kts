@@ -21,9 +21,11 @@ val isCI = System.getenv("CI") == "true"
 
 keeper {
     expectValue = true
-    properties()
+
     if (isCI) {
         environment(nameMapping = true)
+    } else {
+        properties()
     }
 }
 
