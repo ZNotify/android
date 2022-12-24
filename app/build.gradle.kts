@@ -1,12 +1,11 @@
 @file:Suppress("UnstableApiUsage")
 
-import com.android.build.gradle.internal.cxx.configure.gradleLocalProperties
-
 plugins {
     id("com.android.application")
     id("kotlin-android")
     id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
     id("com.google.gms.google-services")
+    id("dev.zxilly.gradle.keeper") version "0.0.3"
 }
 
 fun getCommandResult(command: String): String {
@@ -20,11 +19,11 @@ fun getCommandResult(command: String): String {
 
 val isCI = System.getenv("CI") == "true"
 
-fun getProp(key: String): String? {
-    return if (isCI) {
-        System.getenv(key)
-    } else {
-        gradleLocalProperties(rootDir).getProperty(key)
+keeper {
+    expectValue = true
+    properties()
+    if (isCI) {
+        environment(nameMapping = true)
     }
 }
 
@@ -73,7 +72,7 @@ android {
 
     signingConfigs {
         create("auto") {
-            val password = getProp("PASSWORD")
+            val password = secret.get("password")
 
             if (password == null || password.isEmpty()) {
                 throw Exception("Signing password not found.")
