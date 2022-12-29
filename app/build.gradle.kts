@@ -3,7 +3,7 @@
 plugins {
     id("com.android.application")
     id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
     id("com.google.gms.google-services")
     id("dev.zxilly.gradle.keeper") version "0.0.3"
 }
