@@ -133,7 +133,7 @@ android {
         includeInBundle = false
     }
 
-    flavorDimensions.add("pub")
+    flavorDimensions += listOf("pub")
     productFlavors {
         create("free") {
             dimension = "pub"
@@ -152,6 +152,7 @@ android {
             versionNameSuffix = "(play)"
         }
     }
+
 }
 
 dependencies {
@@ -169,7 +170,7 @@ dependencies {
 
     implementation("com.google.android.material:material:1.7.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:30.5.0"))
+    implementation(platform("com.google.firebase:firebase-bom:31.1.1"))
     implementation("com.google.firebase:firebase-messaging-ktx")
     implementation("androidx.core:core-ktx:1.9.0")
 
