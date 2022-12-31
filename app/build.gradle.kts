@@ -223,7 +223,7 @@ dependencies {
 
     val githubImplementation by configurations
     val appcenterImplementation by configurations
-    val upgraderVersion = "nightly.e4d8047"
+    val upgraderVersion = "nightly.b4bb8fc"
     githubImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
     appcenterImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
 }
