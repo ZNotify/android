@@ -29,6 +29,7 @@ internal fun checkerInit(app: Application) {
     }
 }
 
+@Suppress("UNUSED_PARAMETER")
 internal fun checkUpgrade(context: Context) {
     Upgrader.getInstance()?.tryUpgrade()
 }

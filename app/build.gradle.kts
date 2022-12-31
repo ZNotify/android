@@ -102,9 +102,10 @@ android {
     kotlinOptions {
         jvmTarget = "1.8"
 
-//        TODO: use k2
-//        freeCompilerArgs += [
-//        ]
+        freeCompilerArgs = listOf(
+            "-P",
+            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
+        )
     }
     packagingOptions {
         resources {
@@ -125,7 +126,7 @@ android {
     }
 
     composeOptions {
-        kotlinCompilerExtensionVersion = "1.3.2"
+        kotlinCompilerExtensionVersion = "1.4.0-dev-k1.8.0-RC-4c1865595ed"
     }
     dependenciesInfo {
         includeInApk = false
@@ -222,6 +223,7 @@ dependencies {
 
     val githubImplementation by configurations
     val appcenterImplementation by configurations
-    githubImplementation("dev.zxilly.lib:upgrader:0.3.1")
-    appcenterImplementation("dev.zxilly.lib:upgrader:0.3.1")
+    val upgraderVersion = "nightly.e4d8047"
+    githubImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
+    appcenterImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
 }

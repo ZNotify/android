@@ -17,6 +17,7 @@ fun checkerInit(app: Application) {
     )
 }
 
+@Suppress("UNUSED_PARAMETER")
 fun checkUpgrade(context: Context) {
     runCatching {
         Upgrader.getInstance()?.tryUpgrade()?: Log.e("Checker", "Upgrader is null")
