@@ -14,6 +14,14 @@ fun getProp(key: String): String? {
     }
 }
 
+pluginManagement {
+    repositories {
+        google()
+        gradlePluginPortal()
+        mavenCentral()
+    }
+}
+
 dependencyResolutionManagement {
     repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
     repositories {
@@ -50,4 +58,4 @@ gradleEnterprise {
 
 rootProject.name = "Notify"
 
-include(":app")
+include("app")

@@ -1,20 +1,15 @@
 @file:Suppress("UnstableApiUsage")
 
-plugins {
-    id("com.android.application")
-    id("kotlin-android")
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.7.22"
-    id("com.google.gms.google-services")
-    id("dev.zxilly.gradle.keeper") version "0.0.3"
-}
+import dev.zxilly.gradle.exec
 
-fun getCommandResult(command: String): String {
-    println("Executing command: $command")
-    val process = Runtime.getRuntime().exec(command.split(" ").toTypedArray())
-    process.waitFor()
-    val result = process.inputStream.bufferedReader().readText().trim()
-    println("Command result: $result")
-    return result
+plugins {
+    id("com.android.application") version "7.4.0-rc03"
+
+    id("org.jetbrains.kotlin.android") version "1.8.0"
+    id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
+
+    id("com.google.gms.google-services") version "4.3.14"
+    id("dev.zxilly.gradle.keeper") version "0.0.3"
 }
 
 val isCI = System.getenv("CI") == "true"
@@ -29,9 +24,9 @@ keeper {
     }
 }
 
-val gitCommitId = getCommandResult("git rev-parse --short HEAD")
 
-val gitLastCommitMessage = getCommandResult("git log -1 --pretty=%B")
+val gitCommitId = "git rev-parse --short HEAD".exec()
+val gitLastCommitMessage = "git log -1 --pretty=%B".exec()
 
 val isRelease = gitLastCommitMessage.contains("[release")
 
@@ -175,6 +170,7 @@ dependencies {
 
     implementation(platform("com.google.firebase:firebase-bom:30.5.0"))
     implementation("com.google.firebase:firebase-messaging-ktx")
+    implementation("androidx.core:core-ktx:1.9.0")
 
     val playImplementation by configurations
     playImplementation("com.google.android.play:app-update:2.0.1")
@@ -226,6 +222,6 @@ dependencies {
 
     val githubImplementation by configurations
     val appcenterImplementation by configurations
-    githubImplementation("dev.zxilly.lib:upgrader:nightly.a683af7")
-    appcenterImplementation("dev.zxilly.lib:upgrader:nightly.a683af7")
+    githubImplementation("dev.zxilly.lib:upgrader:0.3.1")
+    appcenterImplementation("dev.zxilly.lib:upgrader:0.3.1")
 }
