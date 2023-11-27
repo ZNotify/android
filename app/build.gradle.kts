@@ -9,7 +9,7 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.8.0"
 
     id("com.google.gms.google-services") version "4.3.14"
-    id("dev.zxilly.gradle.keeper") version "0.0.3"
+    id("dev.zxilly.gradle.keeper") version "0.1.0"
 }
 
 val isCI = System.getenv("CI") == "true"
