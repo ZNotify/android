@@ -17,8 +17,8 @@ import kotlinx.coroutines.launch
 import top.learningman.push.data.Repo
 import top.learningman.push.service.ReceiverService
 import top.learningman.push.utils.Network
-import top.learningman.push.utils.RomUtils
 import xyz.kumaraswamy.autostart.Autostart
+import xyz.kumaraswamy.autostart.Utils
 import java.util.*
 import dev.zxilly.notify.sdk.entity.Channel as NotifyChannel
 
@@ -124,7 +124,7 @@ object WebSocket : Channel {
         }
         permissions.add(batteryIgnorePermission)
 
-        if (RomUtils.isMiui()) {
+        if (Utils.isOnMiui()) {
             val miuiAutoStartPermission = object : Permission {
                 override val name: String
                     get() = "自启动"
@@ -133,14 +133,7 @@ object WebSocket : Channel {
 
                 override fun check(context: Context): Boolean? {
                     return kotlin.runCatching {
-                        val asi = Autostart(context)
-                        return@runCatching when (asi.autoStartState) {
-                            Autostart.State.UNEXPECTED_RESULT -> null
-                            Autostart.State.DISABLED -> false
-                            Autostart.State.ENABLED -> true
-                            Autostart.State.NO_INFO -> null
-                            null -> null
-                        }
+                        return Autostart.isAutoStartEnabled(context)
                     }.getOrNull()
                 }
 
