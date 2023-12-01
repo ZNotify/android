@@ -203,7 +203,7 @@ dependencies {
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-    implementation("dev.zxilly:notify-sdk:2.2.2")
+    implementation("dev.zxilly:notify-sdk:2.3.1")
 
     val markwonVersion = "4.6.2"
     implementation("io.noties.markwon:core:${markwonVersion}")
