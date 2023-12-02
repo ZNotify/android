@@ -23,8 +23,7 @@ object MessageDialog {
         val content: String,
         val long: String,
         val time: Date,
-        val msgID: String,
-        val userID: String
+        val msgID: String
     )
 
     @SuppressLint("InflateParams")

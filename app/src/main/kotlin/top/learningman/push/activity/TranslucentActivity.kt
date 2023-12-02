@@ -15,15 +15,13 @@ class TranslucentActivity : Activity() {
         val binding = ActivityTranslucentBinding.inflate(layoutInflater)
         setContentView(binding.root)
 
-        val userID = intent.getStringExtra(USERID_INTENT_KEY)
         val long = intent.getStringExtra(LONG_INTENT_KEY)
         val msgID = intent.getStringExtra(MSGID_INTENT_KEY)
         val title = intent.getStringExtra(TITLE_INTENT_KEY)
         val content = intent.getStringExtra(CONTENT_INTENT_KEY)
         val time = intent.getStringExtra(TIME_INTENT_KEY)
 
-        if (userID == null
-            || long == null
+        if (long == null
             || msgID == null
             || title == null
             || content == null
@@ -39,8 +37,7 @@ class TranslucentActivity : Activity() {
             content,
             long,
             time.fromRFC3339(),
-            msgID,
-            userID
+            msgID
         )
         MessageDialog.show(message, this) {
             finish()
@@ -48,7 +45,6 @@ class TranslucentActivity : Activity() {
     }
 
     companion object {
-        const val USERID_INTENT_KEY = "user_id"
         const val LONG_INTENT_KEY = "long"
         const val MSGID_INTENT_KEY = "msg_id"
         const val TITLE_INTENT_KEY = "title"

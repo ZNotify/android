@@ -8,7 +8,7 @@ import top.learningman.push.Constant
 import top.learningman.push.entity.Message
 
 object Network {
-    var client: Client? = null
+    private var client: Client? = null
     private val clientMutex = Mutex()
 
     private suspend fun <T> sync(block: suspend () -> T): T {
@@ -27,7 +27,8 @@ object Network {
     }
 
     suspend fun requestDelete(msgID: String) = sync {
-        return@sync client?.delete(msgID) ?: Result.failure(Exception("client is null"))
+        return@sync client?.deleteMessage(msgID)
+            ?: Result.failure(Exception("Client is null"))
     }
 
     suspend fun check(userID: String) = sync {
@@ -45,22 +46,24 @@ object Network {
         channel: Channel,
         deviceID: String
     ): Result<Boolean> = sync {
-        return@sync client?.register(channel, token, deviceID)
+        return@sync client?.createDevice(channel, token, deviceID)
             ?: Result.failure(Exception("Client is null"))
     }
 
     suspend fun fetchMessage(): Result<List<Message>> = sync {
-        return@sync client?.fetchMessage {
-            this.map {
+        client?.getMessages()?.onFailure {
+            return@sync Result.failure(it)
+        }?.getOrNull()?.let { ret ->
+            return@sync Result.success(ret.map {
                 Message(
-                    it.id,
-                    it.title,
-                    it.content,
-                    it.created_at,
-                    it.long,
-                    it.user_id
+                    id = it.id,
+                    title = it.title,
+                    content = it.content,
+                    createdAt = it.createdAt,
+                    long = it.long,
                 )
-            }
+            })
         } ?: Result.failure(Exception("Client is null"))
+
     }
 }

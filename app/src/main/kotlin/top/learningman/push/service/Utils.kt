@@ -39,7 +39,6 @@ object Utils {
             putExtra(TranslucentActivity.TITLE_INTENT_KEY, message.title)
             putExtra(TranslucentActivity.MSGID_INTENT_KEY, message.id)
             putExtra(TranslucentActivity.LONG_INTENT_KEY, message.long)
-            putExtra(TranslucentActivity.USERID_INTENT_KEY, message.userID)
         }
 
         val pendingIntent = PendingIntent.getActivity(

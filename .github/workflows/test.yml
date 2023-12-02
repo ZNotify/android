@@ -21,7 +21,7 @@ jobs:
 
       - uses: gradle/gradle-build-action@v2
         with:
-          arguments: assemble --scan
+          arguments: assembleUnsigned --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
           GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"

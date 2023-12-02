@@ -35,7 +35,6 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
         private val messageItemContentView = binding.rowItemContent
         private val messageItemTimeView = binding.rowItemTime
 
-
         fun bind(msg: Message) {
             messageItemTitleView.text = msg.title
             messageItemContentView.text = msg.content
@@ -50,7 +49,6 @@ class MessageAdapter(private val viewModel: MessageViewModel) :
                 msg.long,
                 msg.createdAt.fromRFC3339(),
                 msg.id,
-                msg.userID
             )
 
             val dialog = MessageDialog.show(message, itemView.context, false) { positive ->

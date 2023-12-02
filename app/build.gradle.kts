@@ -5,8 +5,10 @@ import dev.zxilly.gradle.exec
 plugins {
     id("com.android.application") version "8.2.0"
 
-    id("org.jetbrains.kotlin.android") version "1.9.21"
-    id("org.jetbrains.kotlin.plugin.serialization") version "1.9.21"
+    val ktVersion = "1.9.21"
+
+    kotlin("android") version ktVersion
+    kotlin("plugin.serialization") version ktVersion
 
     id("com.google.gms.google-services") version "4.4.0"
     id("dev.zxilly.gradle.keeper") version "0.1.0"
@@ -15,7 +17,7 @@ plugins {
 val isCI = System.getenv("CI") == "true"
 
 keeper {
-    expectValue = true
+    expectValue = false
 
     if (isCI) {
         environment(nameMapping = true)
@@ -83,6 +85,10 @@ android {
     compileSdk = 34
 
     buildTypes {
+        create("unsigned") {
+            signingConfig = null
+        }
+
         debug {
             signingConfig = signingConfigs.getByName("auto")
         }
@@ -203,7 +209,7 @@ dependencies {
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
 
-    implementation("dev.zxilly:notify-sdk:2.3.1")
+    implementation("dev.zxilly:notify-sdk:2.3.3")
 
     val markwonVersion = "4.6.2"
     implementation("io.noties.markwon:core:${markwonVersion}")
@@ -220,7 +226,7 @@ dependencies {
 
     val githubImplementation by configurations
     val appcenterImplementation by configurations
-    val upgraderVersion = "nightly.b4bb8fc"
+    val upgraderVersion = "nightly.18f8e0e"
     githubImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
     appcenterImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
 }

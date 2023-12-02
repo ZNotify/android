@@ -18,7 +18,7 @@ import kotlinx.serialization.json.Json
 import okhttp3.OkHttpClient
 import top.learningman.push.Constant
 import top.learningman.push.data.Repo
-import top.learningman.push.entity.JSONMessageItem
+import dev.zxilly.notify.sdk.entity.Message as SDKMessage
 import top.learningman.push.entity.Message
 import top.learningman.push.service.ReceiverService
 import top.learningman.push.service.Utils.notifyMessage
@@ -27,7 +27,7 @@ import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.concurrent.atomic.AtomicInteger
 
-@OptIn(DelicateCoroutinesApi::class)
+@OptIn(DelicateCoroutinesApi::class, ExperimentalCoroutinesApi::class)
 class WebSocketSessionManager(service: ReceiverService) :
     CoroutineScope by CoroutineScope(context = newSingleThreadContext("WebsocketSessionManager") + SupervisorJob()) {
 
@@ -291,12 +291,18 @@ class WebSocketSessionManager(service: ReceiverService) :
                 Log.d(tag, "handleFrame: $message")
                 runCatching {
                     Json.decodeFromString(
-                        JSONMessageItem.serializer(),
+                        SDKMessage.serializer(),
                         message
                     )
                 }.fold({
                     Log.d(tag, "prepare to send notification")
-                    val notificationMessage = it.toMessage()
+                    val notificationMessage = Message(
+                        id = it.id,
+                        title = it.title,
+                        content = it.content,
+                        createdAt = it.createdAt,
+                        long = it.long
+                    )
                     notifyMessage(notificationMessage, from = serviceID)
                 }, {
                     Log.e(tag, "Error parsing message", it)
