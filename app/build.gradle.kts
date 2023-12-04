@@ -214,7 +214,7 @@ dependencies {
     implementation("io.noties.markwon:html:${markwonVersion}")
     implementation("io.noties.markwon:image:${markwonVersion}")
 
-    val appCenterSdkVersion = "5.0.2"
+    val appCenterSdkVersion = "5.0.3"
     implementation("com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}")
     implementation("com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}")
 
