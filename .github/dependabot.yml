@@ -4,3 +4,7 @@ updates:
     directory: "/app"
     schedule:
       interval: "daily"
+
+  - package-ecosystem: "github-actions"
+    schedule:
+      interval: "daily"
