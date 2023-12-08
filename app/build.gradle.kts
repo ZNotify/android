@@ -73,9 +73,6 @@ android {
         create("auto") {
             val password = secret.get("password")
 
-            if (password.isNullOrEmpty()) {
-                throw Exception("Signing password not found.")
-            }
             storeFile = file("../release.jks")
             keyAlias = "key"
             storePassword = password
