@@ -41,7 +41,7 @@ jobs:
         run: chmod +x gradlew
 
       - name: Build apks
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: assembleRelease --scan
         env:
@@ -50,7 +50,7 @@ jobs:
 
       - name: Build aab
         if: steps.release.outputs.release == 'true'
-        uses: gradle/gradle-build-action@v2
+        uses: gradle/gradle-build-action@v3
         with:
           arguments: bundlePlayRelease --scan
         env:
