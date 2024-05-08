@@ -5,7 +5,7 @@ import dev.zxilly.gradle.exec
 plugins {
     id("com.android.application") version "8.2.0"
 
-    val ktVersion = "1.9.23"
+    val ktVersion = "1.9.24"
 
     kotlin("android") version ktVersion
     kotlin("plugin.serialization") version ktVersion
