@@ -30,10 +30,10 @@ jobs:
         id: release
         run: ./scripts/release_check.sh
 
-      - name: set up JDK 17
+      - name: set up JDK 21
         uses: actions/setup-java@v5
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'temurin'
           cache: gradle
 
@@ -55,13 +55,13 @@ jobs:
           arguments: bundlePlayRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
 
       - name: PreRelease Package
         uses: marvinpinto/action-automatic-releases@latest
         if: steps.release.outputs.release == 'false'
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GH_TOKEN }}"
           automatic_release_tag: "nightly"
           prerelease: true
           files: |
@@ -72,7 +72,7 @@ jobs:
         uses: marvinpinto/action-automatic-releases@latest
         if: steps.release.outputs.release == 'true'
         with:
-          repo_token: "${{ secrets.GITHUB_TOKEN }}"
+          repo_token: "${{ secrets.GH_TOKEN }}"
           automatic_release_tag: "${{ steps.release.outputs.version }}"
           prerelease: false
           files: |
