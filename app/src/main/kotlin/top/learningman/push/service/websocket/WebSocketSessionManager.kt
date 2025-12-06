@@ -3,7 +3,6 @@ package top.learningman.push.service.websocket
 import android.content.Context
 import android.net.ConnectivityManager
 import android.util.Log
-import com.microsoft.appcenter.crashes.Crashes
 import io.ktor.client.*
 import io.ktor.client.engine.okhttp.*
 import io.ktor.client.plugins.*
@@ -306,7 +305,6 @@ class WebSocketSessionManager(service: ReceiverService) :
                     notifyMessage(notificationMessage, from = serviceID)
                 }, {
                     Log.e(tag, "Error parsing message", it)
-                    Crashes.trackError(it)
                 })
             }
             else -> {

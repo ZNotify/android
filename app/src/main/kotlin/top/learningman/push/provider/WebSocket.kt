@@ -10,7 +10,6 @@ import android.net.Uri
 import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
-import com.microsoft.appcenter.crashes.Crashes
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -45,7 +44,6 @@ object WebSocket : Channel {
                 Log.i("WebSocket", "WebSocket init 成功")
             }.onFailure {
                 Log.e("WebSocket", "WebSocket init 失败", it)
-                Crashes.trackError(it)
             }
         }
     }
@@ -71,7 +69,6 @@ object WebSocket : Channel {
                 }
                 .onFailure {
                     Log.e("WebSocket", "WebSocket 注册失败", it)
-                    Crashes.trackError(it)
                 }
         }
     }

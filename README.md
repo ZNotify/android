@@ -13,8 +13,6 @@
 
 ## Download
 
-[AppCenter](https://install.appcenter.ms/users/zxilly/apps/notify/distribution_groups/public)
-
 [Github Release](https://github.com/ZNotify/android/releases)
 
 <a href="https://play.google.com/store/apps/details?id=top.learningman.push"><img src="/static/google-play-badge.png" width="250"></a>
@@ -25,7 +23,6 @@
 
 `app-github-release.apk` 包含从 `Github` 下载应用内更新的代码。
 
-`AppCenter` 的应用内更新由 `AppCenter` 提供。
 
 `Google Play` 的应用内更新由 `Google Play In-app` 提供。
 

@@ -12,7 +12,6 @@ import android.widget.Toast
 import androidx.core.app.ActivityCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.microsoft.appcenter.crashes.Crashes
 import top.learningman.push.R
 import top.learningman.push.activity.TranslucentActivity
 import top.learningman.push.entity.Message
@@ -61,11 +60,6 @@ object Utils {
             ) != PackageManager.PERMISSION_GRANTED
         ) {
             Log.e("Push", "No permission to post notification")
-            Crashes.trackError(
-                Throwable(
-                    "No permission to post notification"
-                )
-            )
             Toast.makeText(context, "No permission to post notification", Toast.LENGTH_SHORT).show()
             return
         }

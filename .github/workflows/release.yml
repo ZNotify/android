@@ -67,7 +67,6 @@ jobs:
           files: |
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
-            app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
 
       - name: Release Package
         uses: marvinpinto/action-automatic-releases@latest
@@ -79,27 +78,7 @@ jobs:
           files: |
             app/build/outputs/apk/github/release/*
             app/build/outputs/apk/free/release/app-free-release.apk
-            app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
             app/build/outputs/bundle/playRelease/app-play-release.aab
-
-      - name: Get apk info
-        id: apk-info
-        uses: hkusu/apk-info-action@v1
-        with:
-          apk-path: app/build/outputs/apk/appcenter/release/app-appcenter-release.apk
-
-      - name: Setup AppCenter CLI
-        run: |
-          npm install -g appcenter-cli
-
-      - name: Upload artifact to App Center
-        run: |
-          ./scripts/appcenter.sh
-        shell: bash
-        env:
-          VERSION_CODE: ${{ steps.apk-info.outputs.version-code }}
-          VERSION_NAME: ${{ steps.apk-info.outputs.version-name }}
-          APPCENTER_TOKEN: ${{ secrets.APP_CENTER_TOKEN }}
 
       - name: Create whatsNew
         if: steps.release.outputs.release == 'true'

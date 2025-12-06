@@ -3,7 +3,6 @@ package top.learningman.push
 import android.app.Application
 import android.content.Context
 import android.util.Log
-import com.microsoft.appcenter.crashes.Crashes
 import dev.zxilly.lib.upgrader.Upgrader
 import dev.zxilly.lib.upgrader.checker.GitHubRMCConfig
 import dev.zxilly.lib.upgrader.checker.GitHubReleaseMetadataChecker
@@ -25,7 +24,6 @@ internal fun checkerInit(app: Application) {
         )
     }.onFailure {
         Log.e("Upgrader", "Failed to initialize Upgrader", it)
-        Crashes.trackError(it)
     }
 }
 

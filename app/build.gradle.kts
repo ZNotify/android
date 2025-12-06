@@ -1,16 +1,18 @@
 @file:Suppress("UnstableApiUsage")
 
 import dev.zxilly.gradle.exec
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 
 plugins {
-    id("com.android.application") version "8.2.0"
+    id("com.android.application") version "8.13.1"
 
     val ktVersion = "2.1.0"
 
     kotlin("android") version ktVersion
     kotlin("plugin.serialization") version ktVersion
+    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
 
-    id("com.google.gms.google-services") version "4.4.0"
+    id("com.google.gms.google-services") version "4.4.4"
     id("dev.zxilly.gradle.keeper") version "0.1.0"
 }
 
@@ -64,7 +66,7 @@ android {
     defaultConfig {
         applicationId = "top.learningman.push"
         minSdk = 28
-        targetSdk = 34
+        targetSdk = 36
         versionCode = currentVersionCode.toInt()
         versionName = versionBase
     }
@@ -79,7 +81,7 @@ android {
             keyPassword = password
         }
     }
-    compileSdk = 34
+    compileSdk = 36
 
     buildTypes {
         create("unsigned") {
@@ -99,15 +101,14 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility = JavaVersion.VERSION_1_8
-        targetCompatibility = JavaVersion.VERSION_1_8
+        sourceCompatibility = JavaVersion.VERSION_11
+        targetCompatibility = JavaVersion.VERSION_11
     }
-    kotlinOptions {
-        jvmTarget = "1.8"
-        freeCompilerArgs += listOf(
-            "-P",
-            "plugin:androidx.compose.compiler.plugins.kotlin:suppressKotlinVersionCompatibilityCheck=true"
-        )
+
+    kotlin {
+        compilerOptions {
+            jvmTarget = JvmTarget.JVM_11
+        }
     }
     packaging {
         resources {
@@ -128,9 +129,6 @@ android {
         buildConfig = true
     }
 
-    composeOptions {
-        kotlinCompilerExtensionVersion = "1.5.5-dev-k1.9.21-163bb051fe5"
-    }
     dependenciesInfo {
         includeInApk = false
         includeInBundle = false
@@ -146,10 +144,6 @@ android {
             dimension = "pub"
             versionNameSuffix = "(github)"
         }
-        create("appcenter") {
-            dimension = "pub"
-            versionNameSuffix = "(appcenter)"
-        }
         create("play") {
             dimension = "pub"
             versionNameSuffix = "(play)"
@@ -159,53 +153,53 @@ android {
 }
 
 dependencies {
-    implementation("androidx.core:core-ktx:1.12.0")
-    implementation("androidx.core:core-splashscreen:1.0.1")
-    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.core:core-ktx:1.17.0")
+    implementation("androidx.core:core-splashscreen:1.2.0")
+    implementation("androidx.appcompat:appcompat:1.7.1")
 
-    implementation("androidx.activity:activity-compose:1.8.1")
-    implementation("androidx.compose.material3:material3:1.1.2")
-    implementation("androidx.compose.material3:material3-window-size-class:1.1.2")
-    implementation("androidx.compose.animation:animation:1.5.4")
-    implementation("androidx.compose.ui:ui-tooling:1.5.4")
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.6.2")
+    implementation("androidx.activity:activity-compose:1.12.1")
+    implementation("androidx.compose.material3:material3:1.4.0")
+    implementation("androidx.compose.material3:material3-window-size-class:1.4.0")
+    implementation("androidx.compose.animation:animation:1.10.0")
+    implementation("androidx.compose.ui:ui-tooling:1.10.0")
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.10.0")
     implementation("com.google.android.material:compose-theme-adapter:1.2.1")
 
-    implementation("com.google.android.material:material:1.10.0")
+    implementation("com.google.android.material:material:1.13.0")
 
-    implementation(platform("com.google.firebase:firebase-bom:31.1.1"))
-    implementation("com.google.firebase:firebase-messaging-ktx")
-    implementation("androidx.core:core-ktx:1.12.0")
+    implementation(platform("com.google.firebase:firebase-bom:34.6.0"))
+    implementation("com.google.firebase:firebase-messaging")
+    implementation("androidx.core:core-ktx:1.17.0")
 
     val playImplementation by configurations
     playImplementation("com.google.android.play:app-update:2.1.0")
     playImplementation("com.google.android.play:app-update-ktx:2.1.0")
 
-    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.7.5")
-    implementation("androidx.navigation:navigation-ui-ktx:2.7.5")
+    implementation("androidx.constraintlayout:constraintlayout:2.2.1")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.9.6")
+    implementation("androidx.navigation:navigation-ui-ktx:2.9.6")
 
-    val lifecycleVersion = "2.6.2"
+    val lifecycleVersion = "2.10.0"
     implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-service:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
-    implementation("androidx.fragment:fragment-ktx:1.6.2")
-    implementation("androidx.activity:activity-ktx:1.8.1")
+    implementation("androidx.fragment:fragment-ktx:1.8.9")
+    implementation("androidx.activity:activity-ktx:1.12.1")
     implementation("androidx.preference:preference-ktx:1.2.1")
 
-    implementation("androidx.browser:browser:1.7.0")
+    implementation("androidx.browser:browser:1.9.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.9.0")
 
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.1")
-    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.1")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.10.2")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.10.2")
 
     implementation("com.github.code-mc:material-icon-lib:1.1.5")
 
-    val ktorVersion = "3.0.3"
+    val ktorVersion = "3.3.3"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
@@ -218,16 +212,10 @@ dependencies {
     implementation("io.noties.markwon:html:${markwonVersion}")
     implementation("io.noties.markwon:image:${markwonVersion}")
 
-    val appCenterSdkVersion = "5.0.5"
-    implementation("com.microsoft.appcenter:appcenter-analytics:${appCenterSdkVersion}")
-    implementation("com.microsoft.appcenter:appcenter-crashes:${appCenterSdkVersion}")
-
     implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
     implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
 
     val githubImplementation by configurations
-    val appcenterImplementation by configurations
-    val upgraderVersion = "nightly.18f8e0e"
+    val upgraderVersion = "0.4.0"
     githubImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
-    appcenterImplementation("dev.zxilly.lib:upgrader:$upgraderVersion")
 }

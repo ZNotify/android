@@ -10,7 +10,6 @@ import androidx.preference.EditTextPreference
 import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
-import com.microsoft.appcenter.crashes.Crashes
 import dev.zxilly.notify.sdk.Client
 import kotlinx.coroutines.runBlocking
 import top.learningman.push.BuildConfig
@@ -51,7 +50,6 @@ class SettingsActivity : AppCompatActivity() {
                         checkUpgrade(requireActivity())
                     }.onFailure {
                         Log.e("Upgrader", "Failed to check upgrade", it)
-                        Crashes.trackError(it)
                     }
                     true
                 }

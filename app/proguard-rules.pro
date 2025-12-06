@@ -16,3 +16,22 @@
 -dontwarn org.openjsse.net.ssl.OpenJSSE
 -dontwarn org.slf4j.impl.StaticLoggerBinder
 -dontwarn pl.droidsonroids.gif.GifDrawable
+
+-dontwarn io.ktor.client.network.sockets.TimeoutExceptionsCommonKt
+-dontwarn io.ktor.client.plugins.HttpRequestRetry$Configuration
+-dontwarn io.ktor.client.plugins.HttpRequestRetry$Plugin
+-dontwarn io.ktor.client.plugins.HttpRequestRetry$ShouldRetryContext
+-dontwarn io.ktor.client.plugins.HttpRequestRetry
+-dontwarn io.ktor.client.plugins.HttpTimeout$HttpTimeoutCapabilityConfiguration
+-dontwarn io.ktor.client.plugins.HttpTimeout$Plugin
+-dontwarn io.ktor.client.plugins.HttpTimeout
+-dontwarn io.ktor.client.plugins.UserAgent$Config
+-dontwarn io.ktor.client.plugins.UserAgent$Plugin
+-dontwarn io.ktor.client.plugins.UserAgent
+-dontwarn io.ktor.util.KtorDsl
+-dontwarn io.ktor.utils.io.CoroutinesKt
+-dontwarn io.ktor.utils.io.core.ByteReadPacket
+-dontwarn io.ktor.utils.io.core.Input
+-dontwarn io.ktor.client.plugins.contentnegotiation.ContentNegotiation$Config
+-dontwarn io.ktor.client.plugins.contentnegotiation.ContentNegotiation$Plugin
+-dontwarn io.ktor.client.plugins.contentnegotiation.ContentNegotiation
