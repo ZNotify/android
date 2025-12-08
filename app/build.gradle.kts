@@ -6,7 +6,7 @@ import org.jetbrains.kotlin.gradle.dsl.JvmTarget
 plugins {
     id("com.android.application") version "8.13.1"
 
-    val ktVersion = "2.1.0"
+    val ktVersion = "2.2.21"
 
     kotlin("android") version ktVersion
     kotlin("plugin.serialization") version ktVersion
