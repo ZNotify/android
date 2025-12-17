@@ -10,7 +10,7 @@ plugins {
 
     kotlin("android") version ktVersion
     kotlin("plugin.serialization") version ktVersion
-    id("org.jetbrains.kotlin.plugin.compose") version "2.2.21"
+    id("org.jetbrains.kotlin.plugin.compose") version "2.3.0"
 
     id("com.google.gms.google-services") version "4.4.4"
     id("dev.zxilly.gradle.keeper") version "0.1.0"
