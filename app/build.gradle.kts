@@ -199,7 +199,7 @@ dependencies {
 
     implementation("com.github.code-mc:material-icon-lib:1.1.5")
 
-    val ktorVersion = "3.4.0"
+    val ktorVersion = "3.4.1"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
