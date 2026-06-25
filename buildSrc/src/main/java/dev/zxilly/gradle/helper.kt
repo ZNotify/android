@@ -1,8 +1,14 @@
 package dev.zxilly.gradle
 
-import org.codehaus.groovy.runtime.ProcessGroovyMethods
-
 fun String.exec(): String {
-    val str = ProcessGroovyMethods.getText(ProcessGroovyMethods.execute(this))
-    return str.trim()
+    val parts = trim().split(Regex("\\s+"))
+    val process = ProcessBuilder(parts)
+        .redirectErrorStream(true)
+        .start()
+    val output = process.inputStream.bufferedReader().use { it.readText() }.trim()
+    val exitCode = process.waitFor()
+    check(exitCode == 0) {
+        "Command failed with exit code $exitCode: $this\n$output"
+    }
+    return output
 }

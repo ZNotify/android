@@ -31,15 +31,27 @@ dependencyResolutionManagement {
             url = uri("https://jitpack.io")
         }
         maven {
-            url = uri("https://androidx.dev/storage/compose-compiler/repository/")
-        }
-        maven {
             url = uri("https://maven.pkg.github.com/Zxilly/upgrader")
             credentials {
                 username = getProp("GITHUB_USER") ?: "Zxilly"
-                password = getProp("GITHUB_TOKEN")
+                password = getProp("GITHUB_TOKEN") ?: ""
             }
         }
+    }
+}
+
+plugins {
+    id("com.gradle.develocity") version "4.4.3"
+}
+
+develocity {
+    buildScan {
+        termsOfUseUrl.set("https://gradle.com/help/legal-terms-of-use")
+        termsOfUseAgree.set("yes")
+        publishing.onlyIf {
+            System.getenv("GITHUB_ACTIONS") == "true" || it.buildResult.failures.isNotEmpty()
+        }
+        uploadInBackground.set(System.getenv("CI").isNullOrEmpty())
     }
 }
 
