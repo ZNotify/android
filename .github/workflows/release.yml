@@ -37,22 +37,20 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
+      - uses: gradle/actions/setup-gradle@v4
+
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
 
       - name: Build apks
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: assembleRelease --scan
+        run: ./gradlew assembleRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
-          GITHUB_TOKEN: "${{ secrets.GITHUB_TOKEN }}"
+          GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
 
       - name: Build aab
         if: steps.release.outputs.release == 'true'
-        uses: gradle/gradle-build-action@v3
-        with:
-          arguments: bundlePlayRelease --scan
+        run: ./gradlew bundlePlayRelease --scan
         env:
           PASSWORD: "${{ secrets.PASSWORD }}"
           GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
