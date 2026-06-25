@@ -6,11 +6,11 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.appcompat.app.AppCompatActivity
+import androidx.activity.OnBackPressedCallback
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Divider
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -115,6 +115,16 @@ class SetupActivity : AppCompatActivity() {
         if (isGrantPermission) {
             viewPager.setCurrentItem(adapter.itemCount - 1, false)
         }
+
+        onBackPressedDispatcher.addCallback(
+            this,
+            object : OnBackPressedCallback(!isGrantPermission) {
+                override fun handleOnBackPressed() {
+                    isEnabled = false
+                    onBackPressedDispatcher.onBackPressed()
+                }
+            }
+        )
 
         setup = binding.setup
         setup.navigationBar.backButton.visibility = View.GONE
@@ -321,7 +331,7 @@ class SetupActivity : AppCompatActivity() {
                     Text(text = if (pass == true) "已授权" else "授权")
                 }
                 Spacer(modifier = Modifier.height(16.dp))
-                Divider()
+                HorizontalDivider()
                 Spacer(modifier = Modifier.height(16.dp))
             }
         }
@@ -331,14 +341,6 @@ class SetupActivity : AppCompatActivity() {
             super.onResume()
             view?.requestLayout()
             (requireActivity() as SetupActivity).setNextButtonEnabled(manager.ok())
-        }
-    }
-
-    @Suppress("DEPRECATION")
-    @Deprecated("Deprecated in Java")
-    override fun onBackPressed() {
-        if (!isGrantPermission) {
-            super.onBackPressed()
         }
     }
 

@@ -50,7 +50,7 @@ class PermissionManager(val activity: Activity) {
                     ContextCompat.checkSelfPermission(
                         context,
                         Manifest.permission.POST_NOTIFICATIONS
-                    ) != PackageManager.PERMISSION_GRANTED
+                    ) == PackageManager.PERMISSION_GRANTED
                 }
             }
 

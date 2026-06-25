@@ -139,7 +139,7 @@ class WebSocketSessionManager(service: ReceiverService) :
     }
 
     private fun diagnose(msg: String = "") {
-        Log.d(tag, "current thread ${Thread.currentThread().id}")
+        Log.d(tag, "current thread ${Thread.currentThread().name}")
         if (msg.isNotEmpty()) {
             Log.d(tag, msg)
         }

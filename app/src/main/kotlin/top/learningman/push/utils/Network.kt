@@ -4,6 +4,7 @@ import android.util.Log
 import dev.zxilly.notify.sdk.Client
 import dev.zxilly.notify.sdk.entity.Channel
 import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import top.learningman.push.Constant
 import top.learningman.push.entity.Message
 
@@ -11,12 +12,7 @@ object Network {
     private var client: Client? = null
     private val clientMutex = Mutex()
 
-    private suspend fun <T> sync(block: suspend () -> T): T {
-        clientMutex.lock()
-        val ret = block()
-        clientMutex.unlock()
-        return ret
-    }
+    private suspend fun <T> sync(block: suspend () -> T): T = clientMutex.withLock { block() }
 
     suspend fun updateClient(userID: String) = sync {
         client = Client.create(userID, Constant.API_ENDPOINT)

@@ -6,6 +6,7 @@ import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.GoogleApiAvailabilityLight
 import com.google.firebase.Firebase
+import com.google.firebase.installations.FirebaseInstallations
 import com.google.firebase.messaging.FirebaseMessaging
 import com.google.firebase.messaging.messaging
 import kotlinx.coroutines.CoroutineScope
@@ -37,25 +38,48 @@ object FCM : Channel {
     }
 
     override fun setUserCallback(context: Context, userID: String, scope: CoroutineScope) {
-        val deviceID = Repo.getInstance(context).getDeviceID()
-        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
-            if (task.isSuccessful) {
-                val token = task.result
-                scope.launch {
-                    Network.register(token, NotifyChannel.FCM, deviceID)
-                        .onSuccess {
-                            Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
-                            Log.i("FCM", "FCM 注册成功")
-                        }
-                        .onFailure {
-                            Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
-                            Log.e("Firebase", "FCM 注册失败", it)
-                        }
+        FirebaseMessaging.getInstance().register().addOnCompleteListener { registerTask ->
+            if (!registerTask.isSuccessful) {
+                handleFailure(context, registerTask.exception)
+                return@addOnCompleteListener
+            }
+
+            FirebaseInstallations.getInstance().id.addOnCompleteListener { idTask ->
+                if (idTask.isSuccessful) {
+                    registerInstallation(context, idTask.result, scope, showToast = true)
+                } else {
+                    handleFailure(context, idTask.exception)
                 }
-            } else {
-                Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
-                Log.e("Firebase", "token error: ${task.exception}")
             }
         }
+    }
+
+    internal fun registerInstallation(
+        context: Context,
+        installationId: String,
+        scope: CoroutineScope,
+        showToast: Boolean
+    ) {
+        val deviceID = Repo.getInstance(context).getDeviceID()
+        scope.launch {
+            Network.register(installationId, NotifyChannel.FCM, deviceID)
+                .onSuccess {
+                    if (showToast) {
+                        Toast.makeText(context, "FCM 注册成功", Toast.LENGTH_LONG).show()
+                    }
+                    Log.i("FCM", "FCM 注册成功")
+                }
+                .onFailure {
+                    if (showToast) {
+                        Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
+                    }
+                    Log.e("Firebase", "FCM 注册失败", it)
+                }
+        }
+    }
+
+    private fun handleFailure(context: Context, throwable: Throwable?) {
+        Toast.makeText(context, "FCM 注册失败", Toast.LENGTH_LONG).show()
+        Log.e("Firebase", "FCM registration error", throwable)
     }
 }
