@@ -11,14 +11,7 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Get current time
-        uses: 1466587594/get-current-time@v2
-        id: current-time
-        with:
-          format: YYYYMMDDTHHmmss
-          utcOffset: "+08:00"
-
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - name: Fetch tags
         run: git fetch --prune --unshallow --tags
@@ -37,7 +30,7 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - uses: gradle/actions/setup-gradle@v4
+      - uses: gradle/actions/setup-gradle@v6
 
       - name: Grant execute permission for gradlew
         run: chmod +x gradlew
@@ -56,27 +49,32 @@ jobs:
           GITHUB_TOKEN: "${{ secrets.GH_TOKEN }}"
 
       - name: PreRelease Package
-        uses: marvinpinto/action-automatic-releases@latest
         if: steps.release.outputs.release == 'false'
-        with:
-          repo_token: "${{ secrets.GH_TOKEN }}"
-          automatic_release_tag: "nightly"
-          prerelease: true
-          files: |
-            app/build/outputs/apk/github/release/*
-            app/build/outputs/apk/free/release/app-free-release.apk
+        run: |
+          gh release delete nightly --cleanup-tag --yes || true
+          gh release create nightly \
+            app/build/outputs/apk/github/release/* \
+            app/build/outputs/apk/free/release/app-free-release.apk \
+            --target "$GITHUB_SHA" \
+            --title "nightly" \
+            --notes "Nightly build" \
+            --prerelease \
+            --latest=false
+        env:
+          GH_TOKEN: "${{ secrets.GH_TOKEN }}"
 
       - name: Release Package
-        uses: marvinpinto/action-automatic-releases@latest
         if: steps.release.outputs.release == 'true'
-        with:
-          repo_token: "${{ secrets.GH_TOKEN }}"
-          automatic_release_tag: "${{ steps.release.outputs.version }}"
-          prerelease: false
-          files: |
-            app/build/outputs/apk/github/release/*
-            app/build/outputs/apk/free/release/app-free-release.apk
-            app/build/outputs/bundle/playRelease/app-play-release.aab
+        run: |
+          gh release create "${{ steps.release.outputs.version }}" \
+            app/build/outputs/apk/github/release/* \
+            app/build/outputs/apk/free/release/app-free-release.apk \
+            app/build/outputs/bundle/playRelease/app-play-release.aab \
+            --target "$GITHUB_SHA" \
+            --title "${{ steps.release.outputs.version }}" \
+            --notes "Release ${{ steps.release.outputs.version }}"
+        env:
+          GH_TOKEN: "${{ secrets.GH_TOKEN }}"
 
       - name: Create whatsNew
         if: steps.release.outputs.release == 'true'
@@ -86,7 +84,7 @@ jobs:
           VERSION: ${{ steps.release.outputs.version }}
 
       - name: Upload Android Release to Play Store
-        uses: r0adkll/upload-google-play@v1.1.3
+        uses: r0adkll/upload-google-play@v1.1.5
         if: steps.release.outputs.release == 'true'
         with:
           releaseFiles: app/build/outputs/bundle/playRelease/app-play-release.aab
