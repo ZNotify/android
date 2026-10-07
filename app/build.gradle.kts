@@ -156,7 +156,7 @@ dependencies {
     implementation("androidx.core:core-splashscreen:1.2.0")
     implementation("androidx.appcompat:appcompat:1.7.1")
 
-    implementation(platform("androidx.compose:compose-bom:2026.06.00"))
+    implementation(platform("androidx.compose:compose-bom:2026.06.01"))
     implementation("androidx.activity:activity-compose:1.13.0")
     implementation("androidx.compose.material3:material3")
     implementation("androidx.compose.material3:material3-window-size-class")
@@ -199,7 +199,7 @@ dependencies {
 
     implementation("com.github.code-mc:material-icon-lib:1.1.5")
 
-    val ktorVersion = "3.5.0"
+    val ktorVersion = "3.5.1"
     implementation("io.ktor:ktor-client-core:$ktorVersion")
     implementation("io.ktor:ktor-client-websockets:$ktorVersion")
     implementation("io.ktor:ktor-client-okhttp:$ktorVersion")
@@ -213,7 +213,7 @@ dependencies {
     implementation("io.noties.markwon:image:${markwonVersion}")
 
     implementation("com.github.Zxilly:SetupWizardLib:e18ce88c39e3bfb851e1c8713218dc2896404d27")
-    implementation("com.github.XomaDev:MIUI-autostart:master-SNAPSHOT")
+    implementation("com.github.XomaDev:MIUI-autostart:1.3")
 
     val upgraderVersion = "0.4.0"
     add("githubImplementation", "dev.zxilly.lib:upgrader:$upgraderVersion")
