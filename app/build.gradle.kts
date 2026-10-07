@@ -212,7 +212,7 @@ dependencies {
     implementation("io.noties.markwon:html:${markwonVersion}")
     implementation("io.noties.markwon:image:${markwonVersion}")
 
-    implementation("com.github.Zxilly:SetupWizardLib:master-SNAPSHOT")
+    implementation("com.github.Zxilly:SetupWizardLib:e18ce88c39e3bfb851e1c8713218dc2896404d27")
     implementation("com.github.XomaDev:MIUI-autostart:1.3")
 
     val upgraderVersion = "0.4.0"
