@@ -186,7 +186,7 @@ dependencies {
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion")
     implementation("androidx.lifecycle:lifecycle-livedata-ktx:$lifecycleVersion")
 
-    implementation("androidx.fragment:fragment-ktx:1.8.9")
+    implementation("androidx.fragment:fragment-ktx:1.9.1")
     implementation("androidx.activity:activity-ktx:1.13.0")
     implementation("androidx.preference:preference-ktx:1.2.1")
 
