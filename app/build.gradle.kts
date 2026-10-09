@@ -176,8 +176,8 @@ dependencies {
     add("playImplementation", "com.google.android.play:app-update-ktx:2.1.0")
 
     implementation("androidx.constraintlayout:constraintlayout:2.2.1")
-    implementation("androidx.navigation:navigation-fragment-ktx:2.9.8")
-    implementation("androidx.navigation:navigation-ui-ktx:2.9.8")
+    implementation("androidx.navigation:navigation-fragment-ktx:2.10.2")
+    implementation("androidx.navigation:navigation-ui-ktx:2.10.2")
 
     val lifecycleVersion = "2.11.0"
     implementation("androidx.lifecycle:lifecycle-common-java8:$lifecycleVersion")
