@@ -170,7 +170,7 @@ dependencies {
     implementation(platform("com.google.firebase:firebase-bom:34.15.0"))
     implementation("com.google.firebase:firebase-installations")
     implementation("com.google.firebase:firebase-messaging")
-    implementation("com.google.android.gms:play-services-base:18.10.0")
+    implementation("com.google.android.gms:play-services-base:18.11.0")
 
     add("playImplementation", "com.google.android.play:app-update:2.1.0")
     add("playImplementation", "com.google.android.play:app-update-ktx:2.1.0")
